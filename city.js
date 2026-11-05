@@ -1,6 +1,6 @@
 // AI SHAHAR 2036 — robot megapolis. 1 follower = 1 robot + 1 house.
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { MapControls } from 'three/addons/controls/MapControls.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
@@ -27,7 +27,7 @@ const I18N = {
   uz: { pop: 'aholi', tag: '1 obunachi = 1 robot', random: '🎲 Tasodifiy robot', tour: '✦ Kino rejimi', find: 'Top', map: 'XARITA',
     ph: 'Instagram nikneymingni yoz...', hint: 'Nikneymingni yoz va robotingni top', loader: "SHAHAR UYG'ONMOQDA...",
     home: 'Uyi', homeV: '{b}-mavze, {l}-uy', num: 'Aholi raqami', height: "Bo'yi", status: 'Hozir', type: 'Turi', boy: "O'g'il robot", girl: 'Qiz robot',
-    near: 'Yaqinlashish', goHome: 'Uyiga', tourBtn: 'Kino rejimi', story: 'Storisga joylash', storyLive: 'Men AI SHAHAR 2036 da yashayman 🤖', storyFind: 'Sen ham robotingni top 👇', dl: 'Rasmni yuklab olish', share: 'Ulashish', copy: 'Havolani nusxalash', copied: 'Havola nusxalandi ✅', storyHint: "Rasmni storisga qo'ying, keyin «Havola» (Link) stikerini qo'shib, nusxalangan havolani joylang. Do'stlaring bosib, o'z robotini topadi.", making: 'Rasm tayyorlanmoqda...', tapHint: 'Robot yoki uy ustiga bosing',
+    near: 'Yaqinlashish', goHome: 'Uyiga', tourBtn: 'Kino rejimi', story: 'Storisga joylash', storyLive: 'Men AI SHAHAR 2036 da yashayman 🤖', storyFind: 'Sen ham robotingni top 👇', dl: 'Rasmni yuklab olish', share: 'Ulashish', copy: 'Havolani nusxalash', copied: 'Havola nusxalandi ✅', storyHint: "Rasmni storisga qo'ying, keyin «Havola» (Link) stikerini qo'shib, nusxalangan havolani joylang. Do'stlaring bosib, o'z robotini topadi.", making: 'Rasm tayyorlanmoqda...', tapHint: "Robot, uy yoki mashina ustiga bosing · sichqoncha bilan torting — shahar bo'ylab yuring · o'ng tugma — aylantiring · W A S D",
     newText: "Bu sening robotingning ko'rinishi 👆 U nikneymingdan yaratildi, boshqa hech kimda bunday robot yo'q.<br><br>Hozircha u shaharda yashamaydi. Tugmani bos — robot shaharga tushadi va unga uy quriladi.",
     claim: "Robotimni shaharga qo'y", toastNew: 'Roboting shaharga tushdi va uy oldi! 🤖🏠', typeNick: 'Nikneymingni yoz', full: "Shahar to'ldi, yangilanishni kuting",
     ownerRole: 'Shahar asoschisi', ownerAddr: 'Markaziy maydon', ownerH: "Shaharning eng katta roboti", randomRes: 'Tasodifiy aholi',
@@ -40,7 +40,7 @@ const I18N = {
   ru: { pop: 'жителей', tag: '1 подписчик = 1 робот', random: '🎲 Случайный робот', tour: '✦ Режим кино', find: 'Найти', map: 'КАРТА',
     ph: 'Введи свой ник в Instagram...', hint: 'Введи ник и найди своего робота', loader: 'ГОРОД ПРОСЫПАЕТСЯ...',
     home: 'Дом', homeV: 'квартал {b}, дом {l}', num: 'Номер жителя', height: 'Рост', status: 'Сейчас', type: 'Тип', boy: 'Робот-парень', girl: 'Робот-девушка',
-    near: 'Приблизить', goHome: 'К дому', tourBtn: 'Режим кино', story: 'В сторис', storyLive: 'Я живу в AI SHAHAR 2036 🤖', storyFind: 'Найди своего робота 👇', dl: 'Скачать картинку', share: 'Поделиться', copy: 'Копировать ссылку', copied: 'Ссылка скопирована ✅', storyHint: 'Поставь картинку в сторис, добавь стикер «Ссылка» и вставь скопированную ссылку. Друзья нажмут и найдут своего робота.', making: 'Готовим картинку...', tapHint: 'Нажми на робота или дом',
+    near: 'Приблизить', goHome: 'К дому', tourBtn: 'Режим кино', story: 'В сторис', storyLive: 'Я живу в AI SHAHAR 2036 🤖', storyFind: 'Найди своего робота 👇', dl: 'Скачать картинку', share: 'Поделиться', copy: 'Копировать ссылку', copied: 'Ссылка скопирована ✅', storyHint: 'Поставь картинку в сторис, добавь стикер «Ссылка» и вставь скопированную ссылку. Друзья нажмут и найдут своего робота.', making: 'Готовим картинку...', tapHint: 'Нажми на робота, дом или машину · тяни мышью — двигайся по городу · правая кнопка — поворот · W A S D',
     newText: 'Так выглядит твой робот 👆 Он создан из твоего ника — ни у кого больше такого нет.<br><br>Пока он не живёт в городе. Нажми кнопку — робот появится и получит свой дом.',
     claim: 'Поселить моего робота', toastNew: 'Твой робот в городе и получил дом! 🤖🏠', typeNick: 'Введи свой ник', full: 'Город заполнен, ждите обновления',
     ownerRole: 'Основатель города', ownerAddr: 'Центральная площадь', ownerH: 'Самый большой робот города', randomRes: 'Случайный житель',
@@ -53,7 +53,7 @@ const I18N = {
   en: { pop: 'residents', tag: '1 follower = 1 robot', random: '🎲 Random robot', tour: '✦ Cinema mode', find: 'Find', map: 'MAP',
     ph: 'Type your Instagram username...', hint: 'Type your username and find your robot', loader: 'THE CITY IS WAKING UP...',
     home: 'Home', homeV: 'block {b}, house {l}', num: 'Resident no.', height: 'Height', status: 'Now', type: 'Type', boy: 'Boy robot', girl: 'Girl robot',
-    near: 'Zoom in', goHome: 'Go home', tourBtn: 'Cinema mode', story: 'Share to story', storyLive: 'I live in AI SHAHAR 2036 🤖', storyFind: 'Find your robot 👇', dl: 'Download image', share: 'Share', copy: 'Copy link', copied: 'Link copied ✅', storyHint: 'Post the image to your story, add the «Link» sticker and paste the copied link. Friends tap it and find their own robot.', making: 'Making the image...', tapHint: 'Tap a robot or a house',
+    near: 'Zoom in', goHome: 'Go home', tourBtn: 'Cinema mode', story: 'Share to story', storyLive: 'I live in AI SHAHAR 2036 🤖', storyFind: 'Find your robot 👇', dl: 'Download image', share: 'Share', copy: 'Copy link', copied: 'Link copied ✅', storyHint: 'Post the image to your story, add the «Link» sticker and paste the copied link. Friends tap it and find their own robot.', making: 'Making the image...', tapHint: 'Tap a robot, house or car · drag to move around · right-drag to rotate · W A S D',
     newText: "This is what your robot looks like 👆 It was generated from your username — nobody else has this one.<br><br>It doesn't live in the city yet. Tap the button and it moves in and gets its own house.",
     claim: 'Move my robot in', toastNew: 'Your robot moved in and got a house! 🤖🏠', typeNick: 'Type your username', full: 'The city is full, wait for the next update',
     ownerRole: 'City founder', ownerAddr: 'Central square', ownerH: 'The biggest robot in town', randomRes: 'Random resident',
@@ -195,7 +195,8 @@ if (SHADOWS) { renderer.shadowMap.enabled = true; renderer.shadowMap.type = THRE
 const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0xcfe0ee, 260, 1300);
 const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.5, 6000);
-const controls = new OrbitControls(camera, renderer.domElement);
+const controls = new MapControls(camera, renderer.domElement);
+controls.screenSpacePanning = false; controls.zoomToCursor = true; controls.panSpeed = 1.2; controls.rotateSpeed = 0.6;
 controls.enableDamping = true; controls.dampingFactor = 0.08; controls.maxPolarAngle = Math.PI * 0.48; controls.minDistance = 6; controls.maxDistance = 1600;
 const skyCanvas = document.createElement('canvas'); skyCanvas.width = 4; skyCanvas.height = 256;
 const skyTex = new THREE.CanvasTexture(skyCanvas); skyTex.colorSpace = THREE.SRGBColorSpace; scene.background = skyTex;
@@ -388,11 +389,37 @@ function buildAmenity(b) {
   blockLamps(b);
 }
 const houseIdx = []; // resident index -> house instance info
+const MINI = ['cafe', 'park', 'sports', 'fitness', 'pool', 'restaurant', 'billiard', 'park', 'cafe', 'sports'];
 function buildResidentialBlock(b, bi) {
-  slab(b, snowy('#7aa85a'));
-  box(b.cx, 0.36, b.cz, LOT - 3, 0.05, LOT - 3, snowy('#86b866')); // shared garden in the middle
-  const r = rng(500 + bi); tree(b.cx - 2, b.cz - 2, 0.6, r); tree(b.cx + 3, b.cz + 2, 0.5, r); B.cyl.add(b.cx, 0.36, b.cz, 2.5, 0.4, 2.5, '#d6c9a8');
-  blockLamps(b);
+  slab(b, snowy('#7aa85a')); blockLamps(b);
+  // the middle lot of every block is a small neighbourhood place, so leisure is spread over the whole city
+  const t = MINI[(bi * 7 + (b.bx & 3)) % MINI.length], cx = b.cx, cz = b.cz, r = rng(500 + bi), ry = faceToCentre(cx, cz), A = LOT - 2;
+  const sign = (key, y = 3.2, bg = '#0b1020', fg = '#39ff88') => { const [fx, fz] = dirOf(ry); addSign(key, cx + fx * (A / 2 - 0.4), y, cz + fz * (A / 2 - 0.4), 5.2, ry, bg, fg); };
+  if (t === 'cafe' || t === 'restaurant') {
+    box(cx, 0.32, cz, A, 0.06, A, '#d9cbb2'); const [fx, fz] = dirOf(ry), kx = cx - fx * 3.4, kz = cz - fz * 3.4;
+    box(kx, 0.36, kz, Math.abs(fx) ? 3.4 : 6, 3, Math.abs(fx) ? 6 : 3.4, t === 'cafe' ? '#c98b5b' : '#7a3e2b'); box(kx + fx * 1.9, 2.6, kz + fz * 1.9, Math.abs(fx) ? 1.2 : 6.4, 0.25, Math.abs(fx) ? 6.4 : 1.2, pick(r, ['#e74c3c', '#2ecc71', '#f39c12', '#16a085']));
+    for (const o of [-2.6, 0, 2.6]) { const tx = cx + fx * 2 + (Math.abs(fx) ? 0 : o), tz = cz + fz * 2 + (Math.abs(fx) ? o : 0); B.cyl.add(tx, 0.36, tz, 1.2, 0.8, 1.2, '#f2efe8'); B.cyl.add(tx, 0.36, tz, 0.1, 2.6, 0.1, '#666'); B.cone.add(tx, 2.6, tz, 2.8, 0.8, 2.8, pick(r, ['#e74c3c', '#ffffff', '#ffd166'])); spot(t, tx + 1.1, tz, -Math.PI / 2); spot(t, tx - 1.1, tz, Math.PI / 2); }
+    sign(t);
+  } else if (t === 'park') {
+    box(cx, 0.32, cz, A, 0.06, A, snowy('#86b866')); box(cx + 2.5, 0.36, cz - 2.5, 4.5, 0.12, 4.5, '#e8d39a'); // sandbox
+    box(cx - 2.5, 0.36, cz + 1, 0.2, 2.6, 0.2, '#e74c3c'); box(cx - 2.5, 2.6, cz + 1, 0.4, 0.4, 2.8, '#3498db', 0, 0.6); box(cx - 3.2, 0.36, cz - 2, 0.15, 2.4, 0.15, '#f1c40f'); box(cx - 1.4, 0.36, cz - 2, 0.15, 2.4, 0.15, '#f1c40f'); box(cx - 2.3, 2.6, cz - 2, 2.2, 0.15, 0.15, '#f1c40f'); // slide + swing
+    tree(cx + 3.5, cz + 3.5, 0.55, r); tree(cx - 4, cz + 4.2, 0.45, r); bench(cx + 3, cz + 0.6, Math.PI / 2); spot('park', cx + 2.2, cz + 0.6, -Math.PI / 2); spot('park', cx + 2.4, cz - 2.5, 0);
+  } else if (t === 'sports') {
+    box(cx, 0.32, cz, A, 0.08, A, '#c46b3b'); box(cx, 0.42, cz, A - 1, 0.02, 0.18, '#ffffff'); B.cyl.add(cx, 0.4, cz, 2, 0.02, 2, '#ffffff');
+    for (const sg of [-1, 1]) { B.cyl.add(cx + sg * (A / 2 - 0.6), 0.36, cz, 0.15, 3.4, 0.15, '#777'); box(cx + sg * (A / 2 - 0.9), 3.3, cz, 0.15, 1.1, 1.7, '#ffffff'); }
+    for (let k = 0; k < 4; k++) spot('sports', cx + (r() - 0.5) * 8, cz + (r() - 0.5) * 8, r() * 6.28); sign('sports', 3, '#0b1020', '#ffc94a');
+  } else if (t === 'fitness') {
+    box(cx, 0.32, cz, A, 0.07, A, '#5b6b7a');
+    for (let k = 0; k < 4; k++) { const tx = cx - 4 + k * 2.7, tz = cz - 1.5; box(tx, 0.36, tz, 0.15, 2.4, 0.15, '#555'); box(tx + 1.5, 0.36, tz, 0.15, 2.4, 0.15, '#555'); box(tx + 0.75, 2.6, tz, 1.6, 0.12, 0.12, '#888'); spot('fitness', tx + 0.75, tz + 1.1, Math.PI); }
+    box(cx, 0.36, cz + 3, 4, 0.5, 1, '#ffc94a'); spot('fitness', cx + 1, cz + 3.8, Math.PI); sign('fitness', 3, '#0b1020', '#ffc94a');
+  } else if (t === 'pool') {
+    box(cx, 0.32, cz, A, 0.06, A, '#e8e2d4'); B.water.add(cx, 0.36, cz - 1, 8, 0.12, 5, '#2fb7e6');
+    for (const o of [-3, 0, 3]) { box(cx + o, 0.36, cz + 3.6, 1.1, 0.35, 2.2, '#ffffff'); spot('pool', cx + o, cz + 3.6, Math.PI); } sign('pool', 3, '#0f4c81', '#ffffff');
+  } else { // billiard club
+    box(cx, 0.32, cz, A, 0.06, A, '#b4b9c1'); box(cx, 0.36, cz - 1, 8, 3.6, 6, '#1e2a24'); box(cx, 3.96, cz - 1, 8.4, 0.3, 6.4, '#111');
+    const [fx, fz] = dirOf(ry); for (const o of [-2.5, 2.5]) { const tx = cx + fx * 4 + (Math.abs(fx) ? 0 : o), tz = cz + fz * 4 + (Math.abs(fx) ? o : 0); box(tx, 0.36, tz, 2.4, 0.8, 1.5, '#1f6b3a'); spot('billiard', tx, tz + 1.2, Math.PI); }
+    sign('billiard', 4.6, '#0b0b0b', '#ff4fd8');
+  }
 }
 const HOUSE_TYPES = ['cottage', 'modern', 'villa', 'castle', 'twin'];
 function houseType(name) {
@@ -487,21 +514,46 @@ function updateLights(t) {
   B.glow.mesh.instanceColor.needsUpdate = true;
 }
 
-// ======================= moving cars =======================
+// ======================= moving cars (real-world models) =======================
 const cars = [];
-let carBody, carCab, carLamp, carTail;
+let carBody, carCab, carLamp, carTail, carWheel;
+// body: [W, H, L], cab: [w, h, l, offsetForward], wheel radius, colours, weight
+const CAR_MODELS = [
+  { n: 'Chevrolet Cobalt', b: [1.85, 0.85, 4.5], c: [1.7, 0.72, 2.2, -0.15], wr: 0.36, cols: ['#f2f2f2', '#c0c4c8', '#1c1c1c', '#7a8794', '#8a1c1c'], w: 6 },
+  { n: 'Chevrolet Gentra (Lacetti)', b: [1.85, 0.85, 4.55], c: [1.7, 0.72, 2.3, -0.1], wr: 0.36, cols: ['#f2f2f2', '#c0c4c8', '#1c1c1c', '#2f4f6f'], w: 5 },
+  { n: 'Chevrolet Nexia', b: [1.75, 0.82, 4.3], c: [1.6, 0.7, 2.1, -0.1], wr: 0.34, cols: ['#f2f2f2', '#d8d2c0', '#1c1c1c', '#5a6b3a'], w: 4 },
+  { n: 'Chevrolet Spark', b: [1.65, 0.95, 3.6], c: [1.55, 0.8, 2.0, -0.25], wr: 0.32, cols: ['#f2f2f2', '#e8443a', '#3a7bd5', '#ffc400', '#9acd32'], w: 4 },
+  { n: 'Daewoo Matiz', b: [1.5, 0.95, 3.4], c: [1.42, 0.82, 1.9, -0.2], wr: 0.3, cols: ['#f2f2f2', '#ff6b6b', '#4dd0e1', '#ffd166', '#a78bff'], w: 4 },
+  { n: 'Chevrolet Damas', b: [1.45, 1.75, 3.5], c: [1.47, 0.7, 2.6, -0.3], wr: 0.3, cols: ['#f2f2f2', '#e6e6e6'], w: 3, van: true },
+  { n: 'Chevrolet Malibu', b: [1.9, 0.85, 4.9], c: [1.72, 0.7, 2.5, -0.15], wr: 0.38, cols: ['#1c1c1c', '#f2f2f2', '#2c3e50', '#7a1f1f'], w: 2 },
+  { n: 'Chevrolet Tracker', b: [1.85, 1.15, 4.3], c: [1.7, 0.75, 2.4, -0.3], wr: 0.4, cols: ['#f2f2f2', '#1c1c1c', '#c0392b', '#2c3e50'], w: 2 },
+  { n: 'Mercedes-Benz S-Class', b: [1.95, 0.9, 5.2], c: [1.75, 0.72, 2.7, -0.2], wr: 0.4, cols: ['#0d0d0d', '#1c1c1c', '#c0c4c8'], w: 1.5 },
+  { n: 'Mercedes-Benz G-Class', b: [1.95, 1.35, 4.7], c: [1.85, 0.95, 2.6, -0.45], wr: 0.45, cols: ['#0d0d0d', '#f2f2f2', '#4a5a3a'], w: 1 },
+  { n: 'BMW 5 Series', b: [1.9, 0.85, 4.95], c: [1.72, 0.7, 2.5, -0.2], wr: 0.4, cols: ['#0d0d0d', '#1f3b73', '#f2f2f2', '#7a8794'], w: 1.5 },
+  { n: 'BMW X5', b: [2.0, 1.2, 4.9], c: [1.85, 0.8, 2.8, -0.3], wr: 0.45, cols: ['#0d0d0d', '#f2f2f2', '#2c3e50'], w: 1 },
+  { n: 'Toyota Camry', b: [1.85, 0.85, 4.9], c: [1.7, 0.72, 2.5, -0.15], wr: 0.38, cols: ['#f2f2f2', '#1c1c1c', '#c0c4c8', '#6b1d2e'], w: 1.5 },
+  { n: 'Kia K5', b: [1.86, 0.82, 4.9], c: [1.7, 0.68, 2.6, -0.2], wr: 0.38, cols: ['#f2f2f2', '#1c1c1c', '#7a8794'], w: 1 },
+  { n: 'BYD Song Plus', b: [1.9, 1.15, 4.7], c: [1.75, 0.75, 2.6, -0.25], wr: 0.42, cols: ['#f2f2f2', '#3a5068', '#1c1c1c'], w: 1 },
+  { n: 'Tesla Model 3', b: [1.85, 0.8, 4.7], c: [1.7, 0.7, 2.7, -0.1], wr: 0.38, cols: ['#e8e8e8', '#c0392b', '#1c1c1c', '#1f3b73'], w: 0.8 },
+  { n: 'Porsche 911', b: [1.9, 0.72, 4.5], c: [1.6, 0.55, 1.8, -0.4], wr: 0.38, cols: ['#ffd400', '#c0392b', '#f2f2f2', '#1c1c1c'], w: 0.6 },
+  { n: 'Lamborghini Huracán', b: [2.0, 0.62, 4.5], c: [1.5, 0.5, 1.7, -0.1], wr: 0.36, cols: ['#ff7a00', '#8cff2e', '#ffd400', '#7b2cff'], w: 0.5 },
+  { n: 'Isuzu avtobus', b: [2.5, 2.4, 10.5], c: [2.54, 1.0, 9.6, 0.1], wr: 0.55, cols: ['#ffd400', '#f2f2f2', '#1e88e5', '#2e9d4f'], w: 0, bus: true },
+];
 function buildCars(rings) {
-  const N = MOBILE ? 70 : LITE ? 110 : 170;
-  carBody = new THREE.InstancedMesh(up(new THREE.BoxGeometry(2.1, 1.0, 4.4)), matStd({ roughness: 0.35, metalness: 0.5 }), N);
-  carCab = new THREE.InstancedMesh(up(new THREE.BoxGeometry(1.9, 0.8, 2.3)), matStd({ color: 0x1d2833, roughness: 0.15, metalness: 0.6 }), N);
-  carLamp = new THREE.InstancedMesh(new THREE.BoxGeometry(1.7, 0.25, 0.1), new THREE.MeshBasicMaterial({ color: 0xfff6d8, toneMapped: false }), N);
-  carTail = new THREE.InstancedMesh(new THREE.BoxGeometry(1.7, 0.25, 0.1), new THREE.MeshBasicMaterial({ color: 0xff2020, toneMapped: false }), N);
-  for (const m of [carBody, carCab]) { m.castShadow = SHADOWS; scene.add(m); } scene.add(carLamp, carTail);
-  const r = rng(42), lines = [];
+  const N = MOBILE ? 70 : LITE ? 110 : 170, unit = () => up(new THREE.BoxGeometry(1, 1, 1));
+  carBody = new THREE.InstancedMesh(unit(), matStd({ roughness: 0.3, metalness: 0.55 }), N);
+  carCab = new THREE.InstancedMesh(unit(), matStd({ color: 0x1d2833, roughness: 0.12, metalness: 0.6 }), N);
+  carLamp = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 0.22, 0.1), new THREE.MeshBasicMaterial({ color: 0xfff6d8, toneMapped: false }), N);
+  carTail = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 0.22, 0.1), new THREE.MeshBasicMaterial({ color: 0xff2020, toneMapped: false }), N);
+  carWheel = new THREE.InstancedMesh(new THREE.CylinderGeometry(1, 1, 1, 14).rotateZ(Math.PI / 2), matStd({ color: 0x151515, roughness: 0.8 }), N * 4);
+  for (const m of [carBody, carCab, carWheel]) { m.castShadow = SHADOWS; scene.add(m); } scene.add(carLamp, carTail);
+  const r = rng(42), lines = [], tot = CAR_MODELS.reduce((a, m) => a + m.w, 0);
+  const pickModel = () => { let x = r() * tot; for (const m of CAR_MODELS) { x -= m.w; if (x <= 0) return m; } return CAR_MODELS[0]; };
   for (let k = -rings; k <= rings + 1; k++) lines.push((k - 0.5) * PITCH);
   for (let i = 0; i < N; i++) {
-    const hw = i % 4 === 0;
-    const c = { hw, dir: r() < .5 ? 1 : -1, speed: hw ? 16 + r() * 8 : 9 + r() * 6, v: 0, color: pick(r, CAR_COLORS) };
+    const hw = i % 4 === 0, bus = !hw && i % 23 === 5, m = bus ? CAR_MODELS[CAR_MODELS.length - 1] : pickModel();
+    const sporty = m.n.startsWith('Porsche') || m.n.startsWith('Lambo');
+    const c = { hw, m, dir: r() < .5 ? 1 : -1, speed: bus ? 7 : (hw ? 16 + r() * 8 : 9 + r() * 6) * (sporty ? 1.35 : 1), v: 0, color: pick(r, m.cols), x: 0, z: 0 };
     if (hw) { c.s = r() * 8 * HWY; c.lane = r() < .5 ? 2.8 : 7.6; }
     else { c.axis = r() < .5 ? 0 : 1; c.line = pick(r, lines); c.s = (r() - 0.5) * 2 * cityExtent; }
     carBody.setColorAt(i, COL.set(c.color)); cars.push(c);
@@ -524,7 +576,7 @@ function updateCars(t, dt) {
       // traffic light ahead?
       const st = lightState(c.axis, t);
       if (st !== 'g') { const next = (Math.floor((c.s * c.dir) / PITCH + 0.5) + 0.5) * PITCH; const stop = next - (ROAD / 2 + 3); const dist = stop - c.s * c.dir; if (dist > -0.5 && dist < 7) target = Math.max(0, (dist - 0.5) * 2); }
-      if (n > 0) { const lead = list[n - 1]; const gap = (lead.s - c.s) * c.dir; if (gap > 0 && gap < 9) target = Math.min(target, Math.max(0, (gap - 6) * 2)); }
+      if (n > 0) { const lead = list[n - 1]; const gap = (lead.s - c.s) * c.dir, need = (lead.m.b[2] + c.m.b[2]) / 2 + 1.6; if (gap > 0 && gap < need + 3) target = Math.min(target, Math.max(0, (gap - need) * 2)); }
       c.v += (target - c.v) * Math.min(1, dt * 2.5); c.s += c.v * c.dir * dt;
       if (c.s > cityExtent + 10) c.s = -cityExtent - 10; if (c.s < -cityExtent - 10) c.s = cityExtent + 10;
     });
@@ -534,12 +586,16 @@ function updateCars(t, dt) {
     if (c.hw) { c.s += c.speed * dt; const [hx, hz, side] = hwyPos(c.s * c.dir, c.lane, c.dir); x = hx; z = hz; ry = [Math.PI / 2, 0, -Math.PI / 2, Math.PI][side] + (c.dir < 0 ? Math.PI : 0); }
     else if (c.axis === 0) { x = c.s; z = c.line + (c.dir > 0 ? 2.6 : -2.6); ry = c.dir > 0 ? Math.PI / 2 : -Math.PI / 2; }
     else { z = c.s; x = c.line + (c.dir > 0 ? -2.6 : 2.6); ry = c.dir > 0 ? 0 : Math.PI; }
-    Q.setFromAxisAngle(YAX, ry); M.compose(P.set(x, 0.35, z), Q, S.set(1, 1, 1)); carBody.setMatrixAt(i, M);
-    M.compose(P.set(x, 1.35, z), Q, S.set(1, 1, 1)); carCab.setMatrixAt(i, M);
-    const [dx, dz] = dirOf(ry); M.compose(P.set(x + dx * 2.22, 0.95, z + dz * 2.22), Q, S.set(1, 1, 1)); carLamp.setMatrixAt(i, M);
-    M.compose(P.set(x - dx * 2.22, 0.95, z - dz * 2.22), Q, S.set(1, 1, 1)); carTail.setMatrixAt(i, M);
+    c.x = x; c.z = z; const m = c.m, [W, H, L] = m.b, [cw, ch, cl, co] = m.c, wr = m.wr, y0 = wr * 0.75, [dx, dz] = dirOf(ry), sx = dz, sz = -dx;
+    Q.setFromAxisAngle(YAX, ry); M.compose(P.set(x, y0, z), Q, S.set(W, H, L)); carBody.setMatrixAt(i, M);
+    if (m.bus) M.compose(P.set(x + dx * co, y0 + H * 0.45, z + dz * co), Q, S.set(cw, ch, cl)); else if (m.van) M.compose(P.set(x + dx * co, y0 + H * 0.5, z + dz * co), Q, S.set(cw, ch, cl));
+    else M.compose(P.set(x + dx * co, y0 + H, z + dz * co), Q, S.set(cw, ch, cl)); carCab.setMatrixAt(i, M);
+    M.compose(P.set(x + dx * (L / 2 + 0.02), y0 + H * 0.62, z + dz * (L / 2 + 0.02)), Q, S.set(W * 0.82, 1, 1)); carLamp.setMatrixAt(i, M);
+    M.compose(P.set(x - dx * (L / 2 + 0.02), y0 + H * 0.62, z - dz * (L / 2 + 0.02)), Q, S.set(W * 0.82, 1, 1)); carTail.setMatrixAt(i, M);
+    const ax2 = L / 2 - wr * 1.5; let k = i * 4;
+    for (const fw of [ax2, -ax2]) for (const sd of [W / 2 - 0.12, -(W / 2 - 0.12)]) { M.compose(P.set(x + dx * fw + sx * sd, wr, z + dz * fw + sz * sd), Q, S.set(0.32, wr, wr)); carWheel.setMatrixAt(k++, M); }
   });
-  for (const m of [carBody, carCab, carLamp, carTail]) m.instanceMatrix.needsUpdate = true;
+  for (const m of [carBody, carCab, carLamp, carTail, carWheel]) m.instanceMatrix.needsUpdate = true;
 }
 
 // ======================= robots (GPU-animated, instanced) =======================
@@ -730,7 +786,7 @@ function assignActivity(sp) {
   let act = 'home', p1, p2;
   const speed = 1.1 + r() * 0.5;
   if (roll < 0.32) { act = 'walkHome'; p1 = [h.bc[0], h.bc[1], SIDEWALK, SIDEWALK]; p2 = [r(), speed, 0, 0]; }
-  else if (roll < 0.52) { const types = Object.keys(amenityBlocks); const b = pick(r, amenityBlocks[pick(r, types)]); act = 'walkCity'; p1 = [b.cx, b.cz, SIDEWALK, SIDEWALK]; p2 = [r(), speed, 0, 0]; }
+  else if (roll < 0.52) { const types = Object.keys(amenityBlocks); const b = r() < 0.4 ? pick(r, amenityBlocks[pick(r, types)]) : pick(r, resBlocks.filter((x) => x.ring <= cityRings)); act = 'walkCity'; p1 = [b.cx, b.cz, SIDEWALK, SIDEWALK]; p2 = [r(), speed, 0, 0]; }
   else if (roll < 0.6 && amenityBlocks.stadium) { const b = amenityBlocks.stadium[0]; act = 'jog'; const k = r() * 1.4; p1 = [b.cx, b.cz, 15.6 + k, 10.2 + k * 0.7]; p2 = [r(), 2.6 + r(), 1, 0]; }
   else if (roll < 0.82) { const type = pick(r, ['cafe', 'cafe', 'restaurant', 'park', 'pool', 'fitness', 'billiard', 'sports', 'mall', 'stadium']); const s = amen(type);
     if (s) { act = type === 'stadium' ? 'jog' : type; p1 = [s.x + (r() - 0.5) * 0.6, s.z + (r() - 0.5) * 0.6, 0, 0]; p2 = [r(), 1, 2, s.yaw]; } }
@@ -819,10 +875,11 @@ function applyTheme(k) {
 $('#btnTheme').onclick = () => { themeTarget = themeTarget > 0.5 ? 0 : 1; store.set('aishahar_theme', themeTarget ? 'day' : 'night'); };
 
 // ======================= state + UI =======================
+let follow = false;
 let specs = [], index = new Map(), selected = null, cardState = null, fly = null, tour = null, CAP_RES = 0;
 let HOME_P = new THREE.Vector3(260, 230, 330); const HOME_T = new THREE.Vector3(0, 0, 0);
 function flyTo(pos, target, dur = 1.8) { fly = { t0: performance.now(), dur: dur * 1000, p0: camera.position.clone(), q0: controls.target.clone(), p1: pos.clone(), q1: target.clone() }; }
-function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => el.classList.remove('on'), 2800); }
+function toast(t, ms = 2800) { const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => el.classList.remove('on'), ms); }
 function spec(name, i) {
   const t = traits(name); const sp = { name, i, traits: t, role: hash(name + 'role') % 14, code: 'RX-' + String(hash(name + 'rx') % 9000 + 1000) };
   return sp;
@@ -831,7 +888,7 @@ function viewDir(sp, x, z) { const [cx, cz, , ] = sp.p1, kind = sp.p2[2]; const 
 function select(sp, fresh = false) {
   selected = sp; labelAssignT = -9; const [x, z] = robotPos(sp, UTIME.value); const tg = new THREE.Vector3(x, 2, z);
   const dir = viewDir(sp, x, z).applyAxisAngle(YAX, 0.35);
-  flyTo(tg.clone().add(dir.multiplyScalar(12)).setY(7.5), tg); cardState = { kind: 'res', sp, fresh }; renderCard();
+  follow = true; flyTo(tg.clone().add(dir.multiplyScalar(12)).setY(7.5), tg); cardState = { kind: 'res', sp, fresh }; renderCard();
 }
 function home() { selected = null; cardState = null; labelAssignT = -9; $('#card').classList.remove('on'); flyTo(HOME_P, HOME_T); }
 function renderCard() {
@@ -881,7 +938,7 @@ $('#card').addEventListener('click', (e) => {
   const b = e.target.closest('button'); if (!b) return;
   if (b.classList.contains('x')) return home();
   const a = b.dataset.a;
-  if (a === 'near' && selected) { const [x, z] = robotPos(selected, UTIME.value); const tg = new THREE.Vector3(x, 2.2, z); const d = viewDir(selected, x, z).applyAxisAngle(YAX, 0.5).multiplyScalar(8.5); flyTo(tg.clone().add(d).setY(5.5), tg, 1.2); }
+  if (a === 'near' && selected) { follow = true; const [x, z] = robotPos(selected, UTIME.value); const tg = new THREE.Vector3(x, 2.2, z); const d = viewDir(selected, x, z).applyAxisAngle(YAX, 0.5).multiplyScalar(8.5); flyTo(tg.clone().add(d).setY(5.5), tg, 1.2); }
   if (a === 'house' && selected) { const h = houseIdx[selected.i]; const tg = new THREE.Vector3(h.x, 3, h.z); const [fx, fz] = dirOf(h.face); followOff = false; selected = null; labelAssignT = -9; flyTo(new THREE.Vector3(h.x + fx * 22 + 6, 12, h.z + fz * 22 + 6), tg); }
   if (a === 'tour') startTour();
   if (a === 'story' && cardState?.sp) openStory(cardState.sp);
@@ -935,6 +992,8 @@ function pickAt(cx, cy) {
     const dist = camera.position.distanceTo(PV.set(x, y, z)); const r = Math.max(16, 1.9 * u * ppu(dist)); const d = Math.hypot(cx - sc[0], cy - sc[1]);
     if (d < r) { const score = d / r + dist / 4000; if (score < bestScore) { bestScore = score; best = sp; } } }
   if (best) return select(best);
+  { let bc = null, bd = Infinity; for (const c of cars) { const sc = toScreen(c.x, 1, c.z); if (!sc) continue; const dist = camera.position.distanceTo(PV.set(c.x, 1, c.z)), rr = Math.max(14, c.m.b[2] * 0.5 * ppu(dist)), d = Math.hypot(cx - sc[0], cy - sc[1]); if (d < rr && d < bd) { bd = d; bc = c; } }
+    if (bc) return toast('🚗 ' + bc.m.n); }
   // houses and the owner's giant robot
   NDC.set(((cx - rect.left) / rect.width) * 2 - 1, -((cy - rect.top) / rect.height) * 2 + 1); ray.setFromCamera(NDC, camera);
   const hits = ray.intersectObjects([B.house.mesh, ownerGroup], true);
@@ -1241,14 +1300,14 @@ function frame() {
   if (fly) { const k = Math.min(1, (performance.now() - fly.t0) / fly.dur), e = ease(k); camera.position.lerpVectors(fly.p0, fly.p1, e); controls.target.lerpVectors(fly.q0, fly.q1, e); if (k >= 1) fly = null; }
   if (selected) {
     const [x, z] = robotPos(selected, t); beam.visible = hring.visible = true; beam.position.set(x, 0, z); hring.position.set(x, 0.45, z);
-    if (lastSel === selected && !tour) { const dx = x - prevSel.x, dz = z - prevSel.z; camera.position.x += dx; camera.position.z += dz; controls.target.x += dx; controls.target.z += dz; if (fly) for (const v of [fly.p0, fly.p1, fly.q0, fly.q1]) { v.x += dx; v.z += dz; } }
+    if (lastSel === selected && !tour && follow) { const dx = x - prevSel.x, dz = z - prevSel.z; camera.position.x += dx; camera.position.z += dz; controls.target.x += dx; controls.target.z += dz; if (fly) for (const v of [fly.p0, fly.p1, fly.q0, fly.q1]) { v.x += dx; v.z += dz; } }
     prevSel.set(x, 0, z); lastSel = selected;
   } else { lastSel = null; beam.visible = hring.visible = false; }
   if (tour) { const tt = (performance.now() - tour.t0) / 1000, a = tt * 0.08;
     const around = selected ? (() => { const [x, z] = robotPos(selected, t); return new THREE.Vector3(x, 2, z); })() : new THREE.Vector3(0, 10, 0);
     const r = selected ? 18 : cityExtent * 0.9, y = selected ? 8 + Math.sin(tt * 0.2) * 3 : 90 + Math.sin(tt * 0.15) * 40;
     camera.position.set(around.x + Math.cos(a) * r, y, around.z + Math.sin(a) * r); controls.target.copy(around); }
-  controls.update();
+  moveKeys(dt); controls.update();
   if (SHADOWS) { sun.target.position.copy(controls.target); sun.position.copy(controls.target).addScaledVector(SUN_DIR, 400); const d = THREE.MathUtils.clamp(camera.position.distanceTo(controls.target) * 1.2, 60, 260); const c = sun.shadow.camera; if (Math.abs(c.right - d) > 5) { c.left = -d; c.right = d; c.top = d; c.bottom = -d; c.updateProjectionMatrix(); } }
   updateCars(t, dt); updateLights(t); updateLabels(t); drawMap(t); updateExtras(t, dt);
   ownerGroup.rotation.y = Math.sin(t * 0.2) * 0.5;
@@ -1257,6 +1316,21 @@ function frame() {
   requestAnimationFrame(frame);
 }
 addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); if (composer) composer.setSize(innerWidth, innerHeight); });
+
+// free camera: user drag stops follow-cam; WASD / arrow keys move; stay inside the world
+controls.addEventListener('start', () => { follow = false; fly = null; });
+const KEYS = new Set();
+addEventListener('keydown', (e) => { if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return; const k = e.code; if (/^(Key[WASDQE]|Arrow(Up|Down|Left|Right))$/.test(k)) { KEYS.add(k); follow = false; fly = null; e.preventDefault(); } });
+addEventListener('keyup', (e) => KEYS.delete(e.code)); addEventListener('blur', () => KEYS.clear());
+const KV = new THREE.Vector3(), KF = new THREE.Vector3(), KR = new THREE.Vector3();
+function moveKeys(dt) {
+  if (KEYS.size && !tour) { const sp = Math.max(20, camera.position.distanceTo(controls.target) * 1.1) * dt; camera.getWorldDirection(KF); KF.y = 0; KF.normalize(); KR.crossVectors(KF, YAX).normalize(); KV.set(0, 0, 0);
+    if (KEYS.has('KeyW') || KEYS.has('ArrowUp')) KV.add(KF); if (KEYS.has('KeyS') || KEYS.has('ArrowDown')) KV.sub(KF); if (KEYS.has('KeyD') || KEYS.has('ArrowRight')) KV.add(KR); if (KEYS.has('KeyA') || KEYS.has('ArrowLeft')) KV.sub(KR);
+    if (KV.lengthSq()) { KV.normalize().multiplyScalar(sp); camera.position.add(KV); controls.target.add(KV); }
+    const rot = (KEYS.has('KeyQ') ? 1 : 0) - (KEYS.has('KeyE') ? 1 : 0); if (rot) { const off = camera.position.clone().sub(controls.target).applyAxisAngle(YAX, rot * dt * 1.2); camera.position.copy(controls.target).add(off); } }
+  const lim = HWY + 420, tx = THREE.MathUtils.clamp(controls.target.x, -lim, lim) - controls.target.x, tz = THREE.MathUtils.clamp(controls.target.z, -lim, lim) - controls.target.z;
+  if (tx || tz) { controls.target.x += tx; controls.target.z += tz; camera.position.x += tx; camera.position.z += tz; }
+}
 
 // ======================= boot =======================
 applyLang();
@@ -1294,8 +1368,8 @@ frame();
 if (!LITE) setTimeout(() => { try { const g = renderer.getContext(), px = new Uint8Array(4 * 9); let white = 0;
   for (let k = 0; k < 9; k++) { const p = new Uint8Array(4); renderer.setRenderTarget(null); if (composer) composer.render(); else renderer.render(scene, camera); g.readPixels(Math.floor(g.drawingBufferWidth * (0.2 + 0.3 * (k % 3))), Math.floor(g.drawingBufferHeight * (0.2 + 0.3 * Math.floor(k / 3))), 1, 1, g.RGBA, g.UNSIGNED_BYTE, p); if (p[0] > 245 && p[1] > 245 && p[2] > 245) white++; }
   if (white >= 8) { try { localStorage.setItem('aishahar_lite', '1'); } catch (_) {} location.reload(); } } catch (e) {} }, 6000);
-setTimeout(() => { $('#loader').style.opacity = 0; setTimeout(() => $('#loader').remove(), 700); flyTo(HOME_P, HOME_T, 3.2); animatePop(specs.length + 1); setTimeout(() => { if (!cardState) toast('👆 ' + T('tapHint')); }, 3600); }, 500);
+setTimeout(() => { $('#loader').style.opacity = 0; setTimeout(() => $('#loader').remove(), 700); flyTo(HOME_P, HOME_T, 3.2); animatePop(specs.length + 1); setTimeout(() => { if (!cardState) toast('👆 ' + T('tapHint'), 7000); }, 3600); }, 500);
 const hashNick = clean(decodeURIComponent(location.hash.slice(1) || ''));
 if (hashNick) setTimeout(() => { if (hashNick === OWNER) showOwner(); else if (index.has(hashNick)) select(specs[index.get(hashNick)]); else showNew(hashNick); }, 3800);
 checkGoals(false); initExtrasUI();
-window.__city = { recordReel, GOALS, goalSite, specs, B, RP, robotPos, UTIME, labelPool, scene, camera, controls, THREE, signs, carBody, carCab, carLamp, carTail, ownerGroup, stars, beam };
+window.__city = { cars, recordReel, GOALS, goalSite, specs, B, RP, robotPos, UTIME, labelPool, scene, camera, controls, THREE, signs, carBody, carCab, carLamp, carTail, ownerGroup, stars, beam };
