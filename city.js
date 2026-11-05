@@ -65,18 +65,18 @@ const I18N = {
     roles: ['Content manager', 'Translator', 'Developer', 'Designer', 'Video editor', 'Marketer', 'Scriptwriter', 'Analyst', 'Mentor', 'Sales agent', 'Musician', 'Researcher', 'Assistant', 'Strategist'] },
 };
 const I18N_X = {
-  uz: { soon: 'OBUNACHIDA OCHILADI', goalDone: 'Barcha bosqichlar ochildi 🏆', unlocked: '{x} ochildi! 🎉 Sahifani yangilang', follow: "📸 Instagramda obuna bo'lish",
-    followFirst: "Shaharda yashash uchun avval <b>@{o}</b> ga obuna bo'l, keyin pastdagi tugmani bos.", moved: "shaharga ko'chib keldi", liveNew: "🆕 @{n} hozirgina shaharga ko'chib keldi!",
+  uz: { newText: "Bu sening robotingning ko'rinishi 👆 U nikneymingdan yaratildi, boshqa hech kimda bunday robot yo'q. Hozircha u shaharda yashamaydi.", soon: 'OBUNACHIDA OCHILADI', goalDone: 'Barcha bosqichlar ochildi 🏆', unlocked: '{x} ochildi! 🎉 Sahifani yangilang', follow: "📸 Instagramda obuna bo'lish",
+    followFirst: "Shaharga ko'chib o'tish uchun <b>@{o}</b> ga obuna bo'l. Yangi obunachilar muntazam shaharga ko'chiriladi va robotingga uy quriladi 🏠", moved: "shaharga ko'chib keldi", liveNew: "🆕 @{n} hozirgina shaharga ko'chib keldi!",
     vipTitle: 'Haftaning faollari', vipBadge: 'Haftaning faoli', vipHint: "Eng ko'p izoh qoldirgan obunachilar — robotlariga toj kiygizildi 👑", rec: '🎬 Reel', recording: 'Yozilmoqda...', recDone: 'Video tayyor va yuklab olindi ✅', recNo: "Bu brauzer video yozishni qo'llamaydi",
     goals: { airport: 'Aeroport', metro: 'Metro', beach: "Dengiz bo'yi", f1: 'Formula-1 trassasi' },
     says: { home: ['Uyimda dam olyapman 🏠', "Bugun AI haqida yangi narsa o'rgandim 🤖", 'Qo\'shnilarim juda yaxshi odamlar'], walk: ['Shahar bugun juda chiroyli ✨', 'Sayr — eng yaxshi dam olish 🚶', 'Aeroport qachon ochilarkan? ✈️'], sport: ['Yana bir aylana! 🏃', "Sport — robotning moyi 💪", 'Bugun rekord qo\'yaman 🏆'], food: ['Bu yerda qahva zo\'r ☕', 'Plov qachon tayyor bo\'ladi? 🍛', 'Yangi naushnik olmoqchiman 🎧'], fun: ['Bu zarbani ko\'r! 🎱', 'Daraxtlar ostida o\'ylayapman 🌳', 'Dam olish ham kerak 😌'], all: ['@{o} ning yangi videosini ko\'rdingmi? 👀', "Do'stlarimni ham shaharga chaqiraman 📲"] } },
-  ru: { soon: 'ПОДПИСЧИКОВ — ОТКРЫТИЕ', goalDone: 'Все этапы открыты 🏆', unlocked: '{x} открыт! 🎉 Обнови страницу', follow: '📸 Подписаться в Instagram',
-    followFirst: 'Чтобы жить в городе, сначала подпишись на <b>@{o}</b>, потом нажми кнопку ниже.', moved: 'переехал(а) в город', liveNew: '🆕 @{n} только что переехал(а) в город!',
+  ru: { newText: 'Так выглядит твой робот 👆 Он создан из твоего ника — ни у кого больше такого нет. Пока он не живёт в городе.', soon: 'ПОДПИСЧИКОВ — ОТКРЫТИЕ', goalDone: 'Все этапы открыты 🏆', unlocked: '{x} открыт! 🎉 Обнови страницу', follow: '📸 Подписаться в Instagram',
+    followFirst: 'Чтобы переехать в город, подпишись на <b>@{o}</b>. Новых подписчиков регулярно заселяют в город и строят роботу дом 🏠', moved: 'переехал(а) в город', liveNew: '🆕 @{n} только что переехал(а) в город!',
     vipTitle: 'Активисты недели', vipBadge: 'Активист недели', vipHint: 'Подписчики с самыми активными комментариями — их роботы в коронах 👑', rec: '🎬 Reel', recording: 'Запись...', recDone: 'Видео готово и скачано ✅', recNo: 'Этот браузер не умеет записывать видео',
     goals: { airport: 'Аэропорт', metro: 'Метро', beach: 'Пляж', f1: 'Трасса Формулы-1' },
     says: { home: ['Отдыхаю дома 🏠', 'Сегодня узнал новое про ИИ 🤖', 'У меня классные соседи'], walk: ['Город сегодня очень красивый ✨', 'Прогулка — лучший отдых 🚶', 'Когда откроют аэропорт? ✈️'], sport: ['Ещё один круг! 🏃', 'Спорт — масло для робота 💪', 'Сегодня поставлю рекорд 🏆'], food: ['Здесь отличный кофе ☕', 'Когда будет плов? 🍛', 'Хочу новые наушники 🎧'], fun: ['Смотри, какой удар! 🎱', 'Думаю под деревьями 🌳', 'Отдыхать тоже нужно 😌'], all: ['Видел новое видео @{o}? 👀', 'Позову друзей в город 📲'] } },
-  en: { soon: 'FOLLOWERS TO UNLOCK', goalDone: 'All stages unlocked 🏆', unlocked: '{x} unlocked! 🎉 Reload the page', follow: '📸 Follow on Instagram',
-    followFirst: 'To live in the city, first follow <b>@{o}</b>, then tap the button below.', moved: 'moved into the city', liveNew: '🆕 @{n} just moved into the city!',
+  en: { newText: "This is your robot 👆 It was generated from your username — nobody else has this one. It doesn't live in the city yet.", soon: 'FOLLOWERS TO UNLOCK', goalDone: 'All stages unlocked 🏆', unlocked: '{x} unlocked! 🎉 Reload the page', follow: '📸 Follow on Instagram',
+    followFirst: 'To move into the city, follow <b>@{o}</b>. New followers are moved in regularly and their robot gets a house 🏠', moved: 'moved into the city', liveNew: '🆕 @{n} just moved into the city!',
     vipTitle: 'Top fans of the week', vipBadge: 'Top fan of the week', vipHint: 'Followers with the most comments — their robots wear crowns 👑', rec: '🎬 Reel', recording: 'Recording...', recDone: 'Video ready and downloaded ✅', recNo: "This browser can't record video",
     goals: { airport: 'Airport', metro: 'Metro', beach: 'Beach', f1: 'Formula-1 track' },
     says: { home: ['Chilling at home 🏠', 'Learned something new about AI today 🤖', 'My neighbours are great'], walk: ['The city looks amazing today ✨', 'A walk is the best rest 🚶', 'When does the airport open? ✈️'], sport: ['One more lap! 🏃', 'Sport is oil for robots 💪', 'Going for a record today 🏆'], food: ['Great coffee here ☕', 'When is the plov ready? 🍛', 'I want new headphones 🎧'], fun: ['Check out this shot! 🎱', 'Thinking under the trees 🌳', 'Rest matters too 😌'], all: ['Seen the new video by @{o}? 👀', "I'll invite my friends to the city 📲"] } },
@@ -122,8 +122,8 @@ function demoNames(n) {
   return [...set];
 }
 async function loadResidents() {
-  if (shared.on) { try { const rows = await fetchAll(CFG.residentsTable, 'nickname', 'ord'); if (rows.length) return { list: rows.map((r) => clean(r.nickname)).filter(Boolean), demo: false }; } catch (e) { console.warn('residents', e); } }
   try { const res = await fetch('residents.json', { cache: 'no-cache' }); if (res.ok) { const j = await res.json(); const list = (Array.isArray(j) ? j : j.residents || []).map((s) => clean(String(s))).filter(Boolean); if (list.length) return { list, demo: !!j.demo }; } } catch (e) {}
+  if (shared.on) { try { const rows = await fetchAll(CFG.residentsTable, 'nickname', 'ord'); if (rows.length) return { list: rows.map((r) => clean(r.nickname)).filter(Boolean), demo: false }; } catch (e) { console.warn('residents', e); } }
   return { list: demoNames(300), demo: true };
 }
 let CLAIM_ROWS = [];
@@ -798,7 +798,7 @@ function renderCard() {
       <div class="acts"><button class="pri" data-a="near">${T('near')}</button><button data-a="house">🏠 ${T('goHome')}</button><button class="story" data-a="story">📲 ${T('story')}</button></div>`;
     if (st.fresh) { toast(T('toastNew')); st.fresh = false; }
   } else if (st.kind === 'new') {
-    c.innerHTML = `<button class="x" aria-label="×">×</button><div class="bot">${robotSVG(st.name)}</div><div class="new"><h2>@${esc(st.name)}</h2><p>${T('newText')}</p><p>${T('followFirst').replace('{o}', esc(OWNER))}</p></div><div class="acts"><a class="ig" href="https://instagram.com/${OWNER}" target="_blank" rel="noopener">${T('follow')}</a><button class="pri" data-a="claim">${T('claim')}</button></div>`;
+    c.innerHTML = `<button class="x" aria-label="×">×</button><div class="bot">${robotSVG(st.name)}</div><div class="new"><h2>@${esc(st.name)}</h2><p>${T('newText')}</p><p>${T('followFirst').replace('{o}', esc(OWNER))}</p></div><div class="acts"><a class="ig" href="https://instagram.com/${OWNER}" target="_blank" rel="noopener">${T('follow')}</a></div>`;
   } else if (st.kind === 'vip') {
     const rows = [...VIP.entries()].sort((a, b) => a[1] - b[1]).map(([n, r]) => `<button class="vrow" data-a="pick" data-n="${esc(n)}"><b>${r === 1 ? '🥇' : r === 2 ? '🥈' : r === 3 ? '🥉' : '#' + r}</b> @${esc(n)}</button>`).join('');
     c.innerHTML = `<button class="x" aria-label="×">×</button><h2>🏆 ${T('vipTitle')}</h2><div class="code">${esc(VIP_WEEK)}</div><p class="vh">${T('vipHint')}</p><div class="vlist">${rows}</div>`;
@@ -1088,13 +1088,31 @@ function soundStart() {
   const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
   if (!SND.ctx) { const ctx = new C(); SND.ctx = ctx; const master = ctx.createGain(); master.gain.value = 0; master.connect(ctx.destination); SND.master = master; try { SND.dest = ctx.createMediaStreamDestination(); master.connect(SND.dest); } catch (e) {}
     const len = ctx.sampleRate * 4, buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0); let last = 0; for (let i = 0; i < len; i++) { last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02; d[i] = last * 3.5; }
-    const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true; const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 380; const g = ctx.createGain(); g.gain.value = 0.4; src.connect(lp).connect(g).connect(master); src.start();
-    [196, 246.94, 293.66, 392].forEach((f, i) => { const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.value = f; const og = ctx.createGain(); og.gain.value = 0.02; const lfo = ctx.createOscillator(); lfo.frequency.value = 0.05 + i * 0.03; const lg = ctx.createGain(); lg.gain.value = 0.015; lfo.connect(lg).connect(og.gain); o.connect(og).connect(master); o.start(); lfo.start(); });
+    const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true; const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 380; const g = ctx.createGain(); g.gain.value = 0.3; src.connect(lp).connect(g).connect(master); src.start();
+    startMusic(ctx, master);
     setInterval(() => { if (!SND.on) return; const s = ctx.createBufferSource(); s.buffer = buf; const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 500 + Math.random() * 600; bp.Q.value = 0.8; const gg = ctx.createGain(), now = ctx.currentTime;
       gg.gain.setValueAtTime(0, now); gg.gain.linearRampToValueAtTime(0.3, now + 1.1); gg.gain.linearRampToValueAtTime(0, now + 2.6); s.connect(bp).connect(gg).connect(master); s.start(now, Math.random() * 1.2, 3); }, 3200); }
   SND.ctx.resume(); SND.on = true; SND.master.gain.cancelScheduledValues(SND.ctx.currentTime); SND.master.gain.linearRampToValueAtTime(0.55, SND.ctx.currentTime + 1.2);
 }
 function soundStop() { if (!SND.ctx) return; SND.on = false; SND.master.gain.cancelScheduledValues(SND.ctx.currentTime); SND.master.gain.linearRampToValueAtTime(0, SND.ctx.currentTime + 0.4); }
+
+function startMusic(ctx, master) {
+  // quiet lo-fi chord loop: Dm9 – G13 – Cmaj9 – Am9, soft pad + bass + plucked arpeggio with echo
+  const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
+  const CH = [[38, [53, 57, 60, 64]], [43, [53, 59, 64, 65]], [36, [52, 55, 59, 62]], [45, [55, 60, 64, 67]]];
+  const bus = ctx.createGain(); bus.gain.value = 0.5; const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1800; bus.connect(lp).connect(master);
+  const dl = ctx.createDelay(1); dl.delayTime.value = 0.375; const fb = ctx.createGain(); fb.gain.value = 0.32; const wet = ctx.createGain(); wet.gain.value = 0.35; dl.connect(fb).connect(dl); dl.connect(wet).connect(bus);
+  const note = (m, t, dur, type, vol, toEcho) => { const o = ctx.createOscillator(); o.type = type; o.frequency.value = mtof(m); const g = ctx.createGain(); g.gain.setValueAtTime(0, t);
+    if (type === 'sine' && dur < 1) { g.gain.linearRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); } else { g.gain.linearRampToValueAtTime(vol, t + 0.9); g.gain.setValueAtTime(vol, t + dur - 0.8); g.gain.linearRampToValueAtTime(0, t + dur + 0.6); }
+    o.connect(g).connect(bus); if (toEcho) g.connect(dl); o.start(t); o.stop(t + dur + 0.8); };
+  const BAR = 4.8, STEP = BAR / 8; let next = ctx.currentTime + 0.2, step = 0;
+  const ARP = [0, 1, 2, 3, 2, 1, 3, 0];
+  setInterval(() => { if (!SND.on) { next = ctx.currentTime + 0.2; return; }
+    while (next < ctx.currentTime + 0.6) { const ci = Math.floor(step / 8) % CH.length, [bass, tones] = CH[ci], s = step % 8;
+      if (s === 0) { for (const m of tones) note(m, next, BAR, 'triangle', 0.035, false); note(bass, next, BAR * 0.9, 'sine', 0.09, false); }
+      if (Math.random() < 0.7) note(tones[ARP[s]] + 12, next, 0.55, 'sine', 0.045, true);
+      next += STEP; step++; } }, 100);
+}
 
 // ======================= Reel recorder (admin) =======================
 async function recordReel(secs = 15) {
@@ -1125,10 +1143,7 @@ function initExtrasUI() {
   let ti = 0; const tk = $('#ticker'); const tick = () => { if (!recent.length) return; const n = recent[ti++ % Math.min(recent.length, 12)]; tk.innerHTML = `🆕 <b>@${esc(n)}</b> ${T('moved')}`; tk.classList.remove('in'); void tk.offsetWidth; tk.classList.add('in'); };
   tick(); setInterval(tick, 4500);
   tk.onclick = () => { const n = recent[(ti - 1) % Math.min(recent.length, 12)]; if (n && index.has(n)) select(specs[index.get(n)]); };
-  // poll Supabase for followers who moved in while the page is open
-  let lastTs = CLAIM_ROWS.length ? CLAIM_ROWS[CLAIM_ROWS.length - 1].created_at : new Date(Date.now() - 60000).toISOString();
-  if (shared.on) setInterval(async () => { try { const c = await sb(); if (!c || document.hidden) return; const { data } = await c.from(CFG.table).select('nickname,created_at').gt('created_at', lastTs).order('created_at', { ascending: true }).limit(50);
-    for (const r of data || []) { lastTs = r.created_at; const n = clean(r.nickname); if (n && !index.has(n) && n !== OWNER && specs.length < CAP_RES) { addLive(n); toast(T('liveNew').replace('{n}', n)); } } } catch (e) {} }, 45000);
+
 }
 
 // ======================= minimap =======================
@@ -1196,7 +1211,7 @@ addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; cam
 
 // ======================= boot =======================
 applyLang();
-const [{ list }, claims, ovr] = await Promise.all([loadResidents(), loadClaims(), loadOverrides(), loadVip()]);
+const [{ list }, ovr] = await Promise.all([loadResidents(), loadOverrides(), loadVip()]); const claims = [];
 for (const [k, v] of ovr) overrides.set(k, v);
 const names = []; { const seen = new Set([OWNER]); for (const n of [...list, ...claims.map((s) => clean(String(s)))]) if (n && !seen.has(n)) { seen.add(n); names.push(n); } }
 // size the city: residential rings needed for all residents + room to grow
@@ -1208,7 +1223,7 @@ resBlocks.forEach((b, bi) => { if (b.ring <= rings) buildResidentialBlock(b, bi)
 // free-lot signs on the outermost residential blocks that are still empty
 buildTrafficLights(rings); buildCars(rings);
 POP = names.length + 1; buildGoals(); buildSeason();
-recent = [...CLAIM_ROWS.map((r) => clean(r.nickname)).reverse(), ...list.slice(0, 10)].filter((n, i, a) => n && a.indexOf(n) === i).slice(0, 12);
+recent = list.slice(-12).reverse();
 { const need = {}, maxPer = {}; const cnt = (n) => { const c = {}; robotParts(traits(n), (k) => { c[k] = (c[k] || 0) + 1; }); return c; };
   for (const n of names) for (const [k, v] of Object.entries(cnt(n))) { need[k] = (need[k] || 0) + v; maxPer[k] = Math.max(maxPer[k] || 0, v); }
   makeRobotMeshes((k) => (need[k] || 0) + (maxPer[k] || 4) * 120 + 8); }
