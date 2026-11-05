@@ -12,7 +12,7 @@ const __errs = [];
 function showErr(msg) { __errs.push(String(msg).slice(0, 400)); let el = document.getElementById('errbox'); if (!el) { el = document.createElement('pre'); el.id = 'errbox'; el.style.cssText = 'position:fixed;left:8px;right:8px;bottom:90px;z-index:99;max-height:40vh;overflow:auto;background:#300;color:#fdd;font:12px monospace;padding:10px;border-radius:8px;white-space:pre-wrap'; document.body.appendChild(el); } el.textContent = 'XATO / ERROR:\n' + __errs.join('\n---\n'); }
 addEventListener('error', (e) => showErr((e.message || '') + ' @' + (e.filename || '').split('/').pop() + ':' + e.lineno));
 addEventListener('unhandledrejection', (e) => showErr('promise: ' + (e.reason && (e.reason.stack || e.reason.message) || e.reason)));
-const CFG = Object.assign({ owner: 'otabeknazirov.aii', supabaseUrl: '', supabaseAnonKey: '', table: 'residents_claims', residentsTable: 'residents', overridesTable: 'robot_overrides', timezone: 'Asia/Tashkent', siteUrl: 'https://ai-shahar-city.vercel.app' }, window.AISHAHAR_CONFIG || {});
+const CFG = Object.assign({ owner: 'otabeknazirov.aii', supabaseUrl: '', supabaseAnonKey: '', table: 'residents_claims', residentsTable: 'residents', overridesTable: 'robot_overrides', timezone: 'Asia/Tashkent', siteUrl: 'https://ai-shahar-city.vercel.app', botUsername: '' }, window.AISHAHAR_CONFIG || {});
 const $ = (s) => document.querySelector(s);
 const MOBILE = matchMedia('(pointer:coarse)').matches || innerWidth < 700;
 const QS = new URLSearchParams(location.search);
@@ -65,17 +65,17 @@ const I18N = {
     roles: ['Content manager', 'Translator', 'Developer', 'Designer', 'Video editor', 'Marketer', 'Scriptwriter', 'Analyst', 'Mentor', 'Sales agent', 'Musician', 'Researcher', 'Assistant', 'Strategist'] },
 };
 const I18N_X = {
-  uz: { newText: "Bu sening robotingning ko'rinishi 👆 U nikneymingdan yaratildi, boshqa hech kimda bunday robot yo'q. Hozircha u shaharda yashamaydi.", soon: 'OBUNACHIDA OCHILADI', goalDone: 'Barcha bosqichlar ochildi 🏆', unlocked: '{x} ochildi! 🎉 Sahifani yangilang', follow: "📸 Instagramda obuna bo'lish",
+  uz: { upgrade: '💎 Uyimni yaxshilash', sponsors: 'Shahar homiylari', sponsorsHint: "Uyini donat orqali yaxshilagan obunachilar ❤️ Rahmat!", level: 'Daraja', tierNames: { 1: 'Kumush villa', 2: 'Oltin qasr', 3: 'Olmos saroy' }, upgradedLive: '💎 @{n} uyini {t}ga aylantirdi!', newText: "Bu sening robotingning ko'rinishi 👆 U nikneymingdan yaratildi, boshqa hech kimda bunday robot yo'q. Hozircha u shaharda yashamaydi.", soon: 'OBUNACHIDA OCHILADI', goalDone: 'Barcha bosqichlar ochildi 🏆', unlocked: '{x} ochildi! 🎉 Sahifani yangilang', follow: "📸 Instagramda obuna bo'lish",
     followFirst: "Shaharga ko'chib o'tish uchun <b>@{o}</b> ga obuna bo'l. Yangi obunachilar muntazam shaharga ko'chiriladi va robotingga uy quriladi 🏠", moved: "shaharga ko'chib keldi", liveNew: "🆕 @{n} hozirgina shaharga ko'chib keldi!",
     vipTitle: 'Haftaning faollari', vipBadge: 'Haftaning faoli', vipHint: "Eng ko'p izoh qoldirgan obunachilar — robotlariga toj kiygizildi 👑", rec: '🎬 Reel', recording: 'Yozilmoqda...', recDone: 'Video tayyor va yuklab olindi ✅', recNo: "Bu brauzer video yozishni qo'llamaydi",
     goals: { airport: 'Aeroport', metro: 'Metro', beach: "Dengiz bo'yi", f1: 'Formula-1 trassasi' },
     says: { home: ['Uyimda dam olyapman 🏠', "Bugun AI haqida yangi narsa o'rgandim 🤖", 'Qo\'shnilarim juda yaxshi odamlar'], walk: ['Shahar bugun juda chiroyli ✨', 'Sayr — eng yaxshi dam olish 🚶', 'Aeroport qachon ochilarkan? ✈️'], sport: ['Yana bir aylana! 🏃', "Sport — robotning moyi 💪", 'Bugun rekord qo\'yaman 🏆'], food: ['Bu yerda qahva zo\'r ☕', 'Plov qachon tayyor bo\'ladi? 🍛', 'Yangi naushnik olmoqchiman 🎧'], fun: ['Bu zarbani ko\'r! 🎱', 'Daraxtlar ostida o\'ylayapman 🌳', 'Dam olish ham kerak 😌'], all: ['@{o} ning yangi videosini ko\'rdingmi? 👀', "Do'stlarimni ham shaharga chaqiraman 📲"] } },
-  ru: { newText: 'Так выглядит твой робот 👆 Он создан из твоего ника — ни у кого больше такого нет. Пока он не живёт в городе.', soon: 'ПОДПИСЧИКОВ — ОТКРЫТИЕ', goalDone: 'Все этапы открыты 🏆', unlocked: '{x} открыт! 🎉 Обнови страницу', follow: '📸 Подписаться в Instagram',
+  ru: { upgrade: '💎 Улучшить дом', sponsors: 'Спонсоры города', sponsorsHint: 'Подписчики, улучшившие дом через донат ❤️ Спасибо!', level: 'Уровень', tierNames: { 1: 'Серебряная вилла', 2: 'Золотой замок', 3: 'Бриллиантовый дворец' }, upgradedLive: '💎 @{n} превратил(а) дом в «{t}»!', newText: 'Так выглядит твой робот 👆 Он создан из твоего ника — ни у кого больше такого нет. Пока он не живёт в городе.', soon: 'ПОДПИСЧИКОВ — ОТКРЫТИЕ', goalDone: 'Все этапы открыты 🏆', unlocked: '{x} открыт! 🎉 Обнови страницу', follow: '📸 Подписаться в Instagram',
     followFirst: 'Чтобы переехать в город, подпишись на <b>@{o}</b>. Новых подписчиков регулярно заселяют в город и строят роботу дом 🏠', moved: 'переехал(а) в город', liveNew: '🆕 @{n} только что переехал(а) в город!',
     vipTitle: 'Активисты недели', vipBadge: 'Активист недели', vipHint: 'Подписчики с самыми активными комментариями — их роботы в коронах 👑', rec: '🎬 Reel', recording: 'Запись...', recDone: 'Видео готово и скачано ✅', recNo: 'Этот браузер не умеет записывать видео',
     goals: { airport: 'Аэропорт', metro: 'Метро', beach: 'Пляж', f1: 'Трасса Формулы-1' },
     says: { home: ['Отдыхаю дома 🏠', 'Сегодня узнал новое про ИИ 🤖', 'У меня классные соседи'], walk: ['Город сегодня очень красивый ✨', 'Прогулка — лучший отдых 🚶', 'Когда откроют аэропорт? ✈️'], sport: ['Ещё один круг! 🏃', 'Спорт — масло для робота 💪', 'Сегодня поставлю рекорд 🏆'], food: ['Здесь отличный кофе ☕', 'Когда будет плов? 🍛', 'Хочу новые наушники 🎧'], fun: ['Смотри, какой удар! 🎱', 'Думаю под деревьями 🌳', 'Отдыхать тоже нужно 😌'], all: ['Видел новое видео @{o}? 👀', 'Позову друзей в город 📲'] } },
-  en: { newText: "This is your robot 👆 It was generated from your username — nobody else has this one. It doesn't live in the city yet.", soon: 'FOLLOWERS TO UNLOCK', goalDone: 'All stages unlocked 🏆', unlocked: '{x} unlocked! 🎉 Reload the page', follow: '📸 Follow on Instagram',
+  en: { upgrade: '💎 Upgrade my house', sponsors: 'City sponsors', sponsorsHint: 'Followers who upgraded their house with a donation ❤️ Thank you!', level: 'Level', tierNames: { 1: 'Silver villa', 2: 'Gold castle', 3: 'Diamond palace' }, upgradedLive: '💎 @{n} turned their house into a {t}!', newText: "This is your robot 👆 It was generated from your username — nobody else has this one. It doesn't live in the city yet.", soon: 'FOLLOWERS TO UNLOCK', goalDone: 'All stages unlocked 🏆', unlocked: '{x} unlocked! 🎉 Reload the page', follow: '📸 Follow on Instagram',
     followFirst: 'To move into the city, follow <b>@{o}</b>. New followers are moved in regularly and their robot gets a house 🏠', moved: 'moved into the city', liveNew: '🆕 @{n} just moved into the city!',
     vipTitle: 'Top fans of the week', vipBadge: 'Top fan of the week', vipHint: 'Followers with the most comments — their robots wear crowns 👑', rec: '🎬 Reel', recording: 'Recording...', recDone: 'Video ready and downloaded ✅', recNo: "This browser can't record video",
     goals: { airport: 'Airport', metro: 'Metro', beach: 'Beach', f1: 'Formula-1 track' },
@@ -223,9 +223,10 @@ const houseEmi = canvasTex(128, 128, (g, w, h) => { g.fillStyle = '#000'; g.fill
 // ======================= static instanced batches =======================
 const M = new THREE.Matrix4(), Q = new THREE.Quaternion(), S = new THREE.Vector3(), P = new THREE.Vector3(), E = new THREE.Euler(), COL = new THREE.Color(), YAX = new THREE.Vector3(0, 1, 0);
 const up = (g) => g.translate(0, 0.5, 0);
+let HLOG = null; const houseParts = [], houseOfInst = [];
 class Batch {
   constructor(geo, mat, cap, { cast = true, recv = true } = {}) { this.mesh = new THREE.InstancedMesh(geo, mat, cap); this.cap = cap; this.n = 0; this.mesh.count = 0; this.mesh.castShadow = SHADOWS && cast; this.mesh.receiveShadow = SHADOWS && recv; scene.add(this.mesh); }
-  add(x, y, z, sx, sy, sz, color, ry = 0, rx = 0, rz = 0) { if (this.n >= this.cap) return -1; const i = this.n++; E.set(rx, ry, rz); Q.setFromEuler(E); M.compose(P.set(x, y, z), Q, S.set(sx, sy, sz)); this.mesh.setMatrixAt(i, M); this.mesh.setColorAt(i, COL.set(color)); return i; }
+  add(x, y, z, sx, sy, sz, color, ry = 0, rx = 0, rz = 0) { if (this.n >= this.cap) return -1; const i = this.n++; if (HLOG) HLOG.push([this, i]); E.set(rx, ry, rz); Q.setFromEuler(E); M.compose(P.set(x, y, z), Q, S.set(sx, sy, sz)); this.mesh.setMatrixAt(i, M); this.mesh.setColorAt(i, COL.set(color)); return i; }
   done() { this.mesh.count = this.n; this.mesh.instanceMatrix.needsUpdate = true; if (this.mesh.instanceColor) this.mesh.instanceColor.needsUpdate = true; this.mesh.computeBoundingSphere(); this.mesh.computeBoundingBox && this.mesh.computeBoundingBox(); }
 }
 const matStd = (o = {}) => new THREE.MeshStandardMaterial(Object.assign({ roughness: 0.85, metalness: 0.05 }, o));
@@ -421,14 +422,18 @@ function buildResidentialBlock(b, bi) {
     sign('billiard', 4.6, '#0b0b0b', '#ff4fd8');
   }
 }
-const HOUSE_TYPES = ['cottage', 'modern', 'villa', 'castle', 'twin'];
+const UPG = new Map(); let UPG_ROWS = [];
+async function loadUpgrades() { if (QS.has('upgdemo')) { const l = await loadResidents(); [3, 2, 1].forEach((t, k) => { const n = l.list[k * 9 + 4]; UPG.set(n, t); UPG_ROWS.push({ nickname: n, tier: t, stars: [0, 100, 250, 500][t], created_at: '' }); }); return; } if (!shared.on) return; try { UPG_ROWS = await fetchAll('upgrades', 'nickname,tier,stars,created_at', 'created_at'); for (const r of UPG_ROWS) { const n = clean(r.nickname); UPG.set(n, Math.max(UPG.get(n) || 0, r.tier)); } } catch (e) { /* table optional until donations are set up */ } }
+const TIER_INFO = { 1: { icon: '🥈', bg: 'rgba(205,214,224,.96)', fg: '#10151c' }, 2: { icon: '🥇', bg: 'rgba(255,196,0,.96)', fg: '#1c1400' }, 3: { icon: '💎', bg: 'rgba(80,215,255,.96)', fg: '#03141c' } };
 function houseType(name) {
+  const tier = UPG.get(name) || 0; if (tier === 3) return 'palace'; if (tier === 2) return 'goldcastle'; if (tier === 1) return 'silvervilla';
   if (VIP.has(name)) return 'castle';
   const v = hash(name + 'htype') % 100;
   return v < 7 ? 'castle' : v < 30 ? 'villa' : v < 55 ? 'modern' : v < 70 ? 'twin' : 'cottage';
 }
 function addHouse(i, name) {
-  const h = houseSlot(i), r = rng(hash(name + 'house')), type = houseType(name);
+  HLOG = []; const h = houseSlot(i), r = rng(hash(name + 'house')); let type = houseType(name); const tierT = type;
+  const gold = type === 'goldcastle', silver = type === 'silvervilla'; if (gold) type = 'castle'; if (silver) type = 'villa';
   const [fx, fz] = dirOf(h.face), ax = Math.abs(fx) > 0.5;
   // lot-local helpers: f = towards the street, s = sideways
   const P2 = (f, s) => [h.x + fx * f + (ax ? 0 : s), h.z + fz * f + (ax ? s : 0)];
@@ -441,12 +446,22 @@ function addHouse(i, name) {
   const roofC = () => snowy(pick(r, ['#8e3b2f', '#5b4636', '#3e4a5a', '#7a2e2e', '#4f5d4a', '#2f3e46']), 0.6);
   const wall = pick(r, ['#f3efe6', '#e9d8c4', '#d8e3ec', '#f5e1c8', '#e6e6e6', '#cfe0d0', '#f0d6d6', '#d9d2e9']);
   bx(4.6, 0, 0.36, 2.2, 0.05, 3.4, '#c9c3b6'); // front path
-  if (type === 'castle') {
-    const stone = pick(r, ['#e6dcc3', '#d8cdb4', '#f1ece0', '#cfc6b0']), roof = pick(r, ['#2d4a8a', '#6b1d2e', '#1f5c3a', '#3a2a5c']);
+  if (type === 'palace') {
+    bx(0, 0, 0.32, LOT - 0.6, 0.06, LOT - 0.6, snowy('#9ccc65')); const G = '#d4af37', W2 = '#f7efdc';
+    bx(-HL, 0, 0.3, 0.3, 1.8, LOT - 0.7, G); bx(0, -HL, 0.3, LOT - 0.7, 1.8, 0.3, G); bx(0, HL, 0.3, LOT - 0.7, 1.8, 0.3, G); bx(HL, -4.3, 0.3, 0.3, 1.8, 5, G); bx(HL, 4.3, 0.3, 0.3, 1.8, 5, G);
+    for (const sg of [-1, 1]) { const [px, pz] = P2(HL, sg * 1.9); B.cyl.add(px, 0.3, pz, 0.6, 3.2, 0.6, G); glow(px, 3.7, pz, 0.6, '#ffd84d', false); }
+    const [hx, hz] = P2(-1.8, 0), [sx, sz] = S2(8.6, 6.4); const hi = B.house.add(hx, 0.36, hz, sx, 8, sz, W2); houseOfInst[hi] = i;
+    bx(-1.8, 0, 8.36, 5.6, 2.6, 4.4, W2); B.sph.add(hx, 11.6, hz, 4.4, 4.4, 4.4, G); B.cyl.add(hx, 13.6, hz, 0.15, 2.6, 0.15, G); glow(hx, 16.4, hz, 0.8, '#ffffff', false);
+    for (const [cf, cs] of [[1.4, -4.3], [1.4, 4.3], [-5, -4.3], [-5, 4.3]]) { const [tx, tz] = P2(cf, cs); B.cyl.add(tx, 0.36, tz, 2.2, 11, 2.2, W2); B.cone.add(tx, 11.36, tz, 2.7, 4, 2.7, G); glow(tx, 15.6, tz, 0.5, '#fff1a8', false); }
+    bx(-1.8 + 3.25, 0, 0.36, 0.25, 4, 2.4, '#5a3a22'); for (const sg of [-1, 1]) bx(-1.8 + 3.3, sg * 1.6, 0.36, 0.5, 4.4, 0.5, G);
+    const [ffx, ffz] = P2(4.4, 3.4); B.cyl.add(ffx, 0.36, ffz, 2.6, 0.6, 2.6, G); B.water.add(ffx, 0.7, ffz, 2.2, 0.15, 2.2, '#7fe3ff'); B.cyl.add(ffx, 0.7, ffz, 0.3, 1.8, 0.3, G); glow(ffx, 2.6, ffz, 0.5, '#7fe3ff', false);
+    const [lx, lz] = P2(4.6, -4.2); tree(lx, lz, 0.45, r); addPalaceBeam(hx, hz);
+  } else if (type === 'castle') {
+    const stone = gold ? '#f3e7c4' : pick(r, ['#e6dcc3', '#d8cdb4', '#f1ece0', '#cfc6b0']), roof = gold ? '#d4af37' : pick(r, ['#2d4a8a', '#6b1d2e', '#1f5c3a', '#3a2a5c']);
     bx(0, 0, 0.32, LOT - 0.6, 0.06, LOT - 0.6, snowy('#8fbf6a')); // lawn
     bx(-HL, 0, 0.3, 0.8, 1.6, LOT - 0.7, '#b9ae95'); bx(0, -HL, 0.3, LOT - 0.7, 1.6, 0.8, '#b9ae95'); bx(0, HL, 0.3, LOT - 0.7, 1.6, 0.8, '#b9ae95');
     bx(HL, -4.2, 0.3, 0.8, 1.6, 5, '#b9ae95'); bx(HL, 4.2, 0.3, 0.8, 1.6, 5, '#b9ae95'); bx(HL, -1.9, 0.3, 0.9, 3.2, 0.9, '#b9ae95'); bx(HL, 1.9, 0.3, 0.9, 3.2, 0.9, '#b9ae95');
-    const [hx, hz] = P2(-1.6, 0), [sx, sz] = S2(7.6, 6.4); B.house.add(hx, 0.36, hz, sx, 7.5, sz, stone); // keep — 1 house instance per resident
+    const [hx, hz] = P2(-1.6, 0), [sx, sz] = S2(7.6, 6.4); houseOfInst[B.house.add(hx, 0.36, hz, sx, 7.5, sz, stone)] = i;
     for (let k = -3; k <= 3; k += 2) { bx(-1.6 + 3.25, k, 7.86, 0.7, 0.8, 0.7, stone); bx(-1.6 - 3.25, k, 7.86, 0.7, 0.8, 0.7, stone); }
     bx(-1.6 + 3.25, 0, 0.36, 0.25, 3.2, 2, '#3b2a1e'); { const [gx, gz] = P2(1.75, -1.4); glow(gx, 3.4, gz, 0.35, '#ffd27a'); const [gx2, gz2] = P2(1.75, 1.4); glow(gx2, 3.4, gz2, 0.35, '#ffd27a'); }
     for (const [cf, cs] of [[1.8, -3.8], [1.8, 3.8], [-5, -3.8], [-5, 3.8]]) { const [tx, tz] = P2(cf, cs); B.cyl.add(tx, 0.36, tz, 2.3, 10, 2.3, stone); B.cone.add(tx, 10.36, tz, 2.9, 3.6, 2.9, snowy(roof, 0.5)); glow(tx, 14.2, tz, 0.4, '#ffd84d', false); }
@@ -454,8 +469,9 @@ function addHouse(i, name) {
     { const [tx, tz] = P2(4.6, -4.4); tree(tx, tz, 0.45, r); }
   } else if (type === 'villa') {
     bx(0, 0, 0.32, LOT - 0.6, 0.06, LOT - 0.6, snowy('#7fb661')); hedge(snowy('#2f6b34', 0.5), 1.3, 3.2);
-    const [hx, hz] = P2(-2.4, -1.2), [sx, sz] = S2(8.6, 6); B.house.add(hx, 0.36, hz, sx, 3.8, sz, wall);
-    { const [rx2, rz2] = P2(-2.4, -1.2), [rsx, rsz] = S2(9.6, 7); B.roof.add(rx2, 4.16, rz2, rsx, 2.4, rsz, roofC()); }
+    const [hx, hz] = P2(-2.4, -1.2), [sx, sz] = S2(8.6, 6); houseOfInst[B.house.add(hx, 0.36, hz, sx, 3.8, sz, silver ? '#f4f6f8' : wall)] = i;
+    { const [rx2, rz2] = P2(-2.4, -1.2), [rsx, rsz] = S2(9.6, 7); B.roof.add(rx2, 4.16, rz2, rsx, 2.4, rsz, silver ? '#c9d1d9' : roofC()); }
+    if (silver) for (const [gf, gs] of [[-HL + 0.2, -4], [-HL + 0.2, 4], [HL - 0.2, -4], [HL - 0.2, 4]]) { const [gx, gz] = P2(gf, gs); glow(gx, 1.8, gz, 0.45, '#e8f1ff', false); }
     bx(-2.4 + 3.05, -1.2, 0.36, 0.2, 2.4, 1.4, '#5a3a22');
     const [px, pz] = P2(2.6, 2.8), [psx, psz] = S2(3.2, 5.2); B.box.add(px, 0.33, pz, psx + 1, 0.1, psz + 1, '#e8e2d4'); B.water.add(px, 0.36, pz, psx, 0.12, psz, '#2fb7e6');
     { const [lx, lz] = P2(2.6, -0.2); box(lx, 0.36, lz, ax ? 1 : 2.2, 0.4, ax ? 2.2 : 1, '#ffffff'); }
@@ -464,7 +480,7 @@ function addHouse(i, name) {
     if (r() < 0.6) { const [cx2, cz2] = P2(3.6, -3.3); parkedCar(cx2, cz2, h.face, r); }
   } else if (type === 'modern') {
     bx(0, 0, 0.32, LOT - 0.6, 0.06, LOT - 0.6, snowy('#8ec26e'));
-    const dark = pick(r, ['#2b2f36', '#3b3f46', '#6b4f3a', '#e9e9e9']), [hx, hz] = P2(-2, 0.8), [sx, sz] = S2(8.4, 6.2); B.house.add(hx, 0.36, hz, sx, 3.4, sz, pick(r, ['#f5f5f5', '#e8e4dc', '#dfe6ec']));
+    const dark = pick(r, ['#2b2f36', '#3b3f46', '#6b4f3a', '#e9e9e9']), [hx, hz] = P2(-2, 0.8), [sx, sz] = S2(8.4, 6.2); houseOfInst[B.house.add(hx, 0.36, hz, sx, 3.4, sz, pick(r, ['#f5f5f5', '#e8e4dc', '#dfe6ec']))] = i;
     bx(-1.2, -1.2, 3.76, 7.4, 3.0, 5.6, dark); bx(-1.2, -1.2, 6.76, 8.2, 0.35, 6.4, '#5b6470'); bx(-1.2, -1.2, 3.76, 7.6, 0.25, 6.6, '#cfd6de');
     bx(1.62, -1.2, 4.3, 0.08, 1.9, 5.2, '#3a5068'); bx(1.1, 0.8, 0.36, 0.08, 2.6, 4.2, '#3a5068');
     bx(1.9, -2.6, 3.76, 1.6, 0.9, 3, '#cfd6de'); // balcony rail
@@ -472,20 +488,21 @@ function addHouse(i, name) {
     for (let k = 0; k < 4; k++) { const [gx, gz] = P2(5.6, 1 + k * 1.4); B.sph.add(gx, 0.8, gz, 1, 0.9, 1, snowy('#3f7d3a', 0.5)); }
   } else if (type === 'twin') {
     hedge('#ffffff', 0.8, 2.6);
-    const [hx, hz] = P2(-1.6, 0), [sx, sz] = S2(10.4, 6.6); B.house.add(hx, 0.36, hz, sx, 6.4, sz, wall);
+    const [hx, hz] = P2(-1.6, 0), [sx, sz] = S2(10.4, 6.6); houseOfInst[B.house.add(hx, 0.36, hz, sx, 6.4, sz, wall)] = i;
     { const [rx2, rz2] = P2(-1.6, 0), [rsx, rsz] = S2(11.2, 7.4); B.roof.add(rx2, 6.76, rz2, rsx, 2.6, rsz, roofC()); }
     for (const sgn of [-1, 1]) { bx(1.75, sgn * 2.6, 0.36, 0.2, 2.4, 1.3, '#5a3a22'); bx(2.6, sgn * 2.6, 3.2, 1.6, 0.2, 2.6, '#7d8793'); }
     { const [tx, tz] = P2(4.6, -4.4); tree(tx, tz, 0.5, r); } { const [tx, tz] = P2(4.6, 4.4); tree(tx, tz, 0.5, r); }
   } else { // cottage
     if (r() < 0.6) hedge(snowy('#3f7d3a', 0.5), 0.9, 2.6);
     const w = 7.6 + r() * 1.6, d = 6.8 + r() * 1.2, floors = 1 + Math.floor(r() * 2), hh = floors * 3.3;
-    const [hx, hz] = P2(-1.2, 0), [sx, sz] = S2(w, d); B.house.add(hx, 0.36, hz, sx, hh, sz, wall);
+    const [hx, hz] = P2(-1.2, 0), [sx, sz] = S2(w, d); houseOfInst[B.house.add(hx, 0.36, hz, sx, hh, sz, wall)] = i;
     { const [rsx, rsz] = S2(w + 1.2, d + 1.2); B.roof.add(hx, 0.36 + hh, hz, rsx, 2.4 + r() * 1.2, rsz, roofC()); }
     bx(-1.2 + d / 2 + 0.05, 0, 0.36, 0.2, 2.4, 1.4, '#5a3a22');
     if (r() < 0.5) { const [cx2, cz2] = P2(4, 3.6); parkedCar(cx2, cz2, h.face, r); } else { const [tx, tz] = P2(3.6, -3.6); tree(tx, tz, 0.5, r); }
     if (r() < 0.5) { const [tx, tz] = P2(-5.6, 4.6); tree(tx, tz, 0.45, r); }
   }
-  houseIdx[i] = { x: h.x, z: h.z, face: h.face, front: [h.x + fx * 5.2, h.z + fz * 5.2], block: h.block, lot: h.lotNo, bc: [h.b.cx, h.b.cz], type };
+  houseIdx[i] = { x: h.x, z: h.z, face: h.face, front: [h.x + fx * 5.2, h.z + fz * 5.2], block: h.block, lot: h.lotNo, bc: [h.b.cx, h.b.cz], type: tierT };
+  houseParts[i] = HLOG; HLOG = null;
 }
 function parkedCar(x, z, ry, r) { const c = pick(r, CAR_COLORS); box(x, 0.5, z, 2, 1.0, 4.2, c, ry); box(x, 1.5, z, 1.8, 0.8, 2.2, '#26323d', ry); }
 const CAR_COLORS = ['#e74c3c', '#ecf0f1', '#2c3e50', '#3498db', '#f1c40f', '#95a5a6', '#1abc9c', '#8e44ad', '#d35400', '#111111'];
@@ -805,10 +822,10 @@ function robotPos(sp, t) { // CPU mirror of the GLSL path
 const LABELS = MOBILE ? 50 : 130;
 const labelPool = [], labelTexCache = new Map();
 function labelTex(name, me) {
-  const key = name + (me ? '*' : ''); if (labelTexCache.has(key)) return labelTexCache.get(key);
+  const key = name + (me ? '*' : '') + (UPG.get(name) || ''); if (labelTexCache.has(key)) return labelTexCache.get(key);
   const t = canvasTex(256, 56, (g, w, h) => { g.font = '700 26px "JetBrains Mono", monospace'; const tw = Math.min(w - 8, g.measureText('@' + name).width + 22);
-    const vip = VIP.has(name); g.fillStyle = me ? 'rgba(57,255,136,.95)' : vip ? 'rgba(255,196,0,.95)' : 'rgba(8,12,22,.78)'; const x = (w - tw) / 2; g.beginPath(); g.roundRect(x, 6, tw, 40, 12); g.fill();
-    g.fillStyle = me || vip ? '#04140b' : '#ffffff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText((vip ? '👑 ' : '') + '@' + name, w / 2, 27, w - 16); });
+    const vip = VIP.has(name), ti = TIER_INFO[UPG.get(name)]; g.fillStyle = me ? 'rgba(57,255,136,.95)' : ti ? ti.bg : vip ? 'rgba(255,196,0,.95)' : 'rgba(8,12,22,.78)'; const x = (w - tw) / 2; g.beginPath(); g.roundRect(x, 6, tw, 40, 12); g.fill();
+    g.fillStyle = me ? '#04140b' : ti ? ti.fg : vip ? '#04140b' : '#ffffff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText((ti ? ti.icon + ' ' : vip ? '👑 ' : '') + '@' + name, w / 2, 27, w - 16); });
   if (labelTexCache.size > 600) labelTexCache.clear();
   labelTexCache.set(key, t); return t;
 }
@@ -900,11 +917,15 @@ function renderCard() {
       <dl><dt>${T('type')}</dt><dd>${sp.traits.f ? T('girl') : T('boy')}</dd>
       <dt>${T('home')}</dt><dd>${T('homeV').replace('{b}', h.block).replace('{l}', h.lot)}</dd>
       <dt>${T('num')}</dt><dd>#${(sp.i + 1).toLocaleString('ru-RU')}</dd>
-      <dt>${T('status')}</dt><dd>${T('st')[sp.act] || ''}</dd>${sp.traits.vip ? `<dt>👑</dt><dd>${T('vipBadge')} #${sp.traits.vip}</dd>` : ''}</dl>
-      <div class="acts"><button class="pri" data-a="near">${T('near')}</button><button data-a="house">🏠 ${T('goHome')}</button><button class="story" data-a="story">📲 ${T('story')}</button></div>`;
+      <dt>${T('status')}</dt><dd>${T('st')[sp.act] || ''}</dd>${sp.traits.vip ? `<dt>👑</dt><dd>${T('vipBadge')} #${sp.traits.vip}</dd>` : ''}${UPG.get(sp.name) ? `<dt>${TIER_INFO[UPG.get(sp.name)].icon}</dt><dd>${T('tierNames')[UPG.get(sp.name)]}</dd>` : ''}</dl>
+      <div class="acts"><button class="pri" data-a="near">${T('near')}</button><button data-a="house">🏠 ${T('goHome')}</button><button class="story" data-a="story">📲 ${T('story')}</button>${CFG.botUsername && (UPG.get(sp.name) || 0) < 3 ? `<a class="upg" href="https://t.me/${CFG.botUsername}?start=up_${sp.name.replace(/\./g, '-')}" target="_blank" rel="noopener">${T('upgrade')}</a>` : ''}</div>`;
     if (st.fresh) { toast(T('toastNew')); st.fresh = false; }
   } else if (st.kind === 'new') {
     c.innerHTML = `<button class="x" aria-label="×">×</button><div class="bot">${robotSVG(st.name)}</div><div class="new"><h2>@${esc(st.name)}</h2><p>${T('newText')}</p><p>${T('followFirst').replace('{o}', esc(OWNER))}</p></div><div class="acts"><a class="ig" href="https://instagram.com/${OWNER}" target="_blank" rel="noopener">${T('follow')}</a></div>`;
+  } else if (st.kind === 'sponsors') {
+    const best = new Map(); for (const r of UPG_ROWS) { const n = clean(r.nickname); const b = best.get(n) || { tier: 0, stars: 0 }; best.set(n, { tier: Math.max(b.tier, r.tier), stars: b.stars + (r.stars || 0) }); }
+    const rows = [...best.entries()].sort((a, b) => b[1].tier - a[1].tier || b[1].stars - a[1].stars).map(([n, v]) => `<button class="vrow" data-a="pick" data-n="${esc(n)}"><b>${TIER_INFO[v.tier].icon}</b> @${esc(n)} · ${T('tierNames')[v.tier]}</button>`).join('');
+    c.innerHTML = `<button class="x" aria-label="×">×</button><h2>💎 ${T('sponsors')}</h2><p class="vh">${T('sponsorsHint')}</p><div class="vlist">${rows}</div>`;
   } else if (st.kind === 'vip') {
     const rows = [...VIP.entries()].sort((a, b) => a[1] - b[1]).map(([n, r]) => `<button class="vrow" data-a="pick" data-n="${esc(n)}"><b>${r === 1 ? '🥇' : r === 2 ? '🥈' : r === 3 ? '🥉' : '#' + r}</b> @${esc(n)}</button>`).join('');
     c.innerHTML = `<button class="x" aria-label="×">×</button><h2>🏆 ${T('vipTitle')}</h2><div class="code">${esc(VIP_WEEK)}</div><p class="vh">${T('vipHint')}</p><div class="vlist">${rows}</div>`;
@@ -997,7 +1018,7 @@ function pickAt(cx, cy) {
   // houses and the owner's giant robot
   NDC.set(((cx - rect.left) / rect.width) * 2 - 1, -((cy - rect.top) / rect.height) * 2 + 1); ray.setFromCamera(NDC, camera);
   const hits = ray.intersectObjects([B.house.mesh, ownerGroup], true);
-  if (hits.length) { const h = hits[0]; if (h.object === B.house.mesh && specs[h.instanceId]) return select(specs[h.instanceId]); if (h.object !== B.house.mesh) return showOwner(); }
+  if (hits.length) { const h = hits[0]; if (h.object === B.house.mesh && specs[houseOfInst[h.instanceId]]) return select(specs[houseOfInst[h.instanceId]]); if (h.object !== B.house.mesh) return showOwner(); }
 }
 
 // ======================= Instagram story image =======================
@@ -1254,6 +1275,35 @@ function initExtrasUI() {
 
 }
 
+// ======================= donations: palace beams, fireworks, live upgrades =======================
+const palaceBeams = [];
+function addPalaceBeam(x, z) { const m = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 1.8, 260, 14, 1, true).translate(0, 130, 0), new THREE.MeshBasicMaterial({ color: 0x7fe3ff, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, toneMapped: false })); m.position.set(x, 0, z); scene.add(m); palaceBeams.push(m); }
+const FW_N = 900, fwPos = new Float32Array(FW_N * 3), fwCol = new Float32Array(FW_N * 3), fwVel = new Float32Array(FW_N * 3), fwLife = new Float32Array(FW_N);
+const fwGeo = new THREE.BufferGeometry(); fwGeo.setAttribute('position', new THREE.BufferAttribute(fwPos, 3)); fwGeo.setAttribute('color', new THREE.BufferAttribute(fwCol, 3));
+const fireworks = new THREE.Points(fwGeo, new THREE.PointsMaterial({ size: 1.1, vertexColors: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false })); fireworks.frustumCulled = false; scene.add(fireworks);
+for (let i = 0; i < FW_N; i++) fwPos[i * 3 + 1] = -999;
+let fwNext = 0, fwI = 0; const FWC = new THREE.Color();
+function updateDonations(t, dt) {
+  for (const b of palaceBeams) b.material.opacity = (0.1 + Math.sin(t * 2 + b.position.x) * 0.05) * (1.2 - themeK * 0.7);
+  if (palaceBeams.length && t > fwNext) { fwNext = t + 1.6 + Math.random() * 2; const b = palaceBeams[Math.floor(Math.random() * palaceBeams.length)], cx = b.position.x + (Math.random() - 0.5) * 10, cz = b.position.z + (Math.random() - 0.5) * 10, cy = 28 + Math.random() * 18;
+    FWC.setHSL(Math.random(), 1, 0.6); for (let k = 0; k < 110; k++) { const i = fwI++ % FW_N, th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1), sp = 9 + Math.random() * 5;
+      fwPos[i * 3] = cx; fwPos[i * 3 + 1] = cy; fwPos[i * 3 + 2] = cz; fwVel[i * 3] = Math.sin(ph) * Math.cos(th) * sp; fwVel[i * 3 + 1] = Math.cos(ph) * sp; fwVel[i * 3 + 2] = Math.sin(ph) * Math.sin(th) * sp; fwLife[i] = 1.6; fwCol[i * 3] = FWC.r; fwCol[i * 3 + 1] = FWC.g; fwCol[i * 3 + 2] = FWC.b; } }
+  for (let i = 0; i < FW_N; i++) { if (fwLife[i] <= 0) continue; fwLife[i] -= dt; const k = Math.max(0, fwLife[i] / 1.6); fwVel[i * 3 + 1] -= 9 * dt; fwPos[i * 3] += fwVel[i * 3] * dt; fwPos[i * 3 + 1] += fwVel[i * 3 + 1] * dt; fwPos[i * 3 + 2] += fwVel[i * 3 + 2] * dt; fwCol[i * 3] *= 0.985; fwCol[i * 3 + 1] *= 0.985; fwCol[i * 3 + 2] *= 0.985; if (k <= 0) fwPos[i * 3 + 1] = -999; }
+  fwGeo.attributes.position.needsUpdate = true; fwGeo.attributes.color.needsUpdate = true;
+}
+const ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
+function rebuildHouse(i) { // swap a resident's house in place (used when a donation arrives)
+  for (const [b, idx] of houseParts[i] || []) { b.mesh.setMatrixAt(idx, ZERO); b.mesh.instanceMatrix.needsUpdate = true; }
+  addHouse(i, specs[i].name); for (const b of Object.values(B)) b.done();
+}
+function initDonations() {
+  const chip = $('#btnSponsors'); const showChip = () => { if (UPG_ROWS.length) { chip.style.display = ''; chip.onclick = () => { selected = null; cardState = { kind: 'sponsors' }; renderCard(); }; } }; showChip();
+  if (!shared.on) return; let last = UPG_ROWS.length ? UPG_ROWS[UPG_ROWS.length - 1].created_at : new Date(Date.now() - 60000).toISOString();
+  setInterval(async () => { if (document.hidden) return; try { const c = await sb(); if (!c) return; const { data } = await c.from('upgrades').select('nickname,tier,stars,created_at').gt('created_at', last).order('created_at', { ascending: true }).limit(50);
+    for (const r of data || []) { last = r.created_at; UPG_ROWS.push(r); const n = clean(r.nickname), old = UPG.get(n) || 0; if (r.tier > old) { UPG.set(n, r.tier); if (index.has(n)) { rebuildHouse(index.get(n)); labelAssignT = -9; } toast(T('upgradedLive').replace('{n}', n).replace('{t}', T('tierNames')[r.tier]), 6000); } }
+    showChip(); drawMapStatic(); } catch (e) {} }, 20000);
+}
+
 // ======================= minimap =======================
 const mapC = $('#mapc'), mapG = mapC.getContext('2d'); let mapStatic = null;
 const W2M = (x, z) => { const E = HWY + 20, s = mapC.width / (2 * E); return [(x + E) * s, (z + E) * s]; };
@@ -1309,7 +1359,7 @@ function frame() {
     camera.position.set(around.x + Math.cos(a) * r, y, around.z + Math.sin(a) * r); controls.target.copy(around); }
   moveKeys(dt); controls.update();
   if (SHADOWS) { sun.target.position.copy(controls.target); sun.position.copy(controls.target).addScaledVector(SUN_DIR, 400); const d = THREE.MathUtils.clamp(camera.position.distanceTo(controls.target) * 1.2, 60, 260); const c = sun.shadow.camera; if (Math.abs(c.right - d) > 5) { c.left = -d; c.right = d; c.top = d; c.bottom = -d; c.updateProjectionMatrix(); } }
-  updateCars(t, dt); updateLights(t); updateLabels(t); drawMap(t); updateExtras(t, dt);
+  updateCars(t, dt); updateLights(t); updateLabels(t); drawMap(t); updateExtras(t, dt); updateDonations(t, dt);
   ownerGroup.rotation.y = Math.sin(t * 0.2) * 0.5;
   if (beam.visible) { const cd = camera.position.distanceTo(controls.target); beam.material.opacity = (0.14 + Math.sin(t * 3) * 0.06) * THREE.MathUtils.clamp((cd - 25) / 60, 0, 1); const s = 1 + (t % 1.4) * 0.9; hring.scale.set(s, s, s); hring.material.opacity = 1 - (t % 1.4) / 1.4; }
   if (composer) composer.render(); else renderer.render(scene, camera);
@@ -1334,7 +1384,7 @@ function moveKeys(dt) {
 
 // ======================= boot =======================
 applyLang();
-const [{ list }, ovr] = await Promise.all([loadResidents(), loadOverrides(), loadVip()]); const claims = [];
+const [{ list }, ovr] = await Promise.all([loadResidents(), loadOverrides(), loadVip(), loadUpgrades()]); const claims = [];
 for (const [k, v] of ovr) overrides.set(k, v);
 const names = []; { const seen = new Set([OWNER]); for (const n of [...list, ...claims.map((s) => clean(String(s)))]) if (n && !seen.has(n)) { seen.add(n); names.push(n); } }
 // size the city: residential rings needed for all residents + room to grow
@@ -1371,5 +1421,5 @@ if (!LITE) setTimeout(() => { try { const g = renderer.getContext(), px = new Ui
 setTimeout(() => { $('#loader').style.opacity = 0; setTimeout(() => $('#loader').remove(), 700); flyTo(HOME_P, HOME_T, 3.2); animatePop(specs.length + 1); setTimeout(() => { if (!cardState) toast('👆 ' + T('tapHint'), 7000); }, 3600); }, 500);
 const hashNick = clean(decodeURIComponent(location.hash.slice(1) || ''));
 if (hashNick) setTimeout(() => { if (hashNick === OWNER) showOwner(); else if (index.has(hashNick)) select(specs[index.get(hashNick)]); else showNew(hashNick); }, 3800);
-checkGoals(false); initExtrasUI();
+checkGoals(false); initExtrasUI(); initDonations();
 window.__city = { cars, recordReel, GOALS, goalSite, specs, B, RP, robotPos, UTIME, labelPool, scene, camera, controls, THREE, signs, carBody, carCab, carLamp, carTail, ownerGroup, stars, beam };
