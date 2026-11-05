@@ -238,7 +238,7 @@ const B = {
   house: new Batch(up(new THREE.BoxGeometry(1, 1, 1)), matStd({ map: houseTex, emissiveMap: houseEmi, emissive: new THREE.Color(0xffd29a), emissiveIntensity: 0.0 }), 3000),
   paint: new Batch(up(new THREE.BoxGeometry(1, 1, 1)), matStd({ roughness: 0.6 }), 20000, { cast: false }),
   glow: new Batch(new THREE.SphereGeometry(0.5, 10, 8), new THREE.MeshBasicMaterial({ toneMapped: false }), 6000, { cast: false, recv: false }),
-  water: new Batch(up(new THREE.BoxGeometry(1, 1, 1)), matStd({ color: 0xffffff, roughness: 0.1, metalness: 0.2, transparent: true, opacity: 0.85 }), 200, { cast: false }),
+  water: new Batch(up(new THREE.BoxGeometry(1, 1, 1)), matStd({ color: 0xffffff, roughness: 0.1, metalness: 0.2, transparent: true, opacity: 0.85 }), 1500, { cast: false }),
 };
 const box = (...a) => B.box.add(...a);
 const glowBase = []; // remember glow colours for day/night dimming
@@ -394,22 +394,71 @@ function buildResidentialBlock(b, bi) {
   const r = rng(500 + bi); tree(b.cx - 2, b.cz - 2, 0.6, r); tree(b.cx + 3, b.cz + 2, 0.5, r); B.cyl.add(b.cx, 0.36, b.cz, 2.5, 0.4, 2.5, '#d6c9a8');
   blockLamps(b);
 }
+const HOUSE_TYPES = ['cottage', 'modern', 'villa', 'castle', 'twin'];
+function houseType(name) {
+  if (VIP.has(name)) return 'castle';
+  const v = hash(name + 'htype') % 100;
+  return v < 7 ? 'castle' : v < 30 ? 'villa' : v < 55 ? 'modern' : v < 70 ? 'twin' : 'cottage';
+}
 function addHouse(i, name) {
-  const h = houseSlot(i), r = rng(hash(name + 'house'));
-  const [fx, fz] = dirOf(h.face), style = Math.floor(r() * 3);
-  const w = 8 + r() * 2, d = 7.5 + r() * 1.5, floors = style === 2 ? 2 : 1 + Math.floor(r() * 2), hh = floors * 3.4;
+  const h = houseSlot(i), r = rng(hash(name + 'house')), type = houseType(name);
+  const [fx, fz] = dirOf(h.face), ax = Math.abs(fx) > 0.5;
+  // lot-local helpers: f = towards the street, s = sideways
+  const P2 = (f, s) => [h.x + fx * f + (ax ? 0 : s), h.z + fz * f + (ax ? s : 0)];
+  const S2 = (w, d) => (ax ? [d, w] : [w, d]);
+  const bx = (f, s, y, w, hgt, d, c, batch = B.box) => { const [x, z] = P2(f, s), [sx, sz] = S2(w, d); return batch.add(x, y, z, sx, hgt, sz, c, ax ? 0 : 0); };
+  const HL = LOT / 2 - 0.35;
+  const hedge = (c, hgt, gap = 3) => { // perimeter with an opening at the front
+    bx(-HL, 0, 0.3, LOT - 0.7, hgt, 0.5, c); bx(0, -HL, 0.3, 0.5, hgt, LOT - 0.7, c); bx(0, HL, 0.3, 0.5, hgt, LOT - 0.7, c);
+    const half = (LOT - 0.7 - gap) / 2; bx(HL, -(gap / 2 + half / 2), 0.3, half, hgt, 0.5, c); bx(HL, gap / 2 + half / 2, 0.3, half, hgt, 0.5, c); };
+  const roofC = () => snowy(pick(r, ['#8e3b2f', '#5b4636', '#3e4a5a', '#7a2e2e', '#4f5d4a', '#2f3e46']), 0.6);
   const wall = pick(r, ['#f3efe6', '#e9d8c4', '#d8e3ec', '#f5e1c8', '#e6e6e6', '#cfe0d0', '#f0d6d6', '#d9d2e9']);
-  const sx = Math.abs(fx) ? d : w, sz = Math.abs(fx) ? w : d;
-  const x = h.x - fx * 1.2, z = h.z - fz * 1.2;
-  B.house.add(x, 0.36, z, sx, hh, sz, wall);
-  if (style === 2) box(x, 0.36 + hh, z, sx + 0.6, 0.5, sz + 0.6, '#5b6470'); // flat modern roof
-  else B.roof.add(x, 0.36 + hh, z, sx + 1.2, 2.6 + r() * 1.2, sz + 1.2, snowy(pick(r, ['#8e3b2f', '#5b4636', '#3e4a5a', '#7a2e2e', '#4f5d4a']), 0.6));
-  const dx = x + fx * (Math.abs(fx) ? d / 2 : d / 2), dz = z + fz * (Math.abs(fx) ? d / 2 : d / 2);
-  box(dx + fx * 0.05, 0.36, dz + fz * 0.05, Math.abs(fx) ? 0.2 : 1.4, 2.4, Math.abs(fx) ? 1.4 : 0.2, '#5a3a22');
-  box(h.x + fx * 4.2, 0.36, h.z + fz * 4.2, Math.abs(fx) ? 3.6 : 2.4, 0.05, Math.abs(fx) ? 2.4 : 3.6, '#c9c3b6'); // path
-  if (r() < 0.45) parkedCar(h.x + fx * 4 + (Math.abs(fx) ? 0 : 3.6), h.z + fz * 4 + (Math.abs(fx) ? 3.6 : 0), h.face, r);
-  else tree(h.x + fx * 3.5 + (Math.abs(fx) ? 0 : -3.5), h.z + fz * 3.5 + (Math.abs(fx) ? -3.5 : 0), 0.5, r);
-  houseIdx[i] = { x: h.x, z: h.z, face: h.face, front: [h.x + fx * 4.6, h.z + fz * 4.6], block: h.block, lot: h.lotNo, bc: [h.b.cx, h.b.cz] };
+  bx(4.6, 0, 0.36, 2.2, 0.05, 3.4, '#c9c3b6'); // front path
+  if (type === 'castle') {
+    const stone = pick(r, ['#e6dcc3', '#d8cdb4', '#f1ece0', '#cfc6b0']), roof = pick(r, ['#2d4a8a', '#6b1d2e', '#1f5c3a', '#3a2a5c']);
+    bx(0, 0, 0.32, LOT - 0.6, 0.06, LOT - 0.6, snowy('#8fbf6a')); // lawn
+    bx(-HL, 0, 0.3, 0.8, 1.6, LOT - 0.7, '#b9ae95'); bx(0, -HL, 0.3, LOT - 0.7, 1.6, 0.8, '#b9ae95'); bx(0, HL, 0.3, LOT - 0.7, 1.6, 0.8, '#b9ae95');
+    bx(HL, -4.2, 0.3, 0.8, 1.6, 5, '#b9ae95'); bx(HL, 4.2, 0.3, 0.8, 1.6, 5, '#b9ae95'); bx(HL, -1.9, 0.3, 0.9, 3.2, 0.9, '#b9ae95'); bx(HL, 1.9, 0.3, 0.9, 3.2, 0.9, '#b9ae95');
+    const [hx, hz] = P2(-1.6, 0), [sx, sz] = S2(7.6, 6.4); B.house.add(hx, 0.36, hz, sx, 7.5, sz, stone); // keep — 1 house instance per resident
+    for (let k = -3; k <= 3; k += 2) { bx(-1.6 + 3.25, k, 7.86, 0.7, 0.8, 0.7, stone); bx(-1.6 - 3.25, k, 7.86, 0.7, 0.8, 0.7, stone); }
+    bx(-1.6 + 3.25, 0, 0.36, 0.25, 3.2, 2, '#3b2a1e'); { const [gx, gz] = P2(1.75, -1.4); glow(gx, 3.4, gz, 0.35, '#ffd27a'); const [gx2, gz2] = P2(1.75, 1.4); glow(gx2, 3.4, gz2, 0.35, '#ffd27a'); }
+    for (const [cf, cs] of [[1.8, -3.8], [1.8, 3.8], [-5, -3.8], [-5, 3.8]]) { const [tx, tz] = P2(cf, cs); B.cyl.add(tx, 0.36, tz, 2.3, 10, 2.3, stone); B.cone.add(tx, 10.36, tz, 2.9, 3.6, 2.9, snowy(roof, 0.5)); glow(tx, 14.2, tz, 0.4, '#ffd84d', false); }
+    const [ffx, ffz] = P2(4.4, 3.6); B.cyl.add(ffx, 0.36, ffz, 2.2, 0.5, 2.2, '#cfd6de'); B.water.add(ffx, 0.6, ffz, 1.8, 0.15, 1.8, '#5ec8f2'); B.cyl.add(ffx, 0.6, ffz, 0.25, 1.4, 0.25, '#cfd6de');
+    { const [tx, tz] = P2(4.6, -4.4); tree(tx, tz, 0.45, r); }
+  } else if (type === 'villa') {
+    bx(0, 0, 0.32, LOT - 0.6, 0.06, LOT - 0.6, snowy('#7fb661')); hedge(snowy('#2f6b34', 0.5), 1.3, 3.2);
+    const [hx, hz] = P2(-2.4, -1.2), [sx, sz] = S2(8.6, 6); B.house.add(hx, 0.36, hz, sx, 3.8, sz, wall);
+    { const [rx2, rz2] = P2(-2.4, -1.2), [rsx, rsz] = S2(9.6, 7); B.roof.add(rx2, 4.16, rz2, rsx, 2.4, rsz, roofC()); }
+    bx(-2.4 + 3.05, -1.2, 0.36, 0.2, 2.4, 1.4, '#5a3a22');
+    const [px, pz] = P2(2.6, 2.8), [psx, psz] = S2(3.2, 5.2); B.box.add(px, 0.33, pz, psx + 1, 0.1, psz + 1, '#e8e2d4'); B.water.add(px, 0.36, pz, psx, 0.12, psz, '#2fb7e6');
+    { const [lx, lz] = P2(2.6, -0.2); box(lx, 0.36, lz, ax ? 1 : 2.2, 0.4, ax ? 2.2 : 1, '#ffffff'); }
+    for (const sgn of [-1, 1]) { const [lx, lz] = P2(5.6, sgn * 1.9); B.cyl.add(lx, 0.36, lz, 0.15, 2.4, 0.15, '#333'); glow(lx, 2.9, lz, 0.45, '#ffe7b5'); }
+    { const [tx, tz] = P2(-5.4, 5); tree(tx, tz, 0.55, r); } { const [tx, tz] = P2(4.8, -4.6); tree(tx, tz, 0.45, r); }
+    if (r() < 0.6) { const [cx2, cz2] = P2(3.6, -3.3); parkedCar(cx2, cz2, h.face, r); }
+  } else if (type === 'modern') {
+    bx(0, 0, 0.32, LOT - 0.6, 0.06, LOT - 0.6, snowy('#8ec26e'));
+    const dark = pick(r, ['#2b2f36', '#3b3f46', '#6b4f3a', '#e9e9e9']), [hx, hz] = P2(-2, 0.8), [sx, sz] = S2(8.4, 6.2); B.house.add(hx, 0.36, hz, sx, 3.4, sz, pick(r, ['#f5f5f5', '#e8e4dc', '#dfe6ec']));
+    bx(-1.2, -1.2, 3.76, 7.4, 3.0, 5.6, dark); bx(-1.2, -1.2, 6.76, 8.2, 0.35, 6.4, '#5b6470'); bx(-1.2, -1.2, 3.76, 7.6, 0.25, 6.6, '#cfd6de');
+    bx(1.62, -1.2, 4.3, 0.08, 1.9, 5.2, '#3a5068'); bx(1.1, 0.8, 0.36, 0.08, 2.6, 4.2, '#3a5068');
+    bx(1.9, -2.6, 3.76, 1.6, 0.9, 3, '#cfd6de'); // balcony rail
+    bx(3.6, -3.4, 0.33, 4.6, 0.05, 4.2, '#9aa0a8'); if (r() < 0.8) { const [cx2, cz2] = P2(3.6, -3.4); parkedCar(cx2, cz2, h.face, r); }
+    for (let k = 0; k < 4; k++) { const [gx, gz] = P2(5.6, 1 + k * 1.4); B.sph.add(gx, 0.8, gz, 1, 0.9, 1, snowy('#3f7d3a', 0.5)); }
+  } else if (type === 'twin') {
+    hedge('#ffffff', 0.8, 2.6);
+    const [hx, hz] = P2(-1.6, 0), [sx, sz] = S2(10.4, 6.6); B.house.add(hx, 0.36, hz, sx, 6.4, sz, wall);
+    { const [rx2, rz2] = P2(-1.6, 0), [rsx, rsz] = S2(11.2, 7.4); B.roof.add(rx2, 6.76, rz2, rsx, 2.6, rsz, roofC()); }
+    for (const sgn of [-1, 1]) { bx(1.75, sgn * 2.6, 0.36, 0.2, 2.4, 1.3, '#5a3a22'); bx(2.6, sgn * 2.6, 3.2, 1.6, 0.2, 2.6, '#7d8793'); }
+    { const [tx, tz] = P2(4.6, -4.4); tree(tx, tz, 0.5, r); } { const [tx, tz] = P2(4.6, 4.4); tree(tx, tz, 0.5, r); }
+  } else { // cottage
+    if (r() < 0.6) hedge(snowy('#3f7d3a', 0.5), 0.9, 2.6);
+    const w = 7.6 + r() * 1.6, d = 6.8 + r() * 1.2, floors = 1 + Math.floor(r() * 2), hh = floors * 3.3;
+    const [hx, hz] = P2(-1.2, 0), [sx, sz] = S2(w, d); B.house.add(hx, 0.36, hz, sx, hh, sz, wall);
+    { const [rsx, rsz] = S2(w + 1.2, d + 1.2); B.roof.add(hx, 0.36 + hh, hz, rsx, 2.4 + r() * 1.2, rsz, roofC()); }
+    bx(-1.2 + d / 2 + 0.05, 0, 0.36, 0.2, 2.4, 1.4, '#5a3a22');
+    if (r() < 0.5) { const [cx2, cz2] = P2(4, 3.6); parkedCar(cx2, cz2, h.face, r); } else { const [tx, tz] = P2(3.6, -3.6); tree(tx, tz, 0.5, r); }
+    if (r() < 0.5) { const [tx, tz] = P2(-5.6, 4.6); tree(tx, tz, 0.45, r); }
+  }
+  houseIdx[i] = { x: h.x, z: h.z, face: h.face, front: [h.x + fx * 5.2, h.z + fz * 5.2], block: h.block, lot: h.lotNo, bc: [h.b.cx, h.b.cz], type };
 }
 function parkedCar(x, z, ry, r) { const c = pick(r, CAR_COLORS); box(x, 0.5, z, 2, 1.0, 4.2, c, ry); box(x, 1.5, z, 1.8, 0.8, 2.2, '#26323d', ry); }
 const CAR_COLORS = ['#e74c3c', '#ecf0f1', '#2c3e50', '#3498db', '#f1c40f', '#95a5a6', '#1abc9c', '#8e44ad', '#d35400', '#111111'];
@@ -1088,10 +1137,10 @@ function soundStart() {
   const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
   if (!SND.ctx) { const ctx = new C(); SND.ctx = ctx; const master = ctx.createGain(); master.gain.value = 0; master.connect(ctx.destination); SND.master = master; try { SND.dest = ctx.createMediaStreamDestination(); master.connect(SND.dest); } catch (e) {}
     const len = ctx.sampleRate * 4, buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0); let last = 0; for (let i = 0; i < len; i++) { last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02; d[i] = last * 3.5; }
-    const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true; const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 380; const g = ctx.createGain(); g.gain.value = 0.3; src.connect(lp).connect(g).connect(master); src.start();
+    const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true; const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 380; const g = ctx.createGain(); g.gain.value = 0.12; src.connect(lp).connect(g).connect(master); src.start();
     startMusic(ctx, master);
     setInterval(() => { if (!SND.on) return; const s = ctx.createBufferSource(); s.buffer = buf; const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 500 + Math.random() * 600; bp.Q.value = 0.8; const gg = ctx.createGain(), now = ctx.currentTime;
-      gg.gain.setValueAtTime(0, now); gg.gain.linearRampToValueAtTime(0.3, now + 1.1); gg.gain.linearRampToValueAtTime(0, now + 2.6); s.connect(bp).connect(gg).connect(master); s.start(now, Math.random() * 1.2, 3); }, 3200); }
+      gg.gain.setValueAtTime(0, now); gg.gain.linearRampToValueAtTime(0.1, now + 1.1); gg.gain.linearRampToValueAtTime(0, now + 2.6); s.connect(bp).connect(gg).connect(master); s.start(now, Math.random() * 1.2, 3); }, 3200); }
   SND.ctx.resume(); SND.on = true; SND.master.gain.cancelScheduledValues(SND.ctx.currentTime); SND.master.gain.linearRampToValueAtTime(0.55, SND.ctx.currentTime + 1.2);
 }
 function soundStop() { if (!SND.ctx) return; SND.on = false; SND.master.gain.cancelScheduledValues(SND.ctx.currentTime); SND.master.gain.linearRampToValueAtTime(0, SND.ctx.currentTime + 0.4); }
@@ -1100,7 +1149,7 @@ function startMusic(ctx, master) {
   // quiet lo-fi chord loop: Dm9 – G13 – Cmaj9 – Am9, soft pad + bass + plucked arpeggio with echo
   const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
   const CH = [[38, [53, 57, 60, 64]], [43, [53, 59, 64, 65]], [36, [52, 55, 59, 62]], [45, [55, 60, 64, 67]]];
-  const bus = ctx.createGain(); bus.gain.value = 0.5; const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1800; bus.connect(lp).connect(master);
+  const bus = ctx.createGain(); bus.gain.value = 1.0; const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1800; bus.connect(lp).connect(master);
   const dl = ctx.createDelay(1); dl.delayTime.value = 0.375; const fb = ctx.createGain(); fb.gain.value = 0.32; const wet = ctx.createGain(); wet.gain.value = 0.35; dl.connect(fb).connect(dl); dl.connect(wet).connect(bus);
   const note = (m, t, dur, type, vol, toEcho) => { const o = ctx.createOscillator(); o.type = type; o.frequency.value = mtof(m); const g = ctx.createGain(); g.gain.setValueAtTime(0, t);
     if (type === 'sine' && dur < 1) { g.gain.linearRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); } else { g.gain.linearRampToValueAtTime(vol, t + 0.9); g.gain.setValueAtTime(vol, t + dur - 0.8); g.gain.linearRampToValueAtTime(0, t + dur + 0.6); }
@@ -1134,7 +1183,7 @@ async function recordReel(secs = 15) {
 function initExtrasUI() {
   $('#goal').onclick = () => { const k = $('#goal').dataset.k; if (k) flyToGoal(k); };
   const vb = $('#btnVip'); if (VIP.size) { vb.style.display = ''; vb.onclick = () => { selected = null; cardState = { kind: 'vip' }; renderCard(); }; }
-  const rb = $('#btnRec'); if (ADMIN) { rb.style.display = ''; rb.onclick = () => recordReel(15); }
+  const rb = $('#btnRec'); if (window.MediaRecorder && canvas.captureStream) { rb.style.display = ''; rb.onclick = () => recordReel(15); }
   const sbtn = $('#btnSound'), setS = () => (sbtn.textContent = SND.on ? '🔊' : '🔇');
   sbtn.onclick = () => { if (SND.on) { soundStop(); store.set('aishahar_sound', '0'); } else { soundStart(); store.set('aishahar_sound', '1'); } setS(); };
   if (store.get('aishahar_sound') === '1') addEventListener('pointerdown', function once() { removeEventListener('pointerdown', once); if (!SND.on) { soundStart(); setS(); } }, { once: true });
