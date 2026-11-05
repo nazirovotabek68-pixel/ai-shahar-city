@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>AI SHAHAR 2036</title>
+<meta name="description" content="1 obunachi = 1 robot. Robotingni top: @otabeknazirov.aii">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --g:#39ff88; --c:#50d7ff; --bg:#05060c; --ink:#e8f6ee; --dim:#8a97ab; --panel:rgba(8,12,22,.84); --line:rgba(80,215,255,.35); --acc:#04140b; }
+  body.day { --ink:#0f1d2a; --dim:#4f6275; --panel:rgba(255,255,255,.84); --line:rgba(20,90,140,.28); --g:#0fa95a; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--ink); font-family:'Space Grotesk', system-ui, sans-serif; overflow:hidden; -webkit-tap-highlight-color:transparent; }
+  canvas#gl { display:block; }
+  #ui { position:fixed; inset:0; pointer-events:none; transition:opacity .5s; }
+  #ui > * { pointer-events:auto; }
+  .top { position:absolute; top:12px; left:14px; right:14px; display:flex; justify-content:space-between; align-items:flex-start; gap:10px; pointer-events:none; }
+  .brand, .tbtns { pointer-events:auto; }
+  .brand h1 { margin:0; font-size:22px; letter-spacing:.06em; font-weight:700; text-shadow:0 0 12px rgba(57,255,136,.45); }
+  body.day .brand h1 { text-shadow:0 1px 8px rgba(255,255,255,.8); }
+  .brand h1 span { color:var(--g); }
+  .brand p { margin:2px 0 0; font:500 12px 'JetBrains Mono', monospace; color:var(--dim); }
+  .brand p b { color:var(--g); }
+  .tbtns { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+  button { font-family:inherit; cursor:pointer; color:inherit; }
+  .chip { background:var(--panel); border:1px solid var(--line); color:var(--ink); padding:8px 11px; border-radius:10px; font:600 13px 'Space Grotesk'; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
+  .langs { display:flex; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--panel); }
+  .langs button { background:none; border:0; padding:8px 9px; font:700 12px 'JetBrains Mono', monospace; color:var(--dim); }
+  .langs button.on { color:var(--acc); background:var(--g); }
+  .search { position:absolute; left:50%; bottom:18px; transform:translateX(-50%); width:min(560px, calc(100% - 24px)); }
+  .sbox { display:flex; gap:8px; background:var(--panel); border:1px solid rgba(57,255,136,.45); border-radius:14px; padding:6px; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+  .sbox input { flex:1; min-width:0; background:transparent; border:0; outline:0; color:var(--ink); font:600 16px 'JetBrains Mono', monospace; padding:10px; }
+  .sbox input::placeholder { color:var(--dim); opacity:.85; }
+  .sbox button { background:var(--g); color:var(--acc); border:0; border-radius:10px; padding:0 18px; font-weight:700; font-size:15px; }
+  .hint { margin-top:6px; text-align:center; font:500 12px 'JetBrains Mono', monospace; color:var(--dim); text-shadow:0 1px 6px rgba(0,0,0,.5); }
+  body.day .hint { text-shadow:0 1px 6px rgba(255,255,255,.9); }
+  .card { position:absolute; right:14px; top:96px; width:300px; background:var(--panel); border:1px solid rgba(57,255,136,.4); border-radius:16px; padding:16px; backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); transform:translateX(120%); transition:transform .45s cubic-bezier(.2,.9,.2,1.15); max-height:calc(100% - 330px); overflow:auto; }
+  .card.on { transform:none; }
+  .card .x { position:absolute; top:6px; right:10px; background:none; border:0; color:var(--dim); font-size:22px; }
+  .card .bot { display:flex; justify-content:center; margin:2px 0 6px; }
+  .card .bot svg { width:120px; height:120px; filter:drop-shadow(0 0 12px rgba(57,255,136,.3)); }
+  .card h2 { margin:0; font-size:20px; text-align:center; word-break:break-all; }
+  .card .code { text-align:center; font:700 13px 'JetBrains Mono', monospace; color:var(--g); margin-top:4px; }
+  .card dl { margin:12px 0 0; display:grid; grid-template-columns:auto 1fr; gap:6px 10px; font-size:13px; }
+  .card dt { color:var(--dim); } .card dd { margin:0; }
+  .card .acts { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+  .card .acts button { flex:1; padding:10px; border-radius:10px; border:1px solid var(--line); background:rgba(80,215,255,.08); color:var(--ink); font-weight:600; min-width:110px; }
+  .card .acts button.story { flex-basis:100%; background:linear-gradient(90deg,#f58529,#dd2a7b,#8134af); color:#fff; border:0; }
+  .card .acts button.pri { background:var(--g); color:var(--acc); border-color:var(--g); }
+  .card .new p { color:var(--dim); font-size:14px; line-height:1.45; text-align:center; }
+  .toast { position:absolute; left:50%; top:96px; transform:translateX(-50%) translateY(-20px); opacity:0; transition:.35s; background:var(--panel); border:1px solid var(--g); padding:10px 16px; border-radius:12px; font-weight:600; pointer-events:none; max-width:90%; text-align:center; }
+  .toast.on { opacity:1; transform:translateX(-50%); }
+  .map { position:absolute; left:14px; bottom:96px; width:210px; height:210px; border-radius:14px; overflow:hidden; border:1px solid var(--line); background:var(--panel); backdrop-filter:blur(8px); transition:width .35s, height .35s; }
+  .map.big { width:min(560px, calc(100% - 28px)); height:min(560px, calc(100% - 200px)); }
+  .map canvas { width:100%; height:100%; display:block; cursor:crosshair; }
+  .map .mt { position:absolute; left:8px; top:6px; font:700 11px 'JetBrains Mono', monospace; color:var(--ink); text-shadow:0 1px 4px rgba(0,0,0,.6); pointer-events:none; }
+  .map .mb { position:absolute; right:6px; top:4px; background:var(--panel); border:1px solid var(--line); color:var(--ink); border-radius:8px; font-size:12px; padding:2px 7px; }
+  .legend { position:absolute; left:8px; bottom:6px; right:8px; display:none; flex-wrap:wrap; gap:4px 10px; font:600 11px 'Space Grotesk'; color:var(--ink); }
+  .map.big .legend { display:flex; }
+  .legend i { display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; vertical-align:-1px; }
+  #loader { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#05060c; z-index:9; transition:opacity .6s; font:700 14px 'JetBrains Mono', monospace; color:#39ff88; letter-spacing:.2em; text-align:center; }
+  #loader .big { font:700 34px 'Space Grotesk'; letter-spacing:.08em; color:#e8f6ee; margin-bottom:10px; text-shadow:0 0 18px rgba(57,255,136,.6); }
+  body.cinema #ui { opacity:0; } body.cinema #ui * { pointer-events:none !important; }
+  .cinehint { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); font:500 12px 'JetBrains Mono', monospace; color:rgba(255,255,255,.5); display:none; }
+  body.cinema .cinehint { display:block; animation:fade 3s forwards; }
+  @keyframes fade { 0%,60% { opacity:1 } 100% { opacity:0 } }
+  @media (max-width: 700px) {
+    .top { flex-direction:column; }
+    .tbtns { justify-content:flex-start; }
+    .card { left:10px; right:10px; width:auto; top:auto; bottom:92px; transform:translateY(160%); max-height:58%; }
+    .card .bot svg { width:90px; height:90px; }
+    .brand h1 { font-size:19px; }
+    .chip { padding:7px 9px; font-size:12px; }
+    .hint { display:none; }
+    .map { width:130px; height:130px; bottom:92px; left:10px; }
+    .map.big { width:calc(100% - 20px); height:60%; }
+    .toast { top:140px; }
+  }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script>
+(function(){function show(m){var l=document.getElementById('ltext');if(l){l.style.cssText='color:#ff8080;font-size:12px;letter-spacing:0;max-width:90vw;white-space:pre-wrap';l.textContent='XATO: '+m;}}
+window.addEventListener('error',function(e){if(e.target&&e.target!==window&&e.target.src){show('yuklanmadi: '+e.target.src);}else if(document.getElementById('loader')){show((e.message||'')+' @'+((e.filename||'').split('/').pop())+':'+e.lineno);}},true);
+setTimeout(function(){if(document.getElementById('loader'))show('20 soniyadan beri yuklanyapti (3D kutubxona yoki internet sekin)');},20000);})();
+</script>
+<script src="config.js"></script>
+</head>
+<body>
+<div id="loader"><div class="big">AI SHAHAR 2036</div><div id="ltext">...</div></div>
+<canvas id="gl"></canvas>
+<div id="ui">
+  <div class="top">
+    <div class="brand">
+      <h1>AI SHAHAR <span>2036</span></h1>
+      <p><span data-t="pop"></span>: <b id="pop">0</b> · <span data-t="tag"></span></p>
+    </div>
+    <div class="tbtns">
+      <div class="langs" id="langs"><button data-l="uz">UZ</button><button data-l="ru">RU</button><button data-l="en">EN</button></div>
+      <button class="chip" id="btnTheme">☾</button>
+      <button class="chip" id="btnRand" data-t="random"></button>
+      <button class="chip" id="btnTour" data-t="tour"></button>
+      <button class="chip" id="btnHome" aria-label="Home">⌂</button>
+    </div>
+  </div>
+  <div class="map" id="map"><canvas id="mapc" width="420" height="420"></canvas><div class="mt" data-t="map"></div><button class="mb" id="mapBig">⤢</button><div class="legend" id="legend"></div></div>
+  <div class="card" id="card"></div>
+  <div class="toast" id="toast"></div>
+  <form class="search" id="sform" autocomplete="off">
+    <div class="sbox"><input id="q" maxlength="31" spellcheck="false" autocapitalize="off" autocorrect="off"><button type="submit" data-t="find"></button></div>
+    <div class="hint"><span data-t="hint"></span> · <span id="ownerTag"></span></div>
+  </form>
+</div>
+<div class="cinehint" data-t="cineExit"></div>
+<script type="module" src="city.js"></script>
+</body>
+</html>
