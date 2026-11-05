@@ -15,6 +15,10 @@ addEventListener('unhandledrejection', (e) => showErr('promise: ' + (e.reason &&
 const CFG = Object.assign({ owner: 'otabeknazirov.aii', supabaseUrl: '', supabaseAnonKey: '', table: 'residents_claims', residentsTable: 'residents', overridesTable: 'robot_overrides', timezone: 'Asia/Tashkent', siteUrl: 'https://ai-shahar-city.vercel.app' }, window.AISHAHAR_CONFIG || {});
 const $ = (s) => document.querySelector(s);
 const MOBILE = matchMedia('(pointer:coarse)').matches || innerWidth < 700;
+const QS = new URLSearchParams(location.search);
+const SEASON = (() => { const q = QS.get('season'); if (q) return q; const d = new Date(), m = d.getMonth(), day = d.getDate(); if (m === 11 || (m === 0 && day <= 15)) return 'winter'; if (m === 2 && day >= 14) return 'navruz'; return 'none'; })();
+const ADMIN = (() => { try { if (QS.has('admin')) localStorage.setItem('aishahar_admin', '1'); return localStorage.getItem('aishahar_admin') === '1'; } catch (e) { return QS.has('admin'); } })();
+const snowy = (c, k = 0.82) => SEASON === 'winter' ? '#' + new THREE.Color(c).lerp(new THREE.Color('#eef3f7'), k).getHexString() : c;
 const LITE = MOBILE || /[?&]lite/.test(location.search) || (() => { try { return localStorage.getItem('aishahar_lite') === '1'; } catch (e) { return false; } })();
 const OWNER = CFG.owner;
 
@@ -60,6 +64,27 @@ const I18N = {
     lg: { down: 'Downtown', res: 'Residential', amen: 'Leisure', park: 'Park', you: 'You', bots: 'Robots' },
     roles: ['Content manager', 'Translator', 'Developer', 'Designer', 'Video editor', 'Marketer', 'Scriptwriter', 'Analyst', 'Mentor', 'Sales agent', 'Musician', 'Researcher', 'Assistant', 'Strategist'] },
 };
+const I18N_X = {
+  uz: { soon: 'OBUNACHIDA OCHILADI', goalDone: 'Barcha bosqichlar ochildi 🏆', unlocked: '{x} ochildi! 🎉 Sahifani yangilang', follow: "📸 Instagramda obuna bo'lish",
+    followFirst: "Shaharda yashash uchun avval <b>@{o}</b> ga obuna bo'l, keyin pastdagi tugmani bos.", moved: "shaharga ko'chib keldi", liveNew: "🆕 @{n} hozirgina shaharga ko'chib keldi!",
+    vipTitle: 'Haftaning faollari', vipBadge: 'Haftaning faoli', vipHint: "Eng ko'p izoh qoldirgan obunachilar — robotlariga toj kiygizildi 👑", rec: '🎬 Reel', recording: 'Yozilmoqda...', recDone: 'Video tayyor va yuklab olindi ✅', recNo: "Bu brauzer video yozishni qo'llamaydi",
+    goals: { airport: 'Aeroport', metro: 'Metro', beach: "Dengiz bo'yi", f1: 'Formula-1 trassasi' },
+    says: { home: ['Uyimda dam olyapman 🏠', "Bugun AI haqida yangi narsa o'rgandim 🤖", 'Qo\'shnilarim juda yaxshi odamlar'], walk: ['Shahar bugun juda chiroyli ✨', 'Sayr — eng yaxshi dam olish 🚶', 'Aeroport qachon ochilarkan? ✈️'], sport: ['Yana bir aylana! 🏃', "Sport — robotning moyi 💪", 'Bugun rekord qo\'yaman 🏆'], food: ['Bu yerda qahva zo\'r ☕', 'Plov qachon tayyor bo\'ladi? 🍛', 'Yangi naushnik olmoqchiman 🎧'], fun: ['Bu zarbani ko\'r! 🎱', 'Daraxtlar ostida o\'ylayapman 🌳', 'Dam olish ham kerak 😌'], all: ['@{o} ning yangi videosini ko\'rdingmi? 👀', "Do'stlarimni ham shaharga chaqiraman 📲"] } },
+  ru: { soon: 'ПОДПИСЧИКОВ — ОТКРЫТИЕ', goalDone: 'Все этапы открыты 🏆', unlocked: '{x} открыт! 🎉 Обнови страницу', follow: '📸 Подписаться в Instagram',
+    followFirst: 'Чтобы жить в городе, сначала подпишись на <b>@{o}</b>, потом нажми кнопку ниже.', moved: 'переехал(а) в город', liveNew: '🆕 @{n} только что переехал(а) в город!',
+    vipTitle: 'Активисты недели', vipBadge: 'Активист недели', vipHint: 'Подписчики с самыми активными комментариями — их роботы в коронах 👑', rec: '🎬 Reel', recording: 'Запись...', recDone: 'Видео готово и скачано ✅', recNo: 'Этот браузер не умеет записывать видео',
+    goals: { airport: 'Аэропорт', metro: 'Метро', beach: 'Пляж', f1: 'Трасса Формулы-1' },
+    says: { home: ['Отдыхаю дома 🏠', 'Сегодня узнал новое про ИИ 🤖', 'У меня классные соседи'], walk: ['Город сегодня очень красивый ✨', 'Прогулка — лучший отдых 🚶', 'Когда откроют аэропорт? ✈️'], sport: ['Ещё один круг! 🏃', 'Спорт — масло для робота 💪', 'Сегодня поставлю рекорд 🏆'], food: ['Здесь отличный кофе ☕', 'Когда будет плов? 🍛', 'Хочу новые наушники 🎧'], fun: ['Смотри, какой удар! 🎱', 'Думаю под деревьями 🌳', 'Отдыхать тоже нужно 😌'], all: ['Видел новое видео @{o}? 👀', 'Позову друзей в город 📲'] } },
+  en: { soon: 'FOLLOWERS TO UNLOCK', goalDone: 'All stages unlocked 🏆', unlocked: '{x} unlocked! 🎉 Reload the page', follow: '📸 Follow on Instagram',
+    followFirst: 'To live in the city, first follow <b>@{o}</b>, then tap the button below.', moved: 'moved into the city', liveNew: '🆕 @{n} just moved into the city!',
+    vipTitle: 'Top fans of the week', vipBadge: 'Top fan of the week', vipHint: 'Followers with the most comments — their robots wear crowns 👑', rec: '🎬 Reel', recording: 'Recording...', recDone: 'Video ready and downloaded ✅', recNo: "This browser can't record video",
+    goals: { airport: 'Airport', metro: 'Metro', beach: 'Beach', f1: 'Formula-1 track' },
+    says: { home: ['Chilling at home 🏠', 'Learned something new about AI today 🤖', 'My neighbours are great'], walk: ['The city looks amazing today ✨', 'A walk is the best rest 🚶', 'When does the airport open? ✈️'], sport: ['One more lap! 🏃', 'Sport is oil for robots 💪', 'Going for a record today 🏆'], food: ['Great coffee here ☕', 'When is the plov ready? 🍛', 'I want new headphones 🎧'], fun: ['Check out this shot! 🎱', 'Thinking under the trees 🌳', 'Rest matters too 😌'], all: ['Seen the new video by @{o}? 👀', "I'll invite my friends to the city 📲"] } },
+};
+const SIGN_X = { uz: { airport: 'AEROPORT', metro: 'METRO', beach: "DENGIZ BO'YI", f1: 'FORMULA-1', winter: 'YANGI YIL MUBORAK! 🎄', navruz: "NAVRO'Z MUBORAK! 🌷" },
+  ru: { airport: 'АЭРОПОРТ', metro: 'МЕТРО', beach: 'ПЛЯЖ', f1: 'ФОРМУЛА-1', winter: 'С НОВЫМ ГОДОМ! 🎄', navruz: 'С НАВРУЗОМ! 🌷' },
+  en: { airport: 'AIRPORT', metro: 'METRO', beach: 'BEACH', f1: 'FORMULA-1', winter: 'HAPPY NEW YEAR! 🎄', navruz: 'HAPPY NAVRUZ! 🌷' } };
+for (const l of Object.keys(I18N)) { Object.assign(I18N[l], I18N_X[l]); Object.assign(I18N[l].sign, SIGN_X[l]); }
 const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 let LANG = store.get('aishahar_lang') || (/^(ru|kk|ky|be|uk|tg)/.test(navigator.language || '') ? 'ru' : 'uz');
 if (!I18N[LANG]) LANG = 'uz';
@@ -101,14 +126,21 @@ async function loadResidents() {
   try { const res = await fetch('residents.json', { cache: 'no-cache' }); if (res.ok) { const j = await res.json(); const list = (Array.isArray(j) ? j : j.residents || []).map((s) => clean(String(s))).filter(Boolean); if (list.length) return { list, demo: !!j.demo }; } } catch (e) {}
   return { list: demoNames(300), demo: true };
 }
+let CLAIM_ROWS = [];
 async function loadClaims() {
-  if (shared.on) { try { return (await fetchAll(CFG.table, 'nickname', 'created_at')).map((r) => r.nickname); } catch (e) { console.warn('claims', e); shared.on = false; } }
+  if (shared.on) { try { const rows = await fetchAll(CFG.table, 'nickname,created_at', 'created_at'); CLAIM_ROWS = rows; return rows.map((r) => r.nickname); } catch (e) { console.warn('claims', e); shared.on = false; } }
   try { return JSON.parse(store.get('aishahar_claimed') || '[]'); } catch (e) { return []; }
 }
 async function loadOverrides() {
   const m = new Map();
+  try { const res = await fetch('overrides.json', { cache: 'no-cache' }); if (res.ok) for (const [k, v] of Object.entries(await res.json())) if (v === 'm' || v === 'f') m.set(clean(k), v); } catch (e) {}
   if (shared.on) { try { for (const r of await fetchAll(CFG.overridesTable, 'nickname,gender')) if (r.gender === 'm' || r.gender === 'f') m.set(clean(r.nickname), r.gender); } catch (e) { /* table optional */ } }
   return m;
+}
+const VIP = new Map(); let VIP_WEEK = '';
+async function loadVip() {
+  try { const res = await fetch('vip.json', { cache: 'no-cache' }); if (!res.ok) return; const j = await res.json(); VIP_WEEK = j.week || '';
+    (j.top || []).forEach((e, i) => { const n = clean(String(e.nick || e)); if (n) VIP.set(n, i + 1); }); } catch (e) {}
 }
 async function saveClaim(name) {
   if (shared.on && (await sb())) { const { error } = await shared.client.from(CFG.table).insert({ nickname: name }); if (error && error.code !== '23505') throw error; return; }
@@ -220,12 +252,12 @@ function signTex(text, bg, fg) {
     g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, w / 2, h / 2 + 4); });
 }
 function addSign(key, x, y, z, w, ry, bg = '#0b1020', fg = '#39ff88') {
-  const mat = new THREE.MeshBasicMaterial({ map: signTex(T('sign')[key], bg, fg), toneMapped: false });
+  const mat = new THREE.MeshBasicMaterial({ map: signTex(typeof key === 'function' ? key() : T('sign')[key], bg, fg), toneMapped: false });
   const m = new THREE.Mesh(new THREE.PlaneGeometry(w, w / 4), mat); m.position.set(x, y, z); m.rotation.y = ry; scene.add(m);
   const back = new THREE.Mesh(m.geometry, mat); back.rotation.y = Math.PI; back.position.z = -0.05; m.add(back);
   signs.push({ m, key, bg, fg }); return m;
 }
-function refreshSigns() { for (const s of signs) { s.m.material.map.dispose(); s.m.material.map = signTex(T('sign')[s.key], s.bg, s.fg); s.m.material.needsUpdate = true; } }
+function refreshSigns() { for (const s of signs) { s.m.material.map.dispose(); s.m.material.map = signTex(typeof s.key === 'function' ? s.key() : T('sign')[s.key], s.bg, s.fg); s.m.material.needsUpdate = true; } }
 const faceToCentre = (cx, cz) => Math.abs(cx) >= Math.abs(cz) ? (cx > 0 ? -Math.PI / 2 : Math.PI / 2) : (cz > 0 ? Math.PI : 0);
 const dirOf = (ry) => [Math.sin(ry), Math.cos(ry)];
 
@@ -244,7 +276,7 @@ function buildGround(rings) {
   const grass = new THREE.Mesh(new THREE.PlaneGeometry(9000, 9000), grassMat); grass.rotation.x = -Math.PI / 2; grass.position.y = -0.05; grass.receiveShadow = SHADOWS; scene.add(grass);
   const asph = new THREE.Mesh(new THREE.PlaneGeometry(2 * (HWY + 14), 2 * (HWY + 14)), asphaltMat); asph.rotation.x = -Math.PI / 2; asph.position.y = -0.02; asph.receiveShadow = SHADOWS; scene.add(asph);
   // green belt between the grid and the highway
-  const belt = (x, z, w, d) => box(x, -0.02, z, w, 0.12, d, '#6f9e4f');
+  const belt = (x, z, w, d) => box(x, -0.02, z, w, 0.12, d, snowy('#6f9e4f'));
   const g0 = cityExtent + 4, g1 = HWY - 11, mid = (g0 + g1) / 2, wd = g1 - g0;
   belt(0, mid, 2 * g1, wd); belt(0, -mid, 2 * g1, wd); belt(mid, 0, wd, 2 * g0); belt(-mid, 0, wd, 2 * g0);
   const r = rng(77);
@@ -346,7 +378,7 @@ function buildAmenity(b) {
     for (let i = 0; i < 10; i++) spot('sports', cx + (r() - 0.5) * 34, cz + (r() - 0.5) * 34, r() * 6.28);
     signAt(22.5, 5, 16);
   } else { // park
-    slab(b, '#7fb05a');
+    slab(b, snowy('#7fb05a'));
     for (let i = 0; i < 14; i++) tree(cx + (r() - 0.5) * 40, cz + (r() - 0.5) * 40, 0.6 + r() * 0.6, r);
     box(cx, 0.36, cz, INNER, 0.04, 3, '#d8cfb5'); box(cx, 0.36, cz, 3, 0.04, INNER, '#d8cfb5');
     B.water.add(cx + 10, 0.3, cz + 10, 12, 0.15, 9, '#3aa0d8');
@@ -357,8 +389,8 @@ function buildAmenity(b) {
 }
 const houseIdx = []; // resident index -> house instance info
 function buildResidentialBlock(b, bi) {
-  slab(b, '#7aa85a');
-  box(b.cx, 0.36, b.cz, LOT - 3, 0.05, LOT - 3, '#86b866'); // shared garden in the middle
+  slab(b, snowy('#7aa85a'));
+  box(b.cx, 0.36, b.cz, LOT - 3, 0.05, LOT - 3, snowy('#86b866')); // shared garden in the middle
   const r = rng(500 + bi); tree(b.cx - 2, b.cz - 2, 0.6, r); tree(b.cx + 3, b.cz + 2, 0.5, r); B.cyl.add(b.cx, 0.36, b.cz, 2.5, 0.4, 2.5, '#d6c9a8');
   blockLamps(b);
 }
@@ -371,7 +403,7 @@ function addHouse(i, name) {
   const x = h.x - fx * 1.2, z = h.z - fz * 1.2;
   B.house.add(x, 0.36, z, sx, hh, sz, wall);
   if (style === 2) box(x, 0.36 + hh, z, sx + 0.6, 0.5, sz + 0.6, '#5b6470'); // flat modern roof
-  else B.roof.add(x, 0.36 + hh, z, sx + 1.2, 2.6 + r() * 1.2, sz + 1.2, pick(r, ['#8e3b2f', '#5b4636', '#3e4a5a', '#7a2e2e', '#4f5d4a']));
+  else B.roof.add(x, 0.36 + hh, z, sx + 1.2, 2.6 + r() * 1.2, sz + 1.2, snowy(pick(r, ['#8e3b2f', '#5b4636', '#3e4a5a', '#7a2e2e', '#4f5d4a']), 0.6));
   const dx = x + fx * (Math.abs(fx) ? d / 2 : d / 2), dz = z + fz * (Math.abs(fx) ? d / 2 : d / 2);
   box(dx + fx * 0.05, 0.36, dz + fz * 0.05, Math.abs(fx) ? 0.2 : 1.4, 2.4, Math.abs(fx) ? 1.4 : 0.2, '#5a3a22');
   box(h.x + fx * 4.2, 0.36, h.z + fz * 4.2, Math.abs(fx) ? 3.6 : 2.4, 0.05, Math.abs(fx) ? 2.4 : 3.6, '#c9c3b6'); // path
@@ -528,6 +560,7 @@ const RKINDS = {
   mBox: [() => up(new THREE.BoxGeometry(1, 1, 1)), () => new THREE.MeshStandardMaterial({ metalness: 0.75, roughness: 0.28 })],
   mSph: [() => new THREE.SphereGeometry(0.5, 16, 12), () => new THREE.MeshStandardMaterial({ metalness: 0.75, roughness: 0.25 })],
   mCyl: [() => up(new THREE.CylinderGeometry(0.5, 0.5, 1, 10)), () => new THREE.MeshStandardMaterial({ metalness: 0.75, roughness: 0.3 })],
+  fCone: [() => up(new THREE.ConeGeometry(0.5, 1, 14)), () => new THREE.MeshStandardMaterial({ metalness: 0.0, roughness: 0.85 })],
   fBox: [() => up(new THREE.BoxGeometry(1, 1, 1)), () => new THREE.MeshStandardMaterial({ metalness: 0.0, roughness: 0.9 })],
   fSph: [() => new THREE.SphereGeometry(0.5, 14, 10), () => new THREE.MeshStandardMaterial({ metalness: 0.0, roughness: 0.85 })],
   fCyl: [() => up(new THREE.CylinderGeometry(0.5, 0.5, 1, 14)), () => new THREE.MeshStandardMaterial({ metalness: 0.0, roughness: 0.9 })],
@@ -561,7 +594,7 @@ function traits(name) {
   const r = rng(hash(name + 'bot'));
   const g = overrides.get(name) || (isFemale(name) ? 'f' : 'm');
   const f = g === 'f';
-  return { g, f,
+  return { g, f, vip: VIP.get(name) || 0, santa: SEASON === 'winter',
     u: f ? 0.93 + r() * 0.06 : 1.0 + r() * 0.08,
     metal: f ? pick(r, METAL_F) : pick(r, METAL), eye: pick(r, NEON), led: pick(r, NEON),
     top: f ? pick(r, DRESS) : pick(r, SHIRT), bottom: f ? pick(r, DRESS) : pick(r, PANTS), shoe: pick(r, SHOES),
@@ -623,6 +656,8 @@ function robotParts(t, part) {
     if (t.cap) { P_('fCyl', 0, 3.02, 0, hs * 1.06, 0.2, hs * 1.06, t.top); P_('fBox', 0, 3.04, hs * 0.55, hs * 0.75, 0.04, 0.3, t.top); }
   }
   if (t.glasses) P_('vBox', 0, 2.86, hs * 0.5, hs * 0.86, 0.11, 0.03, '#000');
+  if (t.santa) { P_('fCyl', 0, 3.0, -0.02, hs * 1.16, 0.16, hs * 1.16, '#ffffff'); P_('fCone', 0, 3.1, -0.02, hs * 1.08, 0.8, hs * 1.08, '#d62828', 0, 0, 0, -0.2); P_('fSph', -0.16, 3.84, -0.02, 0.2, 0.2, 0.2, '#ffffff'); }
+  if (t.vip) { const cy = t.santa ? 3.95 : 3.22; P_('mCyl', 0, cy, 0, hs * 0.9, 0.22, hs * 0.9, '#ffc400'); for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2; P_('gBox', Math.cos(a) * hs * 0.4, cy + 0.2, Math.sin(a) * hs * 0.4, 0.1, 0.22, 0.1, '#ffd84d'); } }
   if (t.phones) { P_('mBox', 0, 3.12 + (t.cap ? 0.08 : 0), 0, hs * 1.12, 0.06, 0.08, '#2b2f35'); for (const s of [-1, 1]) P_('fCyl', s * hs * 0.55, 2.78, 0, 0.2, 0.1, 0.2, '#1c1f24', 0, 0, 0, Math.PI / 2); }
 }
 const RE = new THREE.Euler();
@@ -667,8 +702,8 @@ const labelPool = [], labelTexCache = new Map();
 function labelTex(name, me) {
   const key = name + (me ? '*' : ''); if (labelTexCache.has(key)) return labelTexCache.get(key);
   const t = canvasTex(256, 56, (g, w, h) => { g.font = '700 26px "JetBrains Mono", monospace'; const tw = Math.min(w - 8, g.measureText('@' + name).width + 22);
-    g.fillStyle = me ? 'rgba(57,255,136,.95)' : 'rgba(8,12,22,.78)'; const x = (w - tw) / 2; g.beginPath(); g.roundRect(x, 6, tw, 40, 12); g.fill();
-    g.fillStyle = me ? '#04140b' : '#ffffff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('@' + name, w / 2, 27, w - 16); });
+    const vip = VIP.has(name); g.fillStyle = me ? 'rgba(57,255,136,.95)' : vip ? 'rgba(255,196,0,.95)' : 'rgba(8,12,22,.78)'; const x = (w - tw) / 2; g.beginPath(); g.roundRect(x, 6, tw, 40, 12); g.fill();
+    g.fillStyle = me || vip ? '#04140b' : '#ffffff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText((vip ? '👑 ' : '') + '@' + name, w / 2, 27, w - 16); });
   if (labelTexCache.size > 600) labelTexCache.clear();
   labelTexCache.set(key, t); return t;
 }
@@ -727,6 +762,7 @@ function applyTheme(k) {
   B.tower.mesh.material.emissiveIntensity = lerp(n.win, d.win) * 1.1; B.house.mesh.material.emissiveIntensity = lerp(n.win, d.win) * 0.9;
   const gk = lerp(n.glow, d.glow);
   glowBase.forEach((gb, i) => { if (gb && gb.nightOnly) B.glow.mesh.setColorAt(i, CA.copy(gb.c).multiplyScalar(gk)); }); if (B.glow.mesh.instanceColor) B.glow.mesh.instanceColor.needsUpdate = true;
+  if (SEASON === 'winter') grassMat.color.lerp(CB.set(k > 0.5 ? '#eef3f7' : '#9aa6b8'), 0.85);
   stars.material.opacity = 1 - k; stars.visible = k < 0.99; if (bloom) bloom.strength = lerp(n.bloom, d.bloom);
   if (carLamp) { carLamp.material.color.set(mixHex('#fff6d8', '#e9e9e9', k)); }
   document.body.classList.toggle('day', k > 0.5); $('#btnTheme').textContent = k > 0.5 ? '☀' : '☾';
@@ -758,11 +794,14 @@ function renderCard() {
       <dl><dt>${T('type')}</dt><dd>${sp.traits.f ? T('girl') : T('boy')}</dd>
       <dt>${T('home')}</dt><dd>${T('homeV').replace('{b}', h.block).replace('{l}', h.lot)}</dd>
       <dt>${T('num')}</dt><dd>#${(sp.i + 1).toLocaleString('ru-RU')}</dd>
-      <dt>${T('status')}</dt><dd>${T('st')[sp.act] || ''}</dd></dl>
+      <dt>${T('status')}</dt><dd>${T('st')[sp.act] || ''}</dd>${sp.traits.vip ? `<dt>👑</dt><dd>${T('vipBadge')} #${sp.traits.vip}</dd>` : ''}</dl>
       <div class="acts"><button class="pri" data-a="near">${T('near')}</button><button data-a="house">🏠 ${T('goHome')}</button><button class="story" data-a="story">📲 ${T('story')}</button></div>`;
     if (st.fresh) { toast(T('toastNew')); st.fresh = false; }
   } else if (st.kind === 'new') {
-    c.innerHTML = `<button class="x" aria-label="×">×</button><div class="bot">${robotSVG(st.name)}</div><div class="new"><h2>@${esc(st.name)}</h2><p>${T('newText')}</p></div><div class="acts"><button class="pri" data-a="claim">${T('claim')}</button></div>`;
+    c.innerHTML = `<button class="x" aria-label="×">×</button><div class="bot">${robotSVG(st.name)}</div><div class="new"><h2>@${esc(st.name)}</h2><p>${T('newText')}</p><p>${T('followFirst').replace('{o}', esc(OWNER))}</p></div><div class="acts"><a class="ig" href="https://instagram.com/${OWNER}" target="_blank" rel="noopener">${T('follow')}</a><button class="pri" data-a="claim">${T('claim')}</button></div>`;
+  } else if (st.kind === 'vip') {
+    const rows = [...VIP.entries()].sort((a, b) => a[1] - b[1]).map(([n, r]) => `<button class="vrow" data-a="pick" data-n="${esc(n)}"><b>${r === 1 ? '🥇' : r === 2 ? '🥈' : r === 3 ? '🥉' : '#' + r}</b> @${esc(n)}</button>`).join('');
+    c.innerHTML = `<button class="x" aria-label="×">×</button><h2>🏆 ${T('vipTitle')}</h2><div class="code">${esc(VIP_WEEK)}</div><p class="vh">${T('vipHint')}</p><div class="vlist">${rows}</div>`;
   } else if (st.kind === 'owner') {
     c.innerHTML = `<button class="x" aria-label="×">×</button><div class="bot">${robotSVG(OWNER, 'RX-0001')}</div><h2>@${esc(OWNER)}</h2><div class="code">RX-0001 · ${T('ownerRole')}</div>
       <dl><dt>${T('home')}</dt><dd>${T('ownerAddr')}</dd><dt>${T('height')}</dt><dd>${T('ownerH')}</dd></dl>
@@ -777,7 +816,11 @@ async function claim(name) {
   if (index.has(name)) return select(specs[index.get(name)]);
   if (specs.length >= CAP_RES || claiming) { if (!claiming) toast(T('full')); return; }
   claiming = true; try { await saveClaim(name); } catch (e) { claiming = false; return toast(T('saveErr')); } claiming = false;
-  const sp = addResident(name); B.house.done(); B.box.done(); B.roof.done(); B.cyl.done(); B.cone.done(); B.sph.done(); refreshRobots(); animatePop(specs.length + 1); drawMapStatic(); select(sp, true);
+  const sp = addLive(name); if (sp) select(sp, true);
+}
+function addLive(name) {
+  const sp = addResident(name); if (!sp) return null; B.house.done(); B.box.done(); B.roof.done(); B.cyl.done(); B.cone.done(); B.sph.done(); refreshRobots(); animatePop(specs.length + 1); drawMapStatic();
+  recent.unshift(name); checkGoals(true); return sp;
 }
 function addResident(name) {
   if (index.has(name) || name === OWNER) return null;
@@ -795,6 +838,7 @@ $('#card').addEventListener('click', (e) => {
   if (a === 'story' && cardState?.sp) openStory(cardState.sp);
   if (a === 'claim' && cardState?.name) claim(cardState.name);
   if (a === 'random') randomRes();
+  if (a === 'pick' && index.has(b.dataset.n)) select(specs[index.get(b.dataset.n)]);
 });
 let followOff = false;
 $('#sform').addEventListener('submit', (e) => {
@@ -808,13 +852,13 @@ function applyLang() {
   document.querySelectorAll('[data-t]').forEach((el) => { el.textContent = T(el.dataset.t); });
   $('#q').placeholder = T('ph'); const lt = $('#ltext'); if (lt) lt.textContent = T('loader');
   document.querySelectorAll('#langs button').forEach((b) => b.classList.toggle('on', b.dataset.l === LANG));
-  $('#ownerTag').textContent = '@' + OWNER; const lg = T('lg');
+  $('#ownerTag').textContent = '@' + OWNER; $('#ownerTag').href = 'https://instagram.com/' + OWNER; const lg = T('lg');
   $('#legend').innerHTML = `<span><i style="background:#5a6170"></i>${lg.down}</span><span><i style="background:#c98b5b"></i>${lg.amen}</span><span><i style="background:#7aa85a"></i>${lg.res}</span><span><i style="background:#39ff88;border-radius:50%"></i>${lg.bots}</span><span><i style="background:#ff4fd8;border-radius:50%"></i>${lg.you}</span>`;
   if (cardState) renderCard();
 }
-document.querySelectorAll('#langs button').forEach((b) => b.onclick = () => { LANG = b.dataset.l; store.set('aishahar_lang', LANG); applyLang(); refreshSigns(); applyTheme(themeK); });
+document.querySelectorAll('#langs button').forEach((b) => b.onclick = () => { LANG = b.dataset.l; store.set('aishahar_lang', LANG); applyLang(); refreshSigns(); applyTheme(themeK); checkGoals(false); });
 function startTour() { document.body.classList.add('cinema'); fly = null; tour = { t0: performance.now() }; controls.enabled = false; }
-function stopTour() { if (!tour) return; tour = null; document.body.classList.remove('cinema'); controls.enabled = true; }
+function stopTour() { if (!tour || recording) return; tour = null; document.body.classList.remove('cinema'); controls.enabled = true; }
 addEventListener('pointerdown', () => { if (tour && performance.now() - tour.t0 > 400) stopTour(); }, true);
 addEventListener('keydown', (e) => { if (e.key === 'Escape') stopTour(); });
 function animatePop(to) { const el = $('#pop'), from = parseInt(el.dataset.v || '0', 10), t0 = performance.now();
@@ -909,6 +953,184 @@ async function openStory(sp) {
   });
 }
 
+// ======================= city growth goals =======================
+const GOALS = [{ key: 'airport', n: 500, icon: '✈️' }, { key: 'metro', n: 750, icon: '🚇' }, { key: 'beach', n: 1000, icon: '🏖' }, { key: 'f1', n: 2000, icon: '🏎' }];
+let POP = 1, recent = [], recording = false;
+const goalSite = {}; const anims = [];
+const towardCity = (x, z) => faceToCentre(x, z);
+function goalSign(key, x, z, w, y = 4.5) { const ry = towardCity(x, z), [fx, fz] = dirOf(ry); const g = GOALS.find((q) => q.key === key);
+  return addSign(() => POP >= g.n ? `${g.icon} ${T('sign')[key]}` : `${g.icon} ${T('sign')[key]} · ${g.n} ${T('soon')}`, x + fx * 0.1, y, z + fz * 0.1, w, ry, POP >= g.n ? '#0b1020' : '#f2c94c', POP >= g.n ? '#39ff88' : '#111111'); }
+function construction(key, x, z) {
+  const r = rng(hash(key)); box(x, 0, z, 64, 0.15, 64, '#a1887f');
+  for (let i = 0; i < 36; i++) { const a = i / 36 * Math.PI * 2; box(x + Math.cos(a) * 32, 0, z + Math.sin(a) * 32, 5.8, 2.2, 0.3, i % 2 ? '#f2c94c' : '#e0e0e0', -a + Math.PI / 2); }
+  for (let i = 0; i < 7; i++) box(x - 18 + r() * 36, 0.15, z - 18 + r() * 36, 3 + r() * 6, 1.5 + r() * 4, 3 + r() * 6, pick(r, ['#8d6e63', '#bdbdbd', '#ffb300', '#607d8b']));
+  box(x + 12, 0, z - 6, 1.8, 46, 1.8, '#f2b705'); box(x + 2, 46, z - 6, 34, 1.5, 1.5, '#f2b705'); box(x + 16, 40, z - 6, 0.25, 6, 0.25, '#333'); box(x + 16, 38, z - 6, 2.4, 1.6, 2.4, '#888'); glow(x + 12, 48, z - 6, 1.2, '#ff3b3b', false);
+  const ry = towardCity(x, z), [fx, fz] = dirOf(ry); goalSign(key, x + fx * 34, z + fz * 34, 44, 7);
+}
+function planeGroup(color) {
+  const g = new THREE.Group(), body = matStd({ color, roughness: 0.35, metalness: 0.4 }), white = matStd({ color: 0xf2f4f7, roughness: 0.4 });
+  const add = (geo, m, x, y, z, rx = 0) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.rotation.x = rx; o.castShadow = SHADOWS; g.add(o); return o; };
+  add(new THREE.CylinderGeometry(1.7, 1.5, 24, 14), white, 0, 2.6, 0, Math.PI / 2); add(new THREE.SphereGeometry(1.7, 14, 10), white, 0, 2.6, 12);
+  add(new THREE.BoxGeometry(26, 0.4, 4.5), body, 0, 2.2, 1); add(new THREE.BoxGeometry(9, 0.3, 2.4), body, 0, 3, -10.5); add(new THREE.BoxGeometry(0.4, 5, 3.2), body, 0, 5, -10.5);
+  for (const sx of [-1, 1]) add(new THREE.CylinderGeometry(0.8, 0.8, 3.2, 10), body, sx * 6, 1.4, 2, Math.PI / 2);
+  scene.add(g); return g;
+}
+function buildAirport(x, z) {
+  box(x + 28, 0.02, z, 30, 0.1, 400, '#2b2f36');
+  for (let s = -185; s < 185; s += 16) B.paint.add(x + 28, 0.12, z + s, 0.9, 0.04, 8, '#ffffff');
+  for (const sx of [-1, 1]) for (let s = -195; s <= 195; s += 13) glow(x + 28 + sx * 15, 0.5, z + s, 0.7, '#ffd27a');
+  box(x - 6, 0.02, z, 26, 0.1, 210, '#3a3f47');
+  B.tower.add(x - 32, 0, z, 20, 15, 100, '#cfd6de'); box(x - 32, 15, z, 23, 1.4, 103, '#7d8793');
+  B.cyl.add(x - 30, 0, z - 78, 3.2, 36, 3.2, '#d8dde3'); B.cyl.add(x - 30, 36, z - 78, 8, 5, 8, '#3a5068'); box(x - 30, 41, z - 78, 9, 0.8, 9, '#6b7480'); glow(x - 30, 43, z - 78, 1.4, '#ff3b3b', false);
+  for (const [dz, c] of [[-50, 0x2d6cdf], [40, 0xd62828]]) { const p = planeGroup(c); p.position.set(x - 6, 0, z + dz); p.rotation.y = Math.PI / 2; }
+  goalSign('airport', x - 43, z, 34, 20);
+  const pl = planeGroup(0x39b36b); pl.rotation.y = 0;
+  anims.push((t) => { const p = (t % 26) / 26; const zz = -190 + 640 * Math.pow(p, 1.7); const y = Math.max(0, (zz - 30) * 0.28); pl.position.set(x + 28, y, z + zz); pl.rotation.x = y > 0 ? -0.22 : 0; pl.visible = p < 0.96; });
+}
+function rectPos(s, R) { const L = 2 * R, per = 4 * L; s = ((s % per) + per) % per; const side = Math.floor(s / L), u = s % L - R;
+  return side === 0 ? [u, -R, Math.PI / 2] : side === 1 ? [R, u, 0] : side === 2 ? [-u, R, -Math.PI / 2] : [-R, -u, Math.PI]; }
+function buildMetro() {
+  const R = 1.5 * PITCH, H = 13, near = (v) => { const k = Math.round(v / PITCH + 0.5); return Math.abs(v - (k - 0.5) * PITCH) < 9; };
+  for (let s = 0; s < 8 * R; s += 3) { const [x, z, ry] = rectPos(s, R); box(x, H, z, 3.4, 0.9, 3.4, '#9aa3ad', ry); }
+  for (let s = 0; s < 8 * R; s += 16) { const [x, z] = rectPos(s, R); const along = Math.abs(x) === R ? z : x; if (near(along)) continue; B.cyl.add(x, 0, z, 1.4, H, 1.4, '#b8c0c8'); }
+  box(0, H - 0.4, -R - 4.2, 34, 0.6, 5, '#cfd6de'); box(0, H + 4.6, -R - 4.2, 36, 0.4, 7, '#3a5068'); for (const sx of [-1, 1]) box(sx * 16, H, -R - 6.4, 0.5, 4.6, 0.5, '#6b7480');
+  goalSign('metro', 0, -R - 7.2, 14, H + 7.2);
+  const cars = []; const cm = matStd({ color: 0xe8ebef, roughness: 0.3, metalness: 0.5 }), stripe = new THREE.MeshBasicMaterial({ color: 0x39ff88, toneMapped: false });
+  for (let i = 0; i < 4; i++) { const g = new THREE.Group(); const b = new THREE.Mesh(new THREE.BoxGeometry(3, 3, 8.4), cm); b.position.y = 2; b.castShadow = SHADOWS; g.add(b); const st = new THREE.Mesh(new THREE.BoxGeometry(3.08, 0.35, 8.5), stripe); st.position.y = 2.2; g.add(st); scene.add(g); cars.push(g); }
+  anims.push((t) => { const s0 = t * 14; cars.forEach((g, i) => { const [x, z, ry] = rectPos(s0 - i * 9, R); g.position.set(x, H + 0.45, z); g.rotation.y = ry; }); });
+}
+function palm(x, z, r) { const h = 7 + r() * 4; for (let k = 0; k < 6; k++) B.cyl.add(x + k * 0.15, k * h / 6, z, 0.6 - k * 0.05, h / 6 + 0.2, 0.6 - k * 0.05, '#8d6e4f'); for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2; box(x + 0.9 + Math.cos(a) * 2.2, h, z + Math.sin(a) * 2.2, 5, 0.25, 1.4, '#3f8f3a', -a, 0, 0.35); } }
+function buildBeach(z0) {
+  box(0, 0, z0 + 45, 640, 0.18, 90, '#ecd9a0');
+  const sea = new THREE.Mesh(new THREE.PlaneGeometry(2600, 1200), new THREE.MeshStandardMaterial({ color: 0x1f8fd0, roughness: 0.15, metalness: 0.3, transparent: true, opacity: 0.92 }));
+  sea.rotation.x = -Math.PI / 2; sea.position.set(0, 0.12, z0 + 90 + 600); sea.receiveShadow = SHADOWS; scene.add(sea);
+  const foam = new THREE.Mesh(new THREE.PlaneGeometry(2600, 3), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 })); foam.rotation.x = -Math.PI / 2; foam.position.set(0, 0.2, z0 + 90); scene.add(foam);
+  anims.push((t) => { foam.position.z = z0 + 90 + Math.sin(t * 0.8) * 1.5; foam.material.opacity = 0.45 + Math.sin(t * 0.8) * 0.25; });
+  const r = rng(99);
+  for (let i = 0; i < 26; i++) { const x = -290 + i * 23 + r() * 6, z = z0 + 40 + r() * 30; B.cyl.add(x, 0, z, 0.15, 3.4, 0.15, '#999'); B.cone.add(x, 3.2, z, 4.4, 1.2, 4.4, pick(r, ['#ff6b6b', '#ffd166', '#4dd0e1', '#ffffff', '#ff4fd8'])); box(x + 2, 0.18, z + 1, 1.3, 0.4, 2.6, '#ffffff'); }
+  for (let i = 0; i < 16; i++) palm(-300 + i * 40 + r() * 10, z0 + 12 + r() * 10, r);
+  box(120, 0, z0 + 90 + 60, 6, 1.2, 120, '#8d6e4f'); // pier
+  goalSign('beach', 0, z0 + 6, 26, 6);
+}
+function buildF1(cx, cz) {
+  const rx = 115, rz = 72, shape = new THREE.Shape(); shape.absellipse(0, 0, rx + 7, rz + 7, 0, Math.PI * 2, false); const hole = new THREE.Path(); hole.absellipse(0, 0, rx - 7, rz - 7, 0, Math.PI * 2, true); shape.holes.push(hole);
+  const tr = new THREE.Mesh(new THREE.ShapeGeometry(shape, 96).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x2b2f36, roughness: 0.9 })); tr.position.set(cx, 0.08, cz); tr.receiveShadow = SHADOWS; scene.add(tr);
+  for (let i = 0; i < 120; i++) { const a = i / 120 * Math.PI * 2; for (const o of [7.6, -7.6]) box(cx + Math.cos(a) * (rx + o), 0.05, cz + Math.sin(a) * (rz + o), 3.2, 0.25, 1.1, i % 2 ? '#ffffff' : '#e53935', -a + Math.PI / 2); }
+  for (let k = -6; k <= 6; k++) box(cx + rx, 0.1, cz + k * 1.1, 14, 0.05, 1.1, (k + 6) % 2 ? '#111' : '#fff');
+  for (let k = 0; k < 6; k++) box(cx + rx + 22 + k * 1.5, 0, cz, 1.5, 1.4 + k * 1.3, 70, k % 2 ? '#d62828' : '#e8eef5');
+  goalSign('f1', cx + rx + 32, cz, 30, 14);
+  const cols = [0xd62828, 0x1565c0, 0xffd600, 0xc0c0c0, 0x00b894]; const cars = cols.map((c, i) => { const g = new THREE.Group(); const m = matStd({ color: c, roughness: 0.3, metalness: 0.5 });
+    const b = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.7, 5), m); b.position.y = 0.6; b.castShadow = SHADOWS; g.add(b); const w = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.2, 0.8), m); w.position.set(0, 1.1, -2.3); g.add(w);
+    const h = new THREE.Mesh(new THREE.SphereGeometry(0.45, 10, 8), matStd({ color: 0x111111 })); h.position.set(0, 1.15, 0.2); g.add(h); scene.add(g); return { g, sp: 0.55 + i * 0.04, ph: i * 0.35, lane: (i % 2 ? 2.6 : -2.6) }; });
+  anims.push((t) => { for (const c of cars) { const a = t * c.sp + c.ph, x = cx + Math.cos(a) * (rx + c.lane), z = cz + Math.sin(a) * (rz + c.lane); c.g.position.set(x, 0.1, z); c.g.rotation.y = Math.atan2(-rx * Math.sin(a), rz * Math.cos(a)) + Math.PI; } });
+}
+function buildGoals() {
+  const E = HWY + 40;
+  goalSite.airport = { x: E + 110, z: 0 }; goalSite.metro = POP >= 500 + 250 ? { x: 0, z: -1.5 * PITCH } : { x: 0, z: -(E + 40) };
+  goalSite.beach = { x: 0, z: E + 50 }; goalSite.f1 = { x: -(E + 130), z: 0 };
+  POP >= 500 ? buildAirport(goalSite.airport.x, 0) : construction('airport', E + 40, 0);
+  POP >= 750 ? buildMetro() : construction('metro', 0, -(E + 40));
+  POP >= 1000 ? buildBeach(E - 10) : construction('beach', 0, E + 40);
+  POP >= 2000 ? buildF1(goalSite.f1.x, 0) : construction('f1', -(E + 40), 0);
+  if (POP < 500) goalSite.airport.x = E + 40; if (POP < 1000) goalSite.beach.z = E + 40; if (POP < 2000) goalSite.f1.x = -(E + 40);
+}
+function flyToGoal(key) { const s = goalSite[key]; if (!s) return; selected = null; labelAssignT = -9; cardState = null; $('#card').classList.remove('on');
+  const tg = new THREE.Vector3(s.x, 0, s.z), d = new THREE.Vector3(s.x, 0, s.z).normalize(); if (d.lengthSq() < 0.5) d.set(0, 0, 1);
+  flyTo(tg.clone().addScaledVector(d, -95).setY(55), tg, 2.2); }
+let goalsBuiltAt = 0;
+function checkGoals(live) {
+  POP = specs.length + 1; if (!goalsBuiltAt) goalsBuiltAt = POP;
+  const next = GOALS.find((g) => POP < g.n), el = $('#goal'); if (!el) return;
+  if (!next) { el.innerHTML = `<span>${T('goalDone')}</span>`; el.dataset.k = ''; }
+  else { const prev = [...GOALS].reverse().find((g) => POP >= g.n), from = prev ? prev.n : 0, k = Math.max(0, Math.min(1, (POP - from) / (next.n - from)));
+    el.innerHTML = `<span>${next.icon} ${T('goals')[next.key]}: <b>${POP.toLocaleString('ru-RU')}</b>/${next.n}</span><i><u style="width:${(k * 100).toFixed(1)}%"></u></i>`; el.dataset.k = next.key; }
+  if (live) for (const g of GOALS) if (goalsBuiltAt < g.n && POP >= g.n) { toast(T('unlocked').replace('{x}', T('goals')[g.key])); goalsBuiltAt = POP; }
+}
+
+// ======================= seasons =======================
+let snow = null;
+function buildSeason() {
+  if (SEASON === 'winter') {
+    const tx = -16, tz = -16;
+    for (let k = 0; k < 5; k++) B.cone.add(tx, 1 + k * 3.4, tz, 13 - k * 2.3, 6, 13 - k * 2.3, '#1f6b34');
+    B.cyl.add(tx, 0.3, tz, 1.2, 2, 1.2, '#5a3a22'); glow(tx, 19.5, tz, 2.2, '#ffd84d', false);
+    const r = rng(12); for (let i = 0; i < 60; i++) { const h = 2 + r() * 16, rad = (13 - (h / 3.4) * 2.3) * 0.5 * 0.95, a = r() * Math.PI * 2; glow(tx + Math.cos(a) * rad, h + 1, tz + Math.sin(a) * rad, 0.55, pick(r, ['#ff3b3b', '#ffd166', '#4dd0e1', '#ff4fd8', '#39ff88']), false); }
+    for (let i = 0; i < 48; i++) { const a = i / 48 * Math.PI * 2; glow(Math.cos(a) * 22, 5 + Math.sin(i * 1.3) * 0.4, Math.sin(a) * 22, 0.4, pick(r, ['#ff3b3b', '#ffd166', '#4dd0e1', '#ffffff']), false); }
+    addSign('winter', 22, 10, 22, 22, Math.PI / 4, '#b71c1c', '#ffffff');
+    const N = MOBILE ? 1500 : 3500, pos = new Float32Array(N * 3), rr = rng(5); for (let i = 0; i < N; i++) { pos[i * 3] = (rr() - 0.5) * 300; pos[i * 3 + 1] = rr() * 120; pos[i * 3 + 2] = (rr() - 0.5) * 300; }
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    snow = new THREE.Points(g, new THREE.PointsMaterial({ color: 0xffffff, size: 0.32, transparent: true, opacity: 0.9, depthWrite: false })); snow.frustumCulled = false; scene.add(snow);
+  } else if (SEASON === 'navruz') {
+    const r = rng(21); B.cyl.add(-16, 0.3, -16, 7, 3.4, 7, '#3b3b3b'); B.cyl.add(-16, 3.7, -16, 6.4, 0.3, 6.4, '#5a3a22'); glow(-16, 1, -16, 4, '#ff7a1a', false);
+    for (const b of blockInfo) { if (b.ring > cityRings || (b.type !== 'res' && b.type !== 'park' && b.type !== 'plaza')) continue; for (let i = 0; i < 10; i++) { const x = b.cx + (r() - 0.5) * 40, z = b.cz + (r() - 0.5) * 40; B.cyl.add(x, 0.3, z, 0.08, 0.7, 0.08, '#2e7d32'); B.sph.add(x, 1.05, z, 0.6, 0.45, 0.6, pick(r, ['#ff4fd8', '#ffd166', '#ff3b3b', '#ffffff', '#a78bff'])); } }
+    addSign('navruz', 22, 10, 22, 22, Math.PI / 4, '#1b5e20', '#ffffff');
+  }
+}
+
+// ======================= per-frame extras =======================
+const bubbleV = new THREE.Vector3(); let bubbleT = -99, bubbleTxt = '';
+const SAY_CAT = { home: 'home', walkHome: 'walk', walkCity: 'walk', jog: 'sport', fitness: 'sport', sports: 'sport', pool: 'sport', cafe: 'food', restaurant: 'food', mall: 'food', billiard: 'fun', park: 'fun' };
+function updateExtras(t, dt) {
+  for (const f of anims) f(t, dt);
+  if (snow) { const p = snow.geometry.attributes.position.array, tg = controls.target; for (let i = 0; i < p.length; i += 3) { p[i + 1] -= dt * (4 + (i % 7)); p[i] += Math.sin(t + i) * dt * 0.6; if (p[i + 1] < 0) p[i + 1] += 120;
+      if (p[i] - tg.x > 150) p[i] -= 300; else if (p[i] - tg.x < -150) p[i] += 300; if (p[i + 2] - tg.z > 150) p[i + 2] -= 300; else if (p[i + 2] - tg.z < -150) p[i + 2] += 300; } snow.geometry.attributes.position.needsUpdate = true; }
+  const bub = $('#bubble'); if (!bub) return;
+  if (selected && camera.position.distanceTo(controls.target) < 90 && !tour) {
+    if (t - bubbleT > 7 || bubbleT < 0) { bubbleT = t; const says = T('says'), pool = [...(says[SAY_CAT[selected.act]] || says.walk), ...says.all]; bubbleTxt = pool[Math.floor(Math.random() * pool.length)].replace('{o}', OWNER); bub.textContent = bubbleTxt; }
+    const [x, z] = robotPos(selected, t); bubbleV.set(x, 4.1 * selected.traits.u + 0.6, z).project(camera);
+    if (bubbleV.z < 1) { bub.style.left = ((bubbleV.x + 1) / 2 * innerWidth) + 'px'; bub.style.top = ((1 - bubbleV.y) / 2 * innerHeight) + 'px'; bub.classList.add('on'); } else bub.classList.remove('on');
+  } else { bub.classList.remove('on'); if (!selected) bubbleT = -99; }
+}
+
+// ======================= ambient sound (generated, no files) =======================
+const SND = { ctx: null, on: false, master: null, dest: null };
+function soundStart() {
+  const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
+  if (!SND.ctx) { const ctx = new C(); SND.ctx = ctx; const master = ctx.createGain(); master.gain.value = 0; master.connect(ctx.destination); SND.master = master; try { SND.dest = ctx.createMediaStreamDestination(); master.connect(SND.dest); } catch (e) {}
+    const len = ctx.sampleRate * 4, buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0); let last = 0; for (let i = 0; i < len; i++) { last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02; d[i] = last * 3.5; }
+    const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true; const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 380; const g = ctx.createGain(); g.gain.value = 0.4; src.connect(lp).connect(g).connect(master); src.start();
+    [196, 246.94, 293.66, 392].forEach((f, i) => { const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.value = f; const og = ctx.createGain(); og.gain.value = 0.02; const lfo = ctx.createOscillator(); lfo.frequency.value = 0.05 + i * 0.03; const lg = ctx.createGain(); lg.gain.value = 0.015; lfo.connect(lg).connect(og.gain); o.connect(og).connect(master); o.start(); lfo.start(); });
+    setInterval(() => { if (!SND.on) return; const s = ctx.createBufferSource(); s.buffer = buf; const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 500 + Math.random() * 600; bp.Q.value = 0.8; const gg = ctx.createGain(), now = ctx.currentTime;
+      gg.gain.setValueAtTime(0, now); gg.gain.linearRampToValueAtTime(0.3, now + 1.1); gg.gain.linearRampToValueAtTime(0, now + 2.6); s.connect(bp).connect(gg).connect(master); s.start(now, Math.random() * 1.2, 3); }, 3200); }
+  SND.ctx.resume(); SND.on = true; SND.master.gain.cancelScheduledValues(SND.ctx.currentTime); SND.master.gain.linearRampToValueAtTime(0.55, SND.ctx.currentTime + 1.2);
+}
+function soundStop() { if (!SND.ctx) return; SND.on = false; SND.master.gain.cancelScheduledValues(SND.ctx.currentTime); SND.master.gain.linearRampToValueAtTime(0, SND.ctx.currentTime + 0.4); }
+
+// ======================= Reel recorder (admin) =======================
+async function recordReel(secs = 15) {
+  if (recording) return; const mime = ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp9', 'video/webm'].find((m) => window.MediaRecorder && MediaRecorder.isTypeSupported(m));
+  if (!mime || !canvas.captureStream) return toast(T('recNo'));
+  const W = 720, H = 1280, oldPR = renderer.getPixelRatio(); recording = true;
+  renderer.setPixelRatio(1); renderer.setSize(W, H, false); camera.aspect = W / H; camera.updateProjectionMatrix(); if (composer) composer.setSize(W, H);
+  const stream = canvas.captureStream(30); if (SND.on && SND.dest) for (const tr of SND.dest.stream.getAudioTracks()) stream.addTrack(tr);
+  const rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 8e6 }), chunks = []; rec.ondataavailable = (e) => e.data.size && chunks.push(e.data); const done = new Promise((r) => (rec.onstop = r));
+  const badge = $('#recbadge'); badge.classList.add('on'); startTour(); rec.start(500);
+  for (let s = secs; s > 0; s--) { badge.textContent = `● ${T('recording')} ${s}s`; await new Promise((r) => setTimeout(r, 1000)); }
+  rec.stop(); await done; recording = false; stopTour(); badge.classList.remove('on');
+  renderer.setPixelRatio(oldPR); dispatchEvent(new Event('resize'));
+  const ext = mime.includes('mp4') ? 'mp4' : 'webm', blob = new Blob(chunks, { type: 'video/' + ext }), url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `ai-shahar-reel-${new Date().toISOString().slice(0, 10)}.${ext}`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000); toast(T('recDone'));
+}
+
+// ======================= extras UI: goal bar, ticker, VIP, sound, Reel, live updates =======================
+function initExtrasUI() {
+  $('#goal').onclick = () => { const k = $('#goal').dataset.k; if (k) flyToGoal(k); };
+  const vb = $('#btnVip'); if (VIP.size) { vb.style.display = ''; vb.onclick = () => { selected = null; cardState = { kind: 'vip' }; renderCard(); }; }
+  const rb = $('#btnRec'); if (ADMIN) { rb.style.display = ''; rb.onclick = () => recordReel(15); }
+  const sbtn = $('#btnSound'), setS = () => (sbtn.textContent = SND.on ? '🔊' : '🔇');
+  sbtn.onclick = () => { if (SND.on) { soundStop(); store.set('aishahar_sound', '0'); } else { soundStart(); store.set('aishahar_sound', '1'); } setS(); };
+  if (store.get('aishahar_sound') === '1') addEventListener('pointerdown', function once() { removeEventListener('pointerdown', once); if (!SND.on) { soundStart(); setS(); } }, { once: true });
+  setS();
+  // ticker of newest residents
+  let ti = 0; const tk = $('#ticker'); const tick = () => { if (!recent.length) return; const n = recent[ti++ % Math.min(recent.length, 12)]; tk.innerHTML = `🆕 <b>@${esc(n)}</b> ${T('moved')}`; tk.classList.remove('in'); void tk.offsetWidth; tk.classList.add('in'); };
+  tick(); setInterval(tick, 4500);
+  tk.onclick = () => { const n = recent[(ti - 1) % Math.min(recent.length, 12)]; if (n && index.has(n)) select(specs[index.get(n)]); };
+  // poll Supabase for followers who moved in while the page is open
+  let lastTs = CLAIM_ROWS.length ? CLAIM_ROWS[CLAIM_ROWS.length - 1].created_at : new Date(Date.now() - 60000).toISOString();
+  if (shared.on) setInterval(async () => { try { const c = await sb(); if (!c || document.hidden) return; const { data } = await c.from(CFG.table).select('nickname,created_at').gt('created_at', lastTs).order('created_at', { ascending: true }).limit(50);
+    for (const r of data || []) { lastTs = r.created_at; const n = clean(r.nickname); if (n && !index.has(n) && n !== OWNER && specs.length < CAP_RES) { addLive(n); toast(T('liveNew').replace('{n}', n)); } } } catch (e) {} }, 45000);
+}
+
 // ======================= minimap =======================
 const mapC = $('#mapc'), mapG = mapC.getContext('2d'); let mapStatic = null;
 const W2M = (x, z) => { const E = HWY + 20, s = mapC.width / (2 * E); return [(x + E) * s, (z + E) * s]; };
@@ -964,7 +1186,7 @@ function frame() {
     camera.position.set(around.x + Math.cos(a) * r, y, around.z + Math.sin(a) * r); controls.target.copy(around); }
   controls.update();
   if (SHADOWS) { sun.target.position.copy(controls.target); sun.position.copy(controls.target).addScaledVector(SUN_DIR, 400); const d = THREE.MathUtils.clamp(camera.position.distanceTo(controls.target) * 1.2, 60, 260); const c = sun.shadow.camera; if (Math.abs(c.right - d) > 5) { c.left = -d; c.right = d; c.top = d; c.bottom = -d; c.updateProjectionMatrix(); } }
-  updateCars(t, dt); updateLights(t); updateLabels(t); drawMap(t);
+  updateCars(t, dt); updateLights(t); updateLabels(t); drawMap(t); updateExtras(t, dt);
   ownerGroup.rotation.y = Math.sin(t * 0.2) * 0.5;
   if (beam.visible) { const cd = camera.position.distanceTo(controls.target); beam.material.opacity = (0.14 + Math.sin(t * 3) * 0.06) * THREE.MathUtils.clamp((cd - 25) / 60, 0, 1); const s = 1 + (t % 1.4) * 0.9; hring.scale.set(s, s, s); hring.material.opacity = 1 - (t % 1.4) / 1.4; }
   if (composer) composer.render(); else renderer.render(scene, camera);
@@ -974,7 +1196,7 @@ addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; cam
 
 // ======================= boot =======================
 applyLang();
-const [{ list }, claims, ovr] = await Promise.all([loadResidents(), loadClaims(), loadOverrides()]);
+const [{ list }, claims, ovr] = await Promise.all([loadResidents(), loadClaims(), loadOverrides(), loadVip()]);
 for (const [k, v] of ovr) overrides.set(k, v);
 const names = []; { const seen = new Set([OWNER]); for (const n of [...list, ...claims.map((s) => clean(String(s)))]) if (n && !seen.has(n)) { seen.add(n); names.push(n); } }
 // size the city: residential rings needed for all residents + room to grow
@@ -985,6 +1207,8 @@ blockInfo.forEach((b, i) => { if (b.ring > rings) return; if (b.type === 'plaza'
 resBlocks.forEach((b, bi) => { if (b.ring <= rings) buildResidentialBlock(b, bi); });
 // free-lot signs on the outermost residential blocks that are still empty
 buildTrafficLights(rings); buildCars(rings);
+POP = names.length + 1; buildGoals(); buildSeason();
+recent = [...CLAIM_ROWS.map((r) => clean(r.nickname)).reverse(), ...list.slice(0, 10)].filter((n, i, a) => n && a.indexOf(n) === i).slice(0, 12);
 { const need = {}, maxPer = {}; const cnt = (n) => { const c = {}; robotParts(traits(n), (k) => { c[k] = (c[k] || 0) + 1; }); return c; };
   for (const n of names) for (const [k, v] of Object.entries(cnt(n))) { need[k] = (need[k] || 0) + v; maxPer[k] = Math.max(maxPer[k] || 0, v); }
   makeRobotMeshes((k) => (need[k] || 0) + (maxPer[k] || 4) * 120 + 8); }
@@ -1009,4 +1233,5 @@ if (!LITE) setTimeout(() => { try { const g = renderer.getContext(), px = new Ui
 setTimeout(() => { $('#loader').style.opacity = 0; setTimeout(() => $('#loader').remove(), 700); flyTo(HOME_P, HOME_T, 3.2); animatePop(specs.length + 1); setTimeout(() => { if (!cardState) toast('👆 ' + T('tapHint')); }, 3600); }, 500);
 const hashNick = clean(decodeURIComponent(location.hash.slice(1) || ''));
 if (hashNick) setTimeout(() => { if (hashNick === OWNER) showOwner(); else if (index.has(hashNick)) select(specs[index.get(hashNick)]); else showNew(hashNick); }, 3800);
-window.__city = { specs, B, RP, robotPos, UTIME, labelPool, scene, camera, controls, THREE, signs, carBody, carCab, carLamp, carTail, ownerGroup, stars, beam };
+checkGoals(false); initExtrasUI();
+window.__city = { recordReel, GOALS, goalSite, specs, B, RP, robotPos, UTIME, labelPool, scene, camera, controls, THREE, signs, carBody, carCab, carLamp, carTail, ownerGroup, stars, beam };
