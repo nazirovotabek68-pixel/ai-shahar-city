@@ -65,17 +65,17 @@ const I18N = {
     roles: ['Content manager', 'Translator', 'Developer', 'Designer', 'Video editor', 'Marketer', 'Scriptwriter', 'Analyst', 'Mentor', 'Sales agent', 'Musician', 'Researcher', 'Assistant', 'Strategist'] },
 };
 const I18N_X = {
-  uz: { upgrade: '💎 Uyimni yaxshilash', sponsors: 'Shahar homiylari', sponsorsHint: "Uyini donat orqali yaxshilagan obunachilar ❤️ Rahmat!", level: 'Daraja', tierNames: { 1: 'Kumush villa', 2: 'Oltin qasr', 3: 'Olmos saroy' }, upgradedLive: '💎 @{n} uyini {t}ga aylantirdi!', newText: "Bu sening robotingning ko'rinishi 👆 U nikneymingdan yaratildi, boshqa hech kimda bunday robot yo'q. Hozircha u shaharda yashamaydi.", soon: 'OBUNACHIDA OCHILADI', goalDone: 'Barcha bosqichlar ochildi 🏆', unlocked: '{x} ochildi! 🎉 Sahifani yangilang', follow: "📸 Instagramda obuna bo'lish",
+  uz: { more: 'Batafsil', upgrade: '💎 Uyimni yaxshilash', sponsors: 'Shahar homiylari', sponsorsHint: "Uyini donat orqali yaxshilagan obunachilar ❤️ Rahmat!", level: 'Daraja', tierNames: { 1: 'Kumush villa', 2: 'Oltin qasr', 3: 'Olmos saroy' }, upgradedLive: '💎 @{n} uyini {t}ga aylantirdi!', newText: "Bu sening robotingning ko'rinishi 👆 U nikneymingdan yaratildi, boshqa hech kimda bunday robot yo'q. Hozircha u shaharda yashamaydi.", soon: 'OBUNACHIDA OCHILADI', goalDone: 'Barcha bosqichlar ochildi 🏆', unlocked: '{x} ochildi! 🎉 Sahifani yangilang', follow: "📸 Instagramda obuna bo'lish",
     followFirst: "Shaharga ko'chib o'tish uchun <b>@{o}</b> ga obuna bo'l. Yangi obunachilar muntazam shaharga ko'chiriladi va robotingga uy quriladi 🏠", moved: "shaharga ko'chib keldi", liveNew: "🆕 @{n} hozirgina shaharga ko'chib keldi!",
     vipTitle: 'Haftaning faollari', vipBadge: 'Haftaning faoli', vipHint: "Eng ko'p izoh qoldirgan obunachilar — robotlariga toj kiygizildi 👑", rec: '🎬 Reel', recording: 'Yozilmoqda...', recDone: 'Video tayyor va yuklab olindi ✅', recNo: "Bu brauzer video yozishni qo'llamaydi",
     goals: { airport: 'Aeroport', metro: 'Metro', beach: "Dengiz bo'yi", f1: 'Formula-1 trassasi' },
     says: { home: ['Uyimda dam olyapman 🏠', "Bugun AI haqida yangi narsa o'rgandim 🤖", 'Qo\'shnilarim juda yaxshi odamlar'], walk: ['Shahar bugun juda chiroyli ✨', 'Sayr — eng yaxshi dam olish 🚶', 'Aeroport qachon ochilarkan? ✈️'], sport: ['Yana bir aylana! 🏃', "Sport — robotning moyi 💪", 'Bugun rekord qo\'yaman 🏆'], food: ['Bu yerda qahva zo\'r ☕', 'Plov qachon tayyor bo\'ladi? 🍛', 'Yangi naushnik olmoqchiman 🎧'], fun: ['Bu zarbani ko\'r! 🎱', 'Daraxtlar ostida o\'ylayapman 🌳', 'Dam olish ham kerak 😌'], all: ['@{o} ning yangi videosini ko\'rdingmi? 👀', "Do'stlarimni ham shaharga chaqiraman 📲"] } },
-  ru: { upgrade: '💎 Улучшить дом', sponsors: 'Спонсоры города', sponsorsHint: 'Подписчики, улучшившие дом через донат ❤️ Спасибо!', level: 'Уровень', tierNames: { 1: 'Серебряная вилла', 2: 'Золотой замок', 3: 'Бриллиантовый дворец' }, upgradedLive: '💎 @{n} превратил(а) дом в «{t}»!', newText: 'Так выглядит твой робот 👆 Он создан из твоего ника — ни у кого больше такого нет. Пока он не живёт в городе.', soon: 'ПОДПИСЧИКОВ — ОТКРЫТИЕ', goalDone: 'Все этапы открыты 🏆', unlocked: '{x} открыт! 🎉 Обнови страницу', follow: '📸 Подписаться в Instagram',
+  ru: { more: 'Подробнее', upgrade: '💎 Улучшить дом', sponsors: 'Спонсоры города', sponsorsHint: 'Подписчики, улучшившие дом через донат ❤️ Спасибо!', level: 'Уровень', tierNames: { 1: 'Серебряная вилла', 2: 'Золотой замок', 3: 'Бриллиантовый дворец' }, upgradedLive: '💎 @{n} превратил(а) дом в «{t}»!', newText: 'Так выглядит твой робот 👆 Он создан из твоего ника — ни у кого больше такого нет. Пока он не живёт в городе.', soon: 'ПОДПИСЧИКОВ — ОТКРЫТИЕ', goalDone: 'Все этапы открыты 🏆', unlocked: '{x} открыт! 🎉 Обнови страницу', follow: '📸 Подписаться в Instagram',
     followFirst: 'Чтобы переехать в город, подпишись на <b>@{o}</b>. Новых подписчиков регулярно заселяют в город и строят роботу дом 🏠', moved: 'переехал(а) в город', liveNew: '🆕 @{n} только что переехал(а) в город!',
     vipTitle: 'Активисты недели', vipBadge: 'Активист недели', vipHint: 'Подписчики с самыми активными комментариями — их роботы в коронах 👑', rec: '🎬 Reel', recording: 'Запись...', recDone: 'Видео готово и скачано ✅', recNo: 'Этот браузер не умеет записывать видео',
     goals: { airport: 'Аэропорт', metro: 'Метро', beach: 'Пляж', f1: 'Трасса Формулы-1' },
     says: { home: ['Отдыхаю дома 🏠', 'Сегодня узнал новое про ИИ 🤖', 'У меня классные соседи'], walk: ['Город сегодня очень красивый ✨', 'Прогулка — лучший отдых 🚶', 'Когда откроют аэропорт? ✈️'], sport: ['Ещё один круг! 🏃', 'Спорт — масло для робота 💪', 'Сегодня поставлю рекорд 🏆'], food: ['Здесь отличный кофе ☕', 'Когда будет плов? 🍛', 'Хочу новые наушники 🎧'], fun: ['Смотри, какой удар! 🎱', 'Думаю под деревьями 🌳', 'Отдыхать тоже нужно 😌'], all: ['Видел новое видео @{o}? 👀', 'Позову друзей в город 📲'] } },
-  en: { upgrade: '💎 Upgrade my house', sponsors: 'City sponsors', sponsorsHint: 'Followers who upgraded their house with a donation ❤️ Thank you!', level: 'Level', tierNames: { 1: 'Silver villa', 2: 'Gold castle', 3: 'Diamond palace' }, upgradedLive: '💎 @{n} turned their house into a {t}!', newText: "This is your robot 👆 It was generated from your username — nobody else has this one. It doesn't live in the city yet.", soon: 'FOLLOWERS TO UNLOCK', goalDone: 'All stages unlocked 🏆', unlocked: '{x} unlocked! 🎉 Reload the page', follow: '📸 Follow on Instagram',
+  en: { more: 'Details', upgrade: '💎 Upgrade my house', sponsors: 'City sponsors', sponsorsHint: 'Followers who upgraded their house with a donation ❤️ Thank you!', level: 'Level', tierNames: { 1: 'Silver villa', 2: 'Gold castle', 3: 'Diamond palace' }, upgradedLive: '💎 @{n} turned their house into a {t}!', newText: "This is your robot 👆 It was generated from your username — nobody else has this one. It doesn't live in the city yet.", soon: 'FOLLOWERS TO UNLOCK', goalDone: 'All stages unlocked 🏆', unlocked: '{x} unlocked! 🎉 Reload the page', follow: '📸 Follow on Instagram',
     followFirst: 'To move into the city, follow <b>@{o}</b>. New followers are moved in regularly and their robot gets a house 🏠', moved: 'moved into the city', liveNew: '🆕 @{n} just moved into the city!',
     vipTitle: 'Top fans of the week', vipBadge: 'Top fan of the week', vipHint: 'Followers with the most comments — their robots wear crowns 👑', rec: '🎬 Reel', recording: 'Recording...', recDone: 'Video ready and downloaded ✅', recNo: "This browser can't record video",
     goals: { airport: 'Airport', metro: 'Metro', beach: 'Beach', f1: 'Formula-1 track' },
@@ -196,7 +196,9 @@ const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0xcfe0ee, 260, 1300);
 const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.5, 6000);
 const controls = new MapControls(camera, renderer.domElement);
-controls.screenSpacePanning = false; controls.zoomToCursor = true; controls.panSpeed = 1.2; controls.rotateSpeed = 0.6;
+controls.screenSpacePanning = false; controls.zoomToCursor = true; controls.panSpeed = MOBILE ? 1.6 : 1.2; controls.rotateSpeed = 0.6; controls.zoomSpeed = MOBILE ? 1.4 : 1;
+controls.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE }; renderer.domElement.style.touchAction = 'none';
+for (const ev of ['gesturestart', 'gesturechange']) document.addEventListener(ev, (e) => e.preventDefault(), { passive: false });
 controls.enableDamping = true; controls.dampingFactor = 0.08; controls.maxPolarAngle = Math.PI * 0.48; controls.minDistance = 6; controls.maxDistance = 1600;
 const skyCanvas = document.createElement('canvas'); skyCanvas.width = 4; skyCanvas.height = 256;
 const skyTex = new THREE.CanvasTexture(skyCanvas); skyTex.colorSpace = THREE.SRGBColorSpace; scene.background = skyTex;
@@ -907,14 +909,14 @@ function select(sp, fresh = false) {
   const dir = viewDir(sp, x, z).applyAxisAngle(YAX, 0.35);
   follow = true; flyTo(tg.clone().add(dir.multiplyScalar(12)).setY(7.5), tg); cardState = { kind: 'res', sp, fresh }; renderCard();
 }
-function home() { selected = null; cardState = null; labelAssignT = -9; $('#card').classList.remove('on'); flyTo(HOME_P, HOME_T); }
+function home() { selected = null; cardState = null; labelAssignT = -9; $('#card').classList.remove('on'); document.body.classList.remove('cardopen'); flyTo(HOME_P, HOME_T); }
 function renderCard() {
   const c = $('#card'), st = cardState; if (!st) return;
   if (st.kind === 'res') {
     const sp = st.sp, h = houseIdx[sp.i];
-    c.innerHTML = `<button class="x" aria-label="×">×</button><div class="bot">${robotSVG(sp.name)}</div><h2>@${esc(sp.name)}</h2>
-      <div class="code">${sp.code} · ${T('roles')[sp.role]}</div>
-      <dl><dt>${T('type')}</dt><dd>${sp.traits.f ? T('girl') : T('boy')}</dd>
+    c.innerHTML = `<button class="x" aria-label="×">×</button><div class="hdr"><div class="bot">${robotSVG(sp.name)}</div><div class="ttl"><h2>@${esc(sp.name)}</h2>
+      <div class="code">${sp.code} · ${T('roles')[sp.role]}</div><div class="mini">🏠 ${T('homeV').replace('{b}', h.block).replace('{l}', h.lot)} · ${T('st')[sp.act] || ''}</div></div></div>
+      <button class="more" data-a="more">${T('more')} ▾</button><dl><dt>${T('type')}</dt><dd>${sp.traits.f ? T('girl') : T('boy')}</dd>
       <dt>${T('home')}</dt><dd>${T('homeV').replace('{b}', h.block).replace('{l}', h.lot)}</dd>
       <dt>${T('num')}</dt><dd>#${(sp.i + 1).toLocaleString('ru-RU')}</dd>
       <dt>${T('status')}</dt><dd>${T('st')[sp.act] || ''}</dd>${sp.traits.vip ? `<dt>👑</dt><dd>${T('vipBadge')} #${sp.traits.vip}</dd>` : ''}${UPG.get(sp.name) ? `<dt>${TIER_INFO[UPG.get(sp.name)].icon}</dt><dd>${T('tierNames')[UPG.get(sp.name)]}</dd>` : ''}</dl>
@@ -930,11 +932,11 @@ function renderCard() {
     const rows = [...VIP.entries()].sort((a, b) => a[1] - b[1]).map(([n, r]) => `<button class="vrow" data-a="pick" data-n="${esc(n)}"><b>${r === 1 ? '🥇' : r === 2 ? '🥈' : r === 3 ? '🥉' : '#' + r}</b> @${esc(n)}</button>`).join('');
     c.innerHTML = `<button class="x" aria-label="×">×</button><h2>🏆 ${T('vipTitle')}</h2><div class="code">${esc(VIP_WEEK)}</div><p class="vh">${T('vipHint')}</p><div class="vlist">${rows}</div>`;
   } else if (st.kind === 'owner') {
-    c.innerHTML = `<button class="x" aria-label="×">×</button><div class="bot">${robotSVG(OWNER, 'RX-0001')}</div><h2>@${esc(OWNER)}</h2><div class="code">RX-0001 · ${T('ownerRole')}</div>
+    c.innerHTML = `<button class="x" aria-label="×">×</button><div class="hdr"><div class="bot">${robotSVG(OWNER, 'RX-0001')}</div><div class="ttl"><h2>@${esc(OWNER)}</h2><div class="code">RX-0001 · ${T('ownerRole')}</div></div></div>
       <dl><dt>${T('home')}</dt><dd>${T('ownerAddr')}</dd><dt>${T('height')}</dt><dd>${T('ownerH')}</dd></dl>
       <div class="acts"><button data-a="tour">${T('tourBtn')}</button><button class="pri" data-a="random">${T('randomRes')}</button></div>`;
   }
-  c.classList.add('on');
+  c.classList.add('on'); c.classList.remove('exp'); document.body.classList.add('cardopen');
 }
 function showOwner() { selected = null; flyTo(new THREE.Vector3(30, 26, 44), new THREE.Vector3(0, 12, 0)); cardState = { kind: 'owner' }; renderCard(); }
 function showNew(name) { selected = null; cardState = { kind: 'new', name }; renderCard(); }
@@ -965,6 +967,7 @@ $('#card').addEventListener('click', (e) => {
   if (a === 'story' && cardState?.sp) openStory(cardState.sp);
   if (a === 'claim' && cardState?.name) claim(cardState.name);
   if (a === 'random') randomRes();
+  if (a === 'more') { $('#card').classList.toggle('exp'); b.textContent = T('more') + ($('#card').classList.contains('exp') ? ' ▴' : ' ▾'); }
   if (a === 'pick' && index.has(b.dataset.n)) select(specs[index.get(b.dataset.n)]);
 });
 let followOff = false;

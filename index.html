@@ -2,7 +2,7 @@
 <html lang="uz">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>AI SHAHAR 2036</title>
 <meta name="description" content="1 obunachi = 1 robot. Robotingni top: @otabeknazirov.aii">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,7 +12,8 @@
   body.day { --ink:#0f1d2a; --dim:#4f6275; --panel:rgba(255,255,255,.84); --line:rgba(20,90,140,.28); --g:#0fa95a; }
   * { box-sizing:border-box; }
   html, body { margin:0; height:100%; background:var(--bg); color:var(--ink); font-family:'Space Grotesk', system-ui, sans-serif; overflow:hidden; -webkit-tap-highlight-color:transparent; }
-  canvas#gl { display:block; }
+  canvas#gl { display:block; touch-action:none; }
+  .card .hdr { display:flex; flex-direction:column; align-items:center; } .card .ttl { text-align:center; } .card .mini, .card .more { display:none; }
   #ui { position:fixed; inset:0; pointer-events:none; transition:opacity .5s; }
   #ui > * { pointer-events:auto; }
   .top { position:absolute; top:12px; left:14px; right:14px; display:flex; justify-content:space-between; align-items:flex-start; gap:10px; pointer-events:none; }
@@ -81,8 +82,17 @@
   @media (max-width: 700px) {
     .top { flex-direction:column; }
     .tbtns { justify-content:flex-start; }
-    .card { left:10px; right:10px; width:auto; top:auto; bottom:92px; transform:translateY(160%); max-height:58%; }
-    .card .bot svg { width:90px; height:90px; }
+    .card { left:8px; right:8px; width:auto; top:auto; bottom:80px; transform:translateY(170%); max-height:40vh; padding:10px 12px; border-radius:14px; }
+    .card .hdr { flex-direction:row; align-items:center; gap:10px; padding-right:22px; }
+    .card .bot { margin:0; flex:0 0 auto; } .card .bot svg { width:52px; height:52px; }
+    .card .ttl { text-align:left; min-width:0; } .card h2 { font-size:16px; text-align:left; } .card .code { text-align:left; font-size:11px; margin-top:1px; }
+    .card .mini { display:block; font-size:11px; color:var(--dim); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .card .more { display:block; margin:6px 0 0; background:none; border:0; color:var(--g); font:600 12px 'Space Grotesk'; padding:0; }
+    .card dl { display:none; margin-top:6px; font-size:12px; gap:3px 8px; } .card.exp dl { display:grid; }
+    .card .acts { margin-top:8px; gap:6px; } .card .acts button, .card .acts a.ig, .card .acts a.upg { padding:8px 6px; font-size:12px; min-width:0; flex:1 1 30%; }
+    .card .acts button.story, .card .acts a.upg { flex:1 1 45%; }
+    .card .new p { font-size:12px; margin:6px 0; } .card .x { top:2px; right:6px; }
+    body.cardopen .map, body.cardopen .ticker, body.cardopen .goal { display:none; }
     .brand h1 { font-size:19px; }
     .chip { padding:7px 9px; font-size:12px; }
     .hint { display:none; }
