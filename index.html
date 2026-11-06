@@ -81,6 +81,25 @@
   body.driving #drivebar { display:flex; } body.driving .brand { display:none; } body.driving #joy { display:block; }
   body.driving .card, body.driving .search, body.driving .map, body.driving .ticker, body.driving .goal, body.driving .tbtns { display:none !important; }
   .card .acts button.drive { background:linear-gradient(90deg,#39ff88,#50d7ff); color:#04140b; border:0; font-weight:700; }
+  #chatBtn { position:fixed; right:14px; bottom:96px; z-index:12; background:var(--panel); color:var(--ink); border:1px solid rgba(57,255,136,.55); border-radius:999px; padding:9px 14px; font:600 13px 'Space Grotesk'; backdrop-filter:blur(8px); display:flex; align-items:center; gap:6px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#39ff88; box-shadow:0 0 8px #39ff88; display:inline-block; animation:pulse 1.6s infinite; }
+  @keyframes pulse { 50% { opacity:.35; } }
+  #chatUnread { background:#ff4fd8; color:#fff; border-radius:999px; padding:1px 7px; font-size:11px; margin-left:2px; }
+  #chatPanel { position:fixed; right:14px; bottom:96px; width:340px; height:min(460px, 62vh); z-index:13; background:var(--panel); border:1px solid rgba(57,255,136,.45); border-radius:16px; backdrop-filter:blur(12px); display:none; flex-direction:column; overflow:hidden; }
+  body.chatopen #chatPanel { display:flex; } body.chatopen #chatBtn { display:none; }
+  .ch-h { display:flex; align-items:center; gap:8px; padding:10px 12px; border-bottom:1px solid var(--line); font-size:14px; } .ch-on { font-size:12px; color:var(--dim); display:flex; align-items:center; gap:5px; margin-left:auto; }
+  #chatClose { background:none; border:0; color:var(--dim); font-size:22px; line-height:1; }
+  #chatList { flex:1; overflow:auto; padding:8px 12px; display:flex; flex-direction:column; gap:6px; font-size:13px; }
+  #chatList .empty { color:var(--dim); text-align:center; margin:auto; font-size:13px; }
+  .msg { line-height:1.35; word-wrap:break-word; } .msg .who { color:#50d7ff; font-weight:700; cursor:default; } .msg .who.res { color:#39ff88; cursor:pointer; } .msg.own .who { color:#ffc94a; } .msg i { color:var(--dim); font-size:10px; font-style:normal; }
+  .msg.me { background:rgba(57,255,136,.08); border-radius:8px; padding:3px 6px; }
+  #chatForm { border-top:1px solid var(--line); padding:8px; display:flex; flex-direction:column; gap:6px; }
+  #chatForm input { background:rgba(255,255,255,.06); border:1px solid var(--line); color:var(--ink); border-radius:10px; padding:8px 10px; font:500 13px 'JetBrains Mono', monospace; outline:0; min-width:0; }
+  #chatForm .row { display:flex; gap:6px; } #chatForm .row input { flex:1; font-family:'Space Grotesk'; font-size:14px; }
+  #chatSendBtn { background:var(--g); color:var(--acc); border:0; border-radius:10px; padding:0 14px; font-size:16px; font-weight:700; }
+  .ch-r { font-size:10px; color:var(--dim); text-align:center; }
+  .cbub { position:fixed; transform:translate(-50%,-100%); background:#39ff88; color:#04140b; padding:6px 10px; border-radius:12px; font:600 12px 'Space Grotesk'; max-width:200px; text-align:center; pointer-events:none; z-index:5; box-shadow:0 4px 14px rgba(0,0,0,.35); }
+  body.driving #chatBtn, body.cinema #chatBtn, body.cinema #chatPanel { display:none; }
   #loader { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#05060c; z-index:9; transition:opacity .6s; font:700 14px 'JetBrains Mono', monospace; color:#39ff88; letter-spacing:.2em; text-align:center; }
   #loader .big { font:700 34px 'Space Grotesk'; letter-spacing:.08em; color:#e8f6ee; margin-bottom:10px; text-shadow:0 0 18px rgba(57,255,136,.6); }
   body.cinema #ui { opacity:0; } body.cinema #ui * { pointer-events:none !important; }
@@ -100,7 +119,9 @@
     .card .acts { margin-top:8px; gap:6px; } .card .acts button, .card .acts a.ig, .card .acts a.upg { padding:8px 6px; font-size:12px; min-width:0; flex:1 1 30%; }
     .card .acts button.story, .card .acts a.upg { flex:1 1 45%; }
     .card .new p { font-size:12px; margin:6px 0; } .card .x { top:2px; right:6px; }
-    body.cardopen .map, body.cardopen .ticker, body.cardopen .goal { display:none; }
+    body.cardopen .map, body.cardopen .ticker, body.cardopen .goal, body.cardopen #chatBtn { display:none; }
+    #chatBtn { right:10px; bottom:196px; padding:7px 11px; font-size:12px; }
+    #chatPanel { left:8px; right:8px; width:auto; bottom:8px; height:62vh; }
     .brand h1 { font-size:19px; }
     .chip { padding:7px 9px; font-size:12px; }
     .hint { display:none; }
@@ -160,6 +181,16 @@ setTimeout(function(){if(document.getElementById('loader'))show('20 soniyadan be
 <div class="recbadge" id="recbadge"></div>
 <div id="drivebar"><div id="driveHint"></div><button id="driveExit"></button></div>
 <div id="joy"><div id="joyk"></div></div>
+<button id="chatBtn">💬 <span class="dot"></span><b id="onlN">1</b> <span data-t="online"></span><span id="chatUnread" style="display:none"></span></button>
+<div id="chatPanel">
+  <div class="ch-h"><b>💬 <span data-t="chat"></span></b><span class="ch-on"><span class="dot"></span><b id="onlN2">1</b> <span data-t="online"></span></span><button id="chatClose">×</button></div>
+  <div id="chatList"></div>
+  <form id="chatForm" autocomplete="off">
+    <input id="chatNick" maxlength="31" spellcheck="false" autocapitalize="off">
+    <div class="row"><input id="chatInput" maxlength="200"><button id="chatSendBtn" type="submit">➤</button></div>
+    <div class="ch-r" data-t="chatRules"></div>
+  </form>
+</div>
 <script type="module" src="city.js"></script>
 </body>
 </html>

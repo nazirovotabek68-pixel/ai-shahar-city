@@ -65,17 +65,17 @@ const I18N = {
     roles: ['Content manager', 'Translator', 'Developer', 'Designer', 'Video editor', 'Marketer', 'Scriptwriter', 'Analyst', 'Mentor', 'Sales agent', 'Musician', 'Researcher', 'Assistant', 'Strategist'] },
 };
 const I18N_X = {
-  uz: { drive: 'Boshqarish', driveHint: "Joystik yoki W A S D bilan yuring", driveExit: 'Chiqish', more: 'Batafsil', upgrade: '💎 Uyimni yaxshilash', sponsors: 'Shahar homiylari', sponsorsHint: "Uyini donat orqali yaxshilagan obunachilar ❤️ Rahmat!", level: 'Daraja', tierNames: { 1: 'Kumush villa', 2: 'Oltin qasr', 3: 'Olmos saroy' }, upgradedLive: '💎 @{n} uyini {t}ga aylantirdi!', newText: "Bu sening robotingning ko'rinishi 👆 U nikneymingdan yaratildi, boshqa hech kimda bunday robot yo'q. Hozircha u shaharda yashamaydi.", soon: 'OBUNACHIDA OCHILADI', goalDone: 'Barcha bosqichlar ochildi 🏆', unlocked: '{x} ochildi! 🎉 Sahifani yangilang', follow: "📸 Instagramda obuna bo'lish",
+  uz: { chat: 'Shahar chati', online: 'onlayn', chatPh: 'Xabar yozing...', chatSend: 'Yuborish', chatWho: 'Nikneymingiz (shahar aholisi bo\'lsangiz)', chatGuest: "Shaharda bo'lmasangiz, mehmon sifatida yozasiz", chatSlow: 'Biroz kuting, juda tez yozyapsiz', chatLimit: "10 daqiqada 20 tadan ko'p yozib bo'lmaydi", chatSoon: 'Chat tez orada ishga tushadi', chatEmpty: "Hali xabar yo'q. Birinchi bo'lib yozing! 👋", chatAdmin: 'Admin paroli', chatErr: "Yuborib bo'lmadi", chatRules: "Hurmat bilan yozing. Havolalar va so'kinishlar avtomatik bloklanadi.", drive: 'Boshqarish', driveHint: "Joystik yoki W A S D bilan yuring", driveExit: 'Chiqish', more: 'Batafsil', upgrade: '💎 Uyimni yaxshilash', sponsors: 'Shahar homiylari', sponsorsHint: "Uyini donat orqali yaxshilagan obunachilar ❤️ Rahmat!", level: 'Daraja', tierNames: { 1: 'Kumush villa', 2: 'Oltin qasr', 3: 'Olmos saroy' }, upgradedLive: '💎 @{n} uyini {t}ga aylantirdi!', newText: "Bu sening robotingning ko'rinishi 👆 U nikneymingdan yaratildi, boshqa hech kimda bunday robot yo'q. Hozircha u shaharda yashamaydi.", soon: 'OBUNACHIDA OCHILADI', goalDone: 'Barcha bosqichlar ochildi 🏆', unlocked: '{x} ochildi! 🎉 Sahifani yangilang', follow: "📸 Instagramda obuna bo'lish",
     followFirst: "Shaharga ko'chib o'tish uchun <b>@{o}</b> ga obuna bo'l. Yangi obunachilar muntazam shaharga ko'chiriladi va robotingga uy quriladi 🏠", moved: "shaharga ko'chib keldi", liveNew: "🆕 @{n} hozirgina shaharga ko'chib keldi!",
     vipTitle: 'Haftaning faollari', vipBadge: 'Haftaning faoli', vipHint: "Eng ko'p izoh qoldirgan obunachilar — robotlariga toj kiygizildi 👑", rec: '🎬 Reel', recording: 'Yozilmoqda...', recDone: 'Video tayyor va yuklab olindi ✅', recNo: "Bu brauzer video yozishni qo'llamaydi",
     goals: { airport: 'Aeroport', metro: 'Metro', beach: "Dengiz bo'yi", f1: 'Formula-1 trassasi' },
     says: { home: ['Uyimda dam olyapman 🏠', "Bugun AI haqida yangi narsa o'rgandim 🤖", 'Qo\'shnilarim juda yaxshi odamlar'], walk: ['Shahar bugun juda chiroyli ✨', 'Sayr — eng yaxshi dam olish 🚶', 'Aeroport qachon ochilarkan? ✈️'], sport: ['Yana bir aylana! 🏃', "Sport — robotning moyi 💪", 'Bugun rekord qo\'yaman 🏆'], food: ['Bu yerda qahva zo\'r ☕', 'Plov qachon tayyor bo\'ladi? 🍛', 'Yangi naushnik olmoqchiman 🎧'], fun: ['Bu zarbani ko\'r! 🎱', 'Daraxtlar ostida o\'ylayapman 🌳', 'Dam olish ham kerak 😌'], all: ['@{o} ning yangi videosini ko\'rdingmi? 👀', "Do'stlarimni ham shaharga chaqiraman 📲"] } },
-  ru: { drive: 'Управлять', driveHint: 'Джойстик или W A S D', driveExit: 'Выйти', more: 'Подробнее', upgrade: '💎 Улучшить дом', sponsors: 'Спонсоры города', sponsorsHint: 'Подписчики, улучшившие дом через донат ❤️ Спасибо!', level: 'Уровень', tierNames: { 1: 'Серебряная вилла', 2: 'Золотой замок', 3: 'Бриллиантовый дворец' }, upgradedLive: '💎 @{n} превратил(а) дом в «{t}»!', newText: 'Так выглядит твой робот 👆 Он создан из твоего ника — ни у кого больше такого нет. Пока он не живёт в городе.', soon: 'ПОДПИСЧИКОВ — ОТКРЫТИЕ', goalDone: 'Все этапы открыты 🏆', unlocked: '{x} открыт! 🎉 Обнови страницу', follow: '📸 Подписаться в Instagram',
+  ru: { chat: 'Чат города', online: 'онлайн', chatPh: 'Напишите сообщение...', chatSend: 'Отправить', chatWho: 'Ваш ник (если вы житель города)', chatGuest: 'Если вас нет в городе — пишете как гость', chatSlow: 'Подождите немного', chatLimit: 'Не больше 20 сообщений за 10 минут', chatSoon: 'Чат скоро заработает', chatEmpty: 'Пока нет сообщений. Напишите первым! 👋', chatAdmin: 'Пароль админа', chatErr: 'Не удалось отправить', chatRules: 'Пишите уважительно. Ссылки и мат блокируются автоматически.', drive: 'Управлять', driveHint: 'Джойстик или W A S D', driveExit: 'Выйти', more: 'Подробнее', upgrade: '💎 Улучшить дом', sponsors: 'Спонсоры города', sponsorsHint: 'Подписчики, улучшившие дом через донат ❤️ Спасибо!', level: 'Уровень', tierNames: { 1: 'Серебряная вилла', 2: 'Золотой замок', 3: 'Бриллиантовый дворец' }, upgradedLive: '💎 @{n} превратил(а) дом в «{t}»!', newText: 'Так выглядит твой робот 👆 Он создан из твоего ника — ни у кого больше такого нет. Пока он не живёт в городе.', soon: 'ПОДПИСЧИКОВ — ОТКРЫТИЕ', goalDone: 'Все этапы открыты 🏆', unlocked: '{x} открыт! 🎉 Обнови страницу', follow: '📸 Подписаться в Instagram',
     followFirst: 'Чтобы переехать в город, подпишись на <b>@{o}</b>. Новых подписчиков регулярно заселяют в город и строят роботу дом 🏠', moved: 'переехал(а) в город', liveNew: '🆕 @{n} только что переехал(а) в город!',
     vipTitle: 'Активисты недели', vipBadge: 'Активист недели', vipHint: 'Подписчики с самыми активными комментариями — их роботы в коронах 👑', rec: '🎬 Reel', recording: 'Запись...', recDone: 'Видео готово и скачано ✅', recNo: 'Этот браузер не умеет записывать видео',
     goals: { airport: 'Аэропорт', metro: 'Метро', beach: 'Пляж', f1: 'Трасса Формулы-1' },
     says: { home: ['Отдыхаю дома 🏠', 'Сегодня узнал новое про ИИ 🤖', 'У меня классные соседи'], walk: ['Город сегодня очень красивый ✨', 'Прогулка — лучший отдых 🚶', 'Когда откроют аэропорт? ✈️'], sport: ['Ещё один круг! 🏃', 'Спорт — масло для робота 💪', 'Сегодня поставлю рекорд 🏆'], food: ['Здесь отличный кофе ☕', 'Когда будет плов? 🍛', 'Хочу новые наушники 🎧'], fun: ['Смотри, какой удар! 🎱', 'Думаю под деревьями 🌳', 'Отдыхать тоже нужно 😌'], all: ['Видел новое видео @{o}? 👀', 'Позову друзей в город 📲'] } },
-  en: { drive: 'Drive', driveHint: 'Joystick or W A S D', driveExit: 'Exit', more: 'Details', upgrade: '💎 Upgrade my house', sponsors: 'City sponsors', sponsorsHint: 'Followers who upgraded their house with a donation ❤️ Thank you!', level: 'Level', tierNames: { 1: 'Silver villa', 2: 'Gold castle', 3: 'Diamond palace' }, upgradedLive: '💎 @{n} turned their house into a {t}!', newText: "This is your robot 👆 It was generated from your username — nobody else has this one. It doesn't live in the city yet.", soon: 'FOLLOWERS TO UNLOCK', goalDone: 'All stages unlocked 🏆', unlocked: '{x} unlocked! 🎉 Reload the page', follow: '📸 Follow on Instagram',
+  en: { chat: 'City chat', online: 'online', chatPh: 'Type a message...', chatSend: 'Send', chatWho: 'Your username (if you live in the city)', chatGuest: "If you're not in the city you'll write as a guest", chatSlow: 'Slow down a little', chatLimit: 'Max 20 messages per 10 minutes', chatSoon: 'Chat is coming soon', chatEmpty: 'No messages yet. Say hi first! 👋', chatAdmin: 'Admin password', chatErr: "Couldn't send", chatRules: 'Be respectful. Links and swearing are blocked automatically.', drive: 'Drive', driveHint: 'Joystick or W A S D', driveExit: 'Exit', more: 'Details', upgrade: '💎 Upgrade my house', sponsors: 'City sponsors', sponsorsHint: 'Followers who upgraded their house with a donation ❤️ Thank you!', level: 'Level', tierNames: { 1: 'Silver villa', 2: 'Gold castle', 3: 'Diamond palace' }, upgradedLive: '💎 @{n} turned their house into a {t}!', newText: "This is your robot 👆 It was generated from your username — nobody else has this one. It doesn't live in the city yet.", soon: 'FOLLOWERS TO UNLOCK', goalDone: 'All stages unlocked 🏆', unlocked: '{x} unlocked! 🎉 Reload the page', follow: '📸 Follow on Instagram',
     followFirst: 'To move into the city, follow <b>@{o}</b>. New followers are moved in regularly and their robot gets a house 🏠', moved: 'moved into the city', liveNew: '🆕 @{n} just moved into the city!',
     vipTitle: 'Top fans of the week', vipBadge: 'Top fan of the week', vipHint: 'Followers with the most comments — their robots wear crowns 👑', rec: '🎬 Reel', recording: 'Recording...', recDone: 'Video ready and downloaded ✅', recNo: "This browser can't record video",
     goals: { airport: 'Airport', metro: 'Metro', beach: 'Beach', f1: 'Formula-1 track' },
@@ -982,7 +982,7 @@ $('#btnHome').onclick = home; $('#btnRand').onclick = randomRes; $('#btnTour').o
 function applyLang() {
   document.documentElement.lang = LANG;
   document.querySelectorAll('[data-t]').forEach((el) => { el.textContent = T(el.dataset.t); });
-  $('#q').placeholder = T('ph'); const lt = $('#ltext'); if (lt) lt.textContent = T('loader');
+  $('#q').placeholder = T('ph'); if ($('#chatInput')) { $('#chatInput').placeholder = T('chatPh'); $('#chatNick').placeholder = T('chatWho'); } const lt = $('#ltext'); if (lt) lt.textContent = T('loader');
   document.querySelectorAll('#langs button').forEach((b) => b.classList.toggle('on', b.dataset.l === LANG));
   $('#ownerTag').textContent = '@' + OWNER; $('#ownerTag').href = 'https://instagram.com/' + OWNER; const lg = T('lg');
   $('#legend').innerHTML = `<span><i style="background:#5a6170"></i>${lg.down}</span><span><i style="background:#c98b5b"></i>${lg.amen}</span><span><i style="background:#7aa85a"></i>${lg.res}</span><span><i style="background:#39ff88;border-radius:50%"></i>${lg.bots}</span><span><i style="background:#ff4fd8;border-radius:50%"></i>${lg.you}</span>`;
@@ -1354,6 +1354,59 @@ function initDriveUI() {
   addEventListener('keydown', (e) => { if (e.key === 'Escape' && drive) stopDrive(); });
 }
 
+// ======================= online counter + city chat =======================
+const CHAT = { open: false, unread: 0, ready: false, seen: new Set(), myId: (() => { let v = store.get('aishahar_uid'); if (!v) { v = Math.random().toString(36).slice(2, 10); store.set('aishahar_uid', v); } return v; })() };
+const chatBubbles = [];
+function chatNick() { let n = clean(store.get('aishahar_chat_nick') || ''); if (!n) { n = 'mehmon_' + String(Math.floor(1000 + Math.random() * 9000)); } return n; }
+function fmtTime(iso) { try { const d = new Date(iso); return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: CFG.timezone }); } catch (e) { return ''; } }
+function addMsg(m, live) {
+  if (!m || CHAT.seen.has(m.id)) return; CHAT.seen.add(m.id); const list = $('#chatList'); const empty = list.querySelector('.empty'); if (empty) empty.remove();
+  const el = document.createElement('div'); el.className = 'msg' + (m.nick === OWNER ? ' own' : '') + (m.nick === clean(store.get('aishahar_chat_nick') || '') ? ' me' : '');
+  const resident = index.has(m.nick) || m.nick === OWNER;
+  el.innerHTML = `<span class="who${resident ? ' res' : ''}" data-n="${esc(m.nick)}">@${esc(m.nick)}${m.verified ? ' ✔️' : ''}</span> <span class="tx"></span> <i>${fmtTime(m.created_at)}</i>`; el.querySelector('.tx').textContent = m.text;
+  list.appendChild(el); while (list.children.length > 120) list.firstChild.remove(); list.scrollTop = list.scrollHeight;
+  if (live) { if (!CHAT.open) { CHAT.unread++; updChatBtn(); } if (index.has(m.nick)) showChatBubble(specs[index.get(m.nick)], m.text); }
+}
+function showChatBubble(sp, text) {
+  const el = document.createElement('div'); el.className = 'cbub'; el.textContent = text.length > 70 ? text.slice(0, 68) + '…' : text; document.body.appendChild(el);
+  chatBubbles.push({ sp, el, until: performance.now() + 7000 }); while (chatBubbles.length > 4) { const b = chatBubbles.shift(); b.el.remove(); }
+}
+const CBV = new THREE.Vector3();
+function updateChatBubbles(t) {
+  const now = performance.now();
+  for (let i = chatBubbles.length - 1; i >= 0; i--) { const b = chatBubbles[i]; if (now > b.until) { b.el.remove(); chatBubbles.splice(i, 1); continue; }
+    const [x, z] = robotPos(b.sp, t); CBV.set(x, 4.6 * b.sp.traits.u + 1.2, z).project(camera); const vis = CBV.z < 1 && Math.abs(CBV.x) < 1.1 && Math.abs(CBV.y) < 1.1;
+    b.el.style.display = vis ? '' : 'none'; if (vis) { b.el.style.left = ((CBV.x + 1) / 2 * innerWidth) + 'px'; b.el.style.top = ((1 - CBV.y) / 2 * innerHeight) + 'px'; } }
+}
+function updChatBtn() { const n = CHAT.online || 1; $('#onlN').textContent = n; $('#onlN2').textContent = n; const u = $('#chatUnread'); u.textContent = CHAT.unread; u.style.display = CHAT.unread ? '' : 'none'; }
+async function sendChat(e) {
+  e.preventDefault(); const inp = $('#chatInput'), text = inp.value.trim(); if (!text) return;
+  let nick = clean($('#chatNick').value || ''); if (!nick || (!index.has(nick) && nick !== OWNER)) { nick = clean(store.get('aishahar_guest') || '') || chatNick(); if (!/^mehmon_\d{4}$/.test(nick)) nick = chatNick(); store.set('aishahar_guest', nick); $('#chatNick').value = nick; }
+  store.set('aishahar_chat_nick', nick); let admin;
+  if (nick === OWNER) { admin = store.get('aishahar_admin_pw') || prompt(T('chatAdmin')) || ''; if (admin) store.set('aishahar_admin_pw', admin); }
+  $('#chatSendBtn').disabled = true;
+  try { const r = await fetch('/api/chat', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ nick, text, admin }) }); const j = await r.json().catch(() => ({}));
+    if (r.ok) { inp.value = ''; } else { if (j.error === 'owner') store.set('aishahar_admin_pw', ''); toast(j.error === 'slow' ? T('chatSlow') : j.error === 'limit' ? T('chatLimit') : T('chatErr')); } }
+  catch (err) { toast(T('chatErr')); } finally { $('#chatSendBtn').disabled = false; inp.focus(); }
+}
+function setChatOpen(v) { CHAT.open = v; document.body.classList.toggle('chatopen', v); if (v) { CHAT.unread = 0; updChatBtn(); const l = $('#chatList'); l.scrollTop = l.scrollHeight; } }
+async function initChat() {
+  $('#chatBtn').onclick = () => setChatOpen(!CHAT.open); $('#chatClose').onclick = () => setChatOpen(false); $('#chatForm').addEventListener('submit', sendChat);
+  $('#chatNick').value = store.get('aishahar_chat_nick') || ''; $('#chatList').innerHTML = `<div class="empty">${T('chatEmpty')}</div>`; updChatBtn();
+  const c = await sb(); if (!c) { $('#chatList').innerHTML = `<div class="empty">${T('chatSoon')}</div>`; return; }
+  // who is online right now (Supabase Realtime presence — no database needed)
+  try { const ch = c.channel('city-online', { config: { presence: { key: CHAT.myId } } });
+    ch.on('presence', { event: 'sync' }, () => { CHAT.online = Object.keys(ch.presenceState()).length; updChatBtn(); });
+    ch.subscribe(async (st) => { if (st === 'SUBSCRIBED') await ch.track({ at: Date.now() }); }); } catch (e) {}
+  // chat history + live messages
+  try { const { data, error } = await c.from('chat').select('id,nick,text,verified,created_at').order('id', { ascending: false }).limit(60); if (error) throw error;
+    CHAT.ready = true; (data || []).reverse().forEach((m) => addMsg(m, false));
+    c.channel('chat-live').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat' }, (p) => addMsg(p.new, true)).subscribe();
+    setInterval(async () => { if (document.hidden) return; const last = Math.max(0, ...CHAT.seen); const { data } = await c.from('chat').select('id,nick,text,verified,created_at').gt('id', last).order('id', { ascending: true }).limit(30); (data || []).forEach((m) => addMsg(m, true)); }, 15000);
+  } catch (e) { $('#chatList').innerHTML = `<div class="empty">${T('chatSoon')}</div>`; $('#chatSendBtn').disabled = true; }
+  $('#chatList').addEventListener('click', (e) => { const w = e.target.closest('.who'); if (w && index.has(w.dataset.n)) { setChatOpen(innerWidth > 700); select(specs[index.get(w.dataset.n)]); } });
+}
+
 // ======================= minimap =======================
 const mapC = $('#mapc'), mapG = mapC.getContext('2d'); let mapStatic = null;
 const W2M = (x, z) => { const E = HWY + 20, s = mapC.width / (2 * E); return [(x + E) * s, (z + E) * s]; };
@@ -1409,7 +1462,7 @@ function frame() {
     camera.position.set(around.x + Math.cos(a) * r, y, around.z + Math.sin(a) * r); controls.target.copy(around); }
   moveKeys(dt); controls.update();
   if (SHADOWS) { sun.target.position.copy(controls.target); sun.position.copy(controls.target).addScaledVector(SUN_DIR, 400); const d = THREE.MathUtils.clamp(camera.position.distanceTo(controls.target) * 1.2, 60, 260); const c = sun.shadow.camera; if (Math.abs(c.right - d) > 5) { c.left = -d; c.right = d; c.top = d; c.bottom = -d; c.updateProjectionMatrix(); } }
-  updateCars(t, dt); updateLights(t); updateLabels(t); drawMap(t); updateExtras(t, dt); updateDonations(t, dt); updateDrive(dt);
+  updateCars(t, dt); updateLights(t); updateLabels(t); drawMap(t); updateExtras(t, dt); updateDonations(t, dt); updateDrive(dt); updateChatBubbles(t);
   ownerGroup.rotation.y = Math.sin(t * 0.2) * 0.5;
   if (beam.visible) { const cd = camera.position.distanceTo(controls.target); beam.material.opacity = (0.14 + Math.sin(t * 3) * 0.06) * THREE.MathUtils.clamp((cd - 25) / 60, 0, 1); const s = 1 + (t % 1.4) * 0.9; hring.scale.set(s, s, s); hring.material.opacity = 1 - (t % 1.4) / 1.4; }
   if (composer) composer.render(); else renderer.render(scene, camera);
@@ -1471,5 +1524,5 @@ if (!LITE) setTimeout(() => { try { const g = renderer.getContext(), px = new Ui
 setTimeout(() => { $('#loader').style.opacity = 0; setTimeout(() => $('#loader').remove(), 700); flyTo(HOME_P, HOME_T, 3.2); animatePop(specs.length + 1); setTimeout(() => { if (!cardState) toast('👆 ' + T('tapHint'), 7000); }, 3600); }, 500);
 const hashNick = clean(decodeURIComponent(location.hash.slice(1) || ''));
 if (hashNick) setTimeout(() => { if (hashNick === OWNER) showOwner(); else if (index.has(hashNick)) select(specs[index.get(hashNick)]); else showNew(hashNick); }, 3800);
-checkGoals(false); initExtrasUI(); initDonations(); initDriveUI();
+checkGoals(false); initExtrasUI(); initDonations(); initDriveUI(); initChat();
 window.__city = { cars, recordReel, GOALS, goalSite, specs, B, RP, robotPos, UTIME, labelPool, scene, camera, controls, THREE, signs, carBody, carCab, carLamp, carTail, ownerGroup, stars, beam };
