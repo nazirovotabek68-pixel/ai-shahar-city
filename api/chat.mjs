@@ -5,6 +5,7 @@ const SB_URL = 'https://doeqliwebntqzjqkaqrt.supabase.co';
 const SITE = process.env.SITE_URL || 'https://ai-shahar-city.vercel.app';
 const OWNER = 'otabeknazirov.aii';
 const BAD = ['blyat', 'bljad', 'suka', 'pizd', 'xuy', 'xuj', 'hui', 'huy', 'eban', 'yeban', 'ebat', 'mudak', 'gandon', 'qotoq', 'qo\'toq', 'jalab', 'amingni', 'onangni', 'sikay', 'sikdim', 'skay', 'dalbayob', 'dolboyob', 'fuck', 'shit', 'bitch', 'бля', 'сука', 'пизд', 'хуй', 'хуе', 'еба', 'ёба', 'мудак', 'гандон', 'жалаб', 'қўтоқ'];
+const isAdmin = (pw) => { const a = (process.env.ADMIN_PASSWORD || process.env.TELEGRAM_WEBHOOK_SECRET || '').trim(); return !!a && String(pw || '').trim() === a; };
 let residentsCache = { at: 0, set: null };
 async function residents() {
   if (residentsCache.set && Date.now() - residentsCache.at < 120000) return residentsCache.set;
@@ -22,16 +23,28 @@ function cleanText(t) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ ok: false });
   if (!process.env.SUPABASE_SECRET_KEY) return res.status(500).json({ ok: false, error: 'not configured' });
-  const b = req.body || {}; let nick = String(b.nick || '').toLowerCase().replace(/^@+/, '').replace(/[^a-z0-9._]/g, '').slice(0, 30);
+  const b = req.body || {};
+  if (b.action === 'delete' || b.action === 'ban' || b.action === 'unban' || b.action === 'bans') {
+    if (!isAdmin(b.admin)) return res.status(403).json({ ok: false, error: 'owner' });
+    try {
+      if (b.action === 'delete') { await fetch(`${SB_URL}/rest/v1/chat?id=eq.${Number(b.id) || 0}`, { method: 'DELETE', headers: headers() }); return res.status(200).json({ ok: true }); }
+      const n = String(b.nick || '').toLowerCase().replace(/[^a-z0-9._]/g, '').slice(0, 30);
+      if (b.action === 'ban') { await fetch(`${SB_URL}/rest/v1/chat_bans`, { method: 'POST', headers: { ...headers(), Prefer: 'resolution=ignore-duplicates,return=minimal' }, body: JSON.stringify({ nick: n }) }); await fetch(`${SB_URL}/rest/v1/chat?nick=eq.${n}`, { method: 'DELETE', headers: headers() }); return res.status(200).json({ ok: true }); }
+      if (b.action === 'unban') { await fetch(`${SB_URL}/rest/v1/chat_bans?nick=eq.${n}`, { method: 'DELETE', headers: headers() }); return res.status(200).json({ ok: true }); }
+      const list = await fetch(`${SB_URL}/rest/v1/chat_bans?select=nick&order=created_at.desc`, { headers: headers() }).then((r) => r.json()); return res.status(200).json({ ok: true, bans: list });
+    } catch (e) { return res.status(500).json({ ok: false, error: 'server' }); }
+  }
+  let nick = String(b.nick || '').toLowerCase().replace(/^@+/, '').replace(/[^a-z0-9._]/g, '').slice(0, 30);
   const text = cleanText(b.text); if (!text) return res.status(400).json({ ok: false, error: 'empty' });
   let verified = false;
-  if (nick === OWNER) { if (!b.admin || b.admin !== process.env.TELEGRAM_WEBHOOK_SECRET) return res.status(403).json({ ok: false, error: 'owner' }); verified = true; }
+  if (nick === OWNER) { if (!isAdmin(b.admin)) return res.status(403).json({ ok: false, error: 'owner' }); verified = true; }
   else if (!/^mehmon_\d{4}$/.test(nick) && !(await residents()).has(nick)) return res.status(400).json({ ok: false, error: 'nick' });
   // rate limit: 1 message / 4 s, 20 / 10 min per IP
   const ip = String(req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').split(',')[0].trim();
   const ipHash = crypto.createHash('sha256').update(ip + (process.env.TELEGRAM_WEBHOOK_SECRET || '')).digest('hex').slice(0, 32);
   const now = Date.now();
   try {
+    const banned = await fetch(`${SB_URL}/rest/v1/chat_bans?nick=eq.${nick}&select=nick`, { headers: headers() }).then((r) => r.json()).catch(() => []); if (Array.isArray(banned) && banned.length) return res.status(403).json({ ok: false, error: 'banned' });
     const r = await fetch(`${SB_URL}/rest/v1/chat_limits?ip_hash=eq.${ipHash}&select=last_at,win_at,n`, { headers: headers() }).then((x) => x.json());
     const row = Array.isArray(r) ? r[0] : null; let n = 1, win = new Date(now).toISOString();
     if (row) { const last = Date.parse(row.last_at), w = Date.parse(row.win_at); if (now - last < 4000) return res.status(429).json({ ok: false, error: 'slow' });

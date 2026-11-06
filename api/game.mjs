@@ -1,5 +1,7 @@
 // AI SHAHAR 2036 — game server: daily crystals, streaks, shop, house likes.
 // Writes only through here (secret key in env); everyone reads public columns from Supabase.
+import crypto from 'node:crypto';
+const isAdmin = (pw) => { const a = (process.env.ADMIN_PASSWORD || process.env.TELEGRAM_WEBHOOK_SECRET || '').trim(); return !!a && String(pw || '').trim() === a; };
 const SB = 'https://doeqliwebntqzjqkaqrt.supabase.co/rest/v1';
 const SITE = process.env.SITE_URL || 'https://ai-shahar-city.vercel.app';
 export const SHOP = {
@@ -16,6 +18,8 @@ function H(extra = {}) { const key = (process.env.SUPABASE_SECRET_KEY || '').rep
 async function sb(path, opt = {}) { const r = await fetch(SB + path, { ...opt, headers: H(opt.headers) }); const txt = await r.text(); if (!r.ok) throw new Error(path.split('?')[0] + ' ' + r.status + ' ' + txt.slice(0, 160)); return txt ? JSON.parse(txt) : null; }
 let resCache = { at: 0, set: null };
 async function isResident(n) { if (n === 'otabeknazirov.aii') return true; if (!resCache.set || Date.now() - resCache.at > 120000) { try { const j = await fetch(SITE + '/residents.json', { cache: 'no-store' }).then((r) => r.json()); resCache = { at: Date.now(), set: new Set((Array.isArray(j) ? j : j.residents || []).map(clean)) }; } catch (e) { return true; } } return resCache.set.has(n); }
+const hashCode = (nick, code) => crypto.createHash('sha256').update(nick + '|' + String(code).toUpperCase().replace(/[^A-Z0-9]/g, '')).digest('hex');
+const newCode = () => { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c = ''; for (let i = 0; i < 8; i++) c += A[crypto.randomInt(A.length)]; return c.slice(0, 4) + '-' + c.slice(4); };
 const pub = (p) => ({ nick: p.nick, crystals: p.crystals, total: p.total, streak: p.streak, best_streak: p.best_streak, items: p.items || [], equipped: p.equipped || {}, col_mask: p.col_day === day() ? p.col_mask : 0, day: day() });
 async function getPlayer(nick) { const r = await sb(`/players?nick=eq.${encodeURIComponent(nick)}&select=*`); return r[0] || null; }
 async function patch(nick, body) { const r = await sb(`/players?nick=eq.${encodeURIComponent(nick)}`, { method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify(body) }); return r[0]; }
@@ -31,13 +35,21 @@ export default async function handler(req, res) {
     }
     const nick = clean(b.nick); if (!nick || !(await isResident(nick))) return res.status(400).json({ ok: false, error: 'nick' });
     let p = await getPlayer(nick); const today = day();
+    if (action === 'unlink') { if (!isAdmin(b.admin)) return res.status(403).json({ ok: false, error: 'owner' }); if (p) await patch(nick, { uid: 'unlinked', recovery: null }); return res.status(200).json({ ok: true }); }
+    if (action === 'recover') {
+      if (!p || !p.recovery || hashCode(nick, b.code) !== p.recovery) return res.status(403).json({ ok: false, error: 'code' });
+      p = await patch(nick, { uid }); return res.status(200).json({ ok: true, player: pub(p) });
+    }
+    let recovery = null;
     if (action === 'hello') {
       if (!p) { p = (await sb('/players', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify({ nick, uid, streak: 0, crystals: 0 }) }))[0]; }
+      if (p.uid === 'unlinked') p = await patch(nick, { uid });
       if (p.uid !== uid) return res.status(403).json({ ok: false, error: 'taken' });
+      if (!p.recovery) { recovery = newCode(); p = await patch(nick, { recovery: hashCode(nick, recovery) }); }
       let bonus = 0;
       if (p.last_day !== today) { const y = day(new Date(Date.now() - 864e5)); const streak = p.last_day === y ? p.streak + 1 : 1; bonus = 5 * Math.min(streak, 7);
         p = await patch(nick, { streak, best_streak: Math.max(streak, p.best_streak || 0), last_day: today, crystals: p.crystals + bonus, total: p.total + bonus }); }
-      return res.status(200).json({ ok: true, bonus, player: pub(p) });
+      return res.status(200).json({ ok: true, bonus, recovery, player: pub(p) });
     }
     if (!p || p.uid !== uid) return res.status(403).json({ ok: false, error: 'taken' });
     if (action === 'collect') {
