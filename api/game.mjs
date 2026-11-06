@@ -1,6 +1,7 @@
 // AI SHAHAR 2036 — game server: daily crystals, streaks, shop, house likes.
 // Writes only through here (secret key in env); everyone reads public columns from Supabase.
 import crypto from 'node:crypto';
+import { questsFor, QUESTS, QUEST_REWARD, QUEST_BONUS } from './quests.mjs';
 const isAdmin = (pw) => { const a = (process.env.ADMIN_PASSWORD || process.env.TELEGRAM_WEBHOOK_SECRET || '').trim(); return !!a && String(pw || '').trim() === a; };
 const SB = 'https://doeqliwebntqzjqkaqrt.supabase.co/rest/v1';
 const SITE = process.env.SITE_URL || 'https://ai-shahar-city.vercel.app';
@@ -20,7 +21,7 @@ let resCache = { at: 0, set: null };
 async function isResident(n) { if (n === 'otabeknazirov.aii') return true; if (!resCache.set || Date.now() - resCache.at > 120000) { try { const j = await fetch(SITE + '/residents.json', { cache: 'no-store' }).then((r) => r.json()); resCache = { at: Date.now(), set: new Set((Array.isArray(j) ? j : j.residents || []).map(clean)) }; } catch (e) { return true; } } return resCache.set.has(n); }
 const hashCode = (nick, code) => crypto.createHash('sha256').update(nick + '|' + String(code).toUpperCase().replace(/[^A-Z0-9]/g, '')).digest('hex');
 const newCode = () => { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c = ''; for (let i = 0; i < 8; i++) c += A[crypto.randomInt(A.length)]; return c.slice(0, 4) + '-' + c.slice(4); };
-const pub = (p) => ({ nick: p.nick, crystals: p.crystals, total: p.total, streak: p.streak, best_streak: p.best_streak, items: p.items || [], equipped: p.equipped || {}, col_mask: p.col_day === day() ? p.col_mask : 0, day: day() });
+const pub = (p) => ({ nick: p.nick, crystals: p.crystals, total: p.total, streak: p.streak, best_streak: p.best_streak, items: p.items || [], equipped: p.equipped || {}, col_mask: p.col_day === day() ? p.col_mask : 0, day: day(), q_mask: p.q_day === day() ? p.q_mask : 0, race_best: p.race_week === week() ? p.race_best : null, tg: !!p.tg_chat });
 async function getPlayer(nick) { const r = await sb(`/players?nick=eq.${encodeURIComponent(nick)}&select=*`); return r[0] || null; }
 async function patch(nick, body) { const r = await sb(`/players?nick=eq.${encodeURIComponent(nick)}`, { method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify(body) }); return r[0]; }
 export default async function handler(req, res) {
@@ -59,6 +60,30 @@ export default async function handler(req, res) {
       const v = crystalValue(id); p = await patch(nick, { col_day: today, col_mask: mask | (1 << id), crystals: p.crystals + v, total: p.total + v, last_collect: new Date().toISOString() });
       return res.status(200).json({ ok: true, value: v, player: pub(p) });
     }
+    if (action === 'quest') { // claim one of today's quests
+      const qs = questsFor(today), slot = Number(b.slot); if (!(slot >= 0 && slot < 3)) return res.status(400).json({ ok: false, error: 'slot' });
+      const kind = QUESTS[qs[slot]], mask = p.q_day === today ? p.q_mask : 0; if (mask & (1 << slot)) return res.status(200).json({ ok: true, player: pub(p) });
+      const pop = (m) => { let c = 0; while (m) { c += m & 1; m >>>= 1; } return c; };
+      if (kind === 'crystals' && !(p.col_day === today && pop(p.col_mask) >= 5)) return res.status(400).json({ ok: false, error: 'notyet' });
+      if (kind === 'race' && p.race_day !== today) return res.status(400).json({ ok: false, error: 'notyet' });
+      if (kind === 'guest' && p.guest_day !== today) return res.status(400).json({ ok: false, error: 'notyet' });
+      const nm = mask | (1 << slot), v = QUEST_REWARD + (nm === 7 ? QUEST_BONUS : 0);
+      p = await patch(nick, { q_day: today, q_mask: nm, crystals: p.crystals + v, total: p.total + v }); return res.status(200).json({ ok: true, value: v, player: pub(p) });
+    }
+    if (action === 'race') { // highway-ring time trial, ~720 m at turbo speed
+      const tm = Number(b.time); if (!(tm >= 28 && tm < 900)) return res.status(400).json({ ok: false, error: 'time' });
+      const w = week(), cur = p.race_week === w ? p.race_best : null, best = cur == null || tm < cur;
+      p = await patch(nick, { race_day: today, ...(best ? { race_best: Math.round(tm * 100) / 100, race_week: w } : {}) }); return res.status(200).json({ ok: true, best, player: pub(p) });
+    }
+    if (action === 'guest') {
+      const target = clean(b.target), text = String(b.text || '').replace(/\s+/g, ' ').trim().slice(0, 200);
+      if (!target || !(await isResident(target)) || !text) return res.status(400).json({ ok: false, error: 'text' });
+      if (/(https?:\/\/|www\.|t\.me\/|\.(com|ru|uz|net|org)\b)/i.test(text)) return res.status(400).json({ ok: false, error: 'link' });
+      { const last = await sb(`/guestbook?author=eq.${encodeURIComponent(nick)}&select=created_at&order=id.desc&limit=1`); if (last[0] && Date.now() - Date.parse(last[0].created_at) < 20000) return res.status(429).json({ ok: false, error: 'slow' }); }
+      await sb('/guestbook', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ target, author: nick, text }) });
+      p = await patch(nick, { guest_day: today }); return res.status(200).json({ ok: true, player: pub(p) });
+    }
+    if (action === 'tglink') { const code = crypto.randomBytes(6).toString('hex'); await patch(nick, { tg_link: code }); return res.status(200).json({ ok: true, code }); }
     if (action === 'buy') {
       const item = String(b.item || ''), it = SHOP[item]; if (!it) return res.status(400).json({ ok: false, error: 'item' });
       const items = p.items || []; if (items.includes(item)) return res.status(200).json({ ok: true, player: pub(p) });

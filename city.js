@@ -357,7 +357,7 @@ function buildAmenity(b) {
     slab(b, '#9aa29a');
     const field = new THREE.Mesh(new THREE.CircleGeometry(1, 48), matStd({ color: 0x3d9a46 })); field.rotation.x = -Math.PI / 2; field.scale.set(13, 8, 1); field.position.set(cx, 0.4, cz); field.receiveShadow = SHADOWS; scene.add(field);
     const track = new THREE.Mesh(new THREE.RingGeometry(1, 1.28, 64), matStd({ color: 0xb8553a })); track.rotation.x = -Math.PI / 2; track.scale.set(14, 9, 1); track.position.set(cx, 0.38, cz); track.receiveShadow = SHADOWS; scene.add(track);
-    for (let i = 0; i < 72; i++) { const a = i / 72 * Math.PI * 2, rx = 20.5, rz = 15; for (let k = 0; k < 4; k++) box(cx + Math.cos(a) * (rx + k * 0.9), 0.3, cz + Math.sin(a) * (rz + k * 0.9), 2.2, 1.2 + k * 1.3, 1.1, k % 2 ? '#2d6cdf' : '#e8eef5', -a); }
+    for (let i = 0; i < 72; i++) { if (i % 18 < 2) continue; const a = i / 72 * Math.PI * 2, rx = 20.5, rz = 15; for (let k = 0; k < 4; k++) box(cx + Math.cos(a) * (rx + k * 0.9), 0.3, cz + Math.sin(a) * (rz + k * 0.9), 2.2, 1.2 + k * 1.3, 1.1, k % 2 ? '#2d6cdf' : '#e8eef5', -a); }
     for (const sx of [-1, 1]) for (const sz of [-1, 1]) { B.cyl.add(cx + sx * 21, 0.3, cz + sz * 16, 0.5, 22, 0.5, '#8d949c'); box(cx + sx * 21, 22, cz + sz * 16, 4, 2, 0.6, '#30353d'); glow(cx + sx * 21, 23, cz + sz * 16, 1.6, '#fffbe8'); }
     box(cx, 0.4, cz, 0.3, 0.02, 15, '#ffffff'); signAt(23, 9, 20, '#0b1020', '#ffffff');
     for (let i = 0; i < 6; i++) { const a = r() * Math.PI * 2; spot('stadium', cx + Math.cos(a) * 18, cz + Math.sin(a) * 12, -a); }
@@ -894,7 +894,7 @@ const THEMES = {
   day: { sky: ['#2f74c8', '#6fa6e0', '#bcd8ef', '#eef1f4'], fog: '#cfdeee', ground: '#6f9e4f', asph: '#3a3f47', hemi: 1.0, sun: 2.3, sunCol: '#fff2dd', exp: 1.0, win: 0.0, glow: 0.12, stars: 0, bloom: 0.08 },
 };
 function tashkentHour() { try { return parseInt(new Intl.DateTimeFormat('en-US', { timeZone: CFG.timezone, hour: 'numeric', hour12: false }).format(new Date()), 10) % 24; } catch (e) { return new Date().getHours(); } }
-let themeK = (() => { const s = store.get('aishahar_theme'); if (s === 'day') return 1; if (s === 'night') return 0; const h = tashkentHour(); return h >= 6 && h < 19 ? 1 : 0; })();
+let themeK = (() => { const s = Date.now() - +(store.get('aishahar_theme_ts') || 0) < 3 * 3600e3 ? store.get('aishahar_theme') : ''; if (s === 'day') return 1; if (s === 'night') return 0; const h = tashkentHour(); return h >= 6 && h < 19 ? 1 : 0; })();
 let themeTarget = themeK;
 const CA = new THREE.Color(), CB = new THREE.Color();
 const mixHex = (a, b, k) => '#' + CA.set(a).lerp(CB.set(b), k).getHexString();
@@ -912,6 +912,7 @@ function applyTheme(k) {
   if (SEASON === 'winter') grassMat.color.lerp(CB.set(k > 0.5 ? '#eef3f7' : '#9aa6b8'), 0.85);
   stars.material.opacity = 1 - k; stars.visible = k < 0.99; if (bloom) bloom.strength = lerp(n.bloom, d.bloom);
   if (carLamp) { carLamp.material.color.set(mixHex('#fff6d8', '#e9e9e9', k)); }
+  if (window.__wxApply) window.__wxApply(k);
   document.body.classList.toggle('day', k > 0.5); $('#btnTheme').textContent = k > 0.5 ? '☀' : '☾';
 }
 $('#btnTheme').onclick = () => { themeTarget = themeTarget > 0.5 ? 0 : 1; store.set('aishahar_theme', themeTarget ? 'day' : 'night'); };
@@ -935,7 +936,7 @@ function select(sp, fresh = false) {
 function home() { selected = null; cardState = null; labelAssignT = -9; $('#card').classList.remove('on'); document.body.classList.remove('cardopen'); flyTo(HOME_P, HOME_T); }
 function renderCard() {
   const c = $('#card'), st = cardState; if (!st) return;
-  if (st.kind === 'res') {
+  if (window.__cardExt && window.__cardExt(c, st)) { /* v7 cards */ } else if (st.kind === 'res') {
     const sp = st.sp, h = houseIdx[sp.i];
     c.innerHTML = `<button class="x" aria-label="×">×</button><div class="hdr"><div class="bot">${robotSVG(sp.name)}</div><div class="ttl"><h2>@${esc(sp.name)}</h2>
       <div class="code">${sp.code} · ${T('roles')[sp.role]}</div><div class="mini">🏠 ${T('homeV').replace('{b}', h.block).replace('{l}', h.lot)} · ${T('st')[sp.act] || ''}</div></div></div>
@@ -943,7 +944,7 @@ function renderCard() {
       <dt>${T('home')}</dt><dd>${T('homeV').replace('{b}', h.block).replace('{l}', h.lot)}</dd>
       <dt>${T('num')}</dt><dd>#${(sp.i + 1).toLocaleString('ru-RU')}</dd>
       <dt>${T('status')}</dt><dd>${T('st')[sp.act] || ''}</dd>${sp.traits.vip ? `<dt>👑</dt><dd>${T('vipBadge')} #${sp.traits.vip}</dd>` : ''}${UPG.get(sp.name) ? `<dt>${TIER_INFO[UPG.get(sp.name)].icon}</dt><dd>${T('tierNames')[UPG.get(sp.name)]}</dd>` : ''}</dl>
-      <div class="acts"><button class="pri" data-a="near">${T('near')}</button><button data-a="house">🏠 ${T('goHome')}</button>${GAME.me === sp.name ? `<button class="drive" data-a="drive">🎮 ${T('drive')}</button>` : ''}${GAME.me === sp.name ? `<button class="shopb" data-a="shop">${T('shop')}</button>` : !GAME.me ? `<button class="meb" data-a="me">${T('isMe')}</button>` : ''}${GAME.me !== sp.name ? `<button class="likeb${GAME.liked.has(sp.name) ? ' on' : ''}" data-a="like">❤️ ${LIKES.get(sp.name) || 0}</button>` : ''}<button class="story" data-a="story">📲 ${T('story')}</button>${CFG.botUsername && (UPG.get(sp.name) || 0) < 3 ? `<a class="upg" href="https://t.me/${CFG.botUsername}?start=up_${sp.name.replace(/\./g, '-')}" target="_blank" rel="noopener">${T('upgrade')}</a>` : ''}</div>`;
+      <div class="acts"><button class="pri" data-a="near">${T('near')}</button><button data-a="house">🏠 ${T('goHome')}</button>${GAME.me === sp.name ? `<button class="drive" data-a="drive">🎮 ${T('drive')}</button>` : ''}${GAME.me === sp.name ? `<button class="shopb" data-a="shop">${T('shop')}</button>` : !GAME.me ? `<button class="meb" data-a="me">${T('isMe')}</button>` : ''}${GAME.me !== sp.name ? `<button class="likeb${GAME.liked.has(sp.name) ? ' on' : ''}" data-a="like">❤️ ${LIKES.get(sp.name) || 0}</button>` : ''}<button data-a="guest">📖 ${T('guestBtn')}</button><button class="story" data-a="story">📲 ${T('story')}</button>${CFG.botUsername && (UPG.get(sp.name) || 0) < 3 ? `<a class="upg" href="https://t.me/${CFG.botUsername}?start=up_${sp.name.replace(/\./g, '-')}" target="_blank" rel="noopener">${T('upgrade')}</a>` : ''}</div>`;
     if (st.fresh) { toast(T('toastNew')); st.fresh = false; }
   } else if (st.kind === 'new') {
     c.innerHTML = `<button class="x" aria-label="×">×</button><div class="bot">${robotSVG(st.name)}</div><div class="new"><h2>@${esc(st.name)}</h2><p>${T('newText')}</p><p>${T('followFirst').replace('{o}', esc(OWNER))}</p></div><div class="acts"><a class="ig" href="https://instagram.com/${OWNER}" target="_blank" rel="noopener">${T('follow')}</a></div>`;
@@ -955,7 +956,7 @@ function renderCard() {
     const pw = store.get('aishahar_admin_pw');
     if (!pw) c.innerHTML = `<button class="x" aria-label="×">×</button><h2>🛠 ${T('admin')}</h2><input id="admPw" class="cardin" type="password" placeholder="🔑 ${T('adminPw')}"><div class="acts"><button class="pri" data-a="admlogin">${T('adminSave')}</button></div>`;
     else { const S = st.stats; const days = S ? S.daily.map((d) => `<div class="bar"><span>${d.day.slice(5)}</span><i style="width:${Math.max(4, d.uniques / Math.max(...S.daily.map((x) => x.uniques), 1) * 100)}%"></i><b>${d.uniques}</b></div>`).join('') : '…';
-      c.innerHTML = `<button class="x" aria-label="×">×</button><h2>🛠 ${T('admin')}</h2><div class="code">${T('stats')}</div>
+      c.innerHTML = `<button class="x" aria-label="×">×</button><h2>🛠 ${T('admin')}</h2><div class="acts"><button class="pri" data-a="weekly">🎬 ${T('weekly')}</button></div><div class="code">${T('stats')}</div>
         ${S ? `<dl><dt>${T('players')}</dt><dd>${S.players}</dd><dt>${T('msgs')}</dt><dd>${S.chat}</dd></dl><p class="vh">${T('visitors')}</p><div class="bars">${days}</div><p class="vh">${T('refs')}</p><div class="refs">${S.refs.map((r) => `<span>${esc(r.ref)}: <b>${r.visits}</b></span>`).join('')}</div>` : '<p class="vh">…</p>'}
         <p class="vh">${T('unlink')}</p><div class="row2"><input id="admNick" class="cardin" placeholder="nikneym"><button data-a="admunlink">${T('unlinkBtn')}</button></div>
         <p class="vh">${T('bans')}</p><div class="vlist">${(st.bans || []).map((b) => `<button class="vrow" data-a="admunban" data-n="${esc(b.nick)}">🚫 @${esc(b.nick)} · ${T('unban')}</button>`).join('') || '<p class="vh">—</p>'}</div>`;
@@ -964,12 +965,13 @@ function renderCard() {
     const P = GAME.player || { crystals: 0, items: [], equipped: {} }, rows = Object.entries(GAME_SHOP).map(([id, it]) => { const own = (P.items || []).includes(id), on = (P.equipped || {})[it.kind] === id;
       return `<div class="srow"><span>${T('items')[id]}</span><b>${own ? '✓ ' + T('owned') : it.price + ' 💎'}</b>${own ? (on ? `<button data-a="unequip" data-i="${id}" data-k="${it.kind}">${T('unequip')}</button>` : `<button data-a="equip" data-i="${id}">${T('equip')}</button>`) : `<button class="pri" data-a="buy" data-i="${id}" ${P.crystals < it.price ? 'disabled' : ''}>${T('buy')}</button>`}</div>`; }).join('');
     const rc = store.get('aishahar_rec_' + GAME.me);
-    c.innerHTML = `<button class="x" aria-label="×">×</button><h2>🛍 ${T('shopTitle')}</h2><div class="code">💎 ${P.crystals} · 🔥 ${P.streak || 0}</div><p class="vh">${T('shopHint')}</p><div class="shop">${rows}</div>${rc ? `<p class="vh">🔑 ${T('recSaved')}: <b class="rc">${esc(rc)}</b></p>` : ''}`;
+    c.innerHTML = `<button class="x" aria-label="×">×</button><h2>🛍 ${T('shopTitle')}</h2><div class="code">💎 ${P.crystals} · 🔥 ${P.streak || 0}</div><p class="vh">${T('shopHint')}</p><div class="shop">${rows}</div>${CFG.botUsername ? (P.tg ? `<p class="vh">${T('tgOn')}</p>` : `<div class="acts"><button class="pri" data-a="tglink">${T('tgBtn')}</button></div><p class="vh">${T('tgHint')}</p>`) : ''}${rc ? `<p class="vh">🔑 ${T('recSaved')}: <b class="rc">${esc(rc)}</b></p>` : ''}`;
   } else if (st.kind === 'board') {
     const tab = st.tab || 'c'; let rows = '';
     if (tab === 'l') rows = [...LIKES.entries()].sort((a, b) => b[1] - a[1]).slice(0, 15).map(([n, v], k) => `<button class="vrow" data-a="pick" data-n="${esc(n)}"><b>${k + 1}.</b> @${esc(n)} · ❤️ ${v}</button>`).join('');
+    else if (tab === 'r') rows = (GAME.board.r || []).map((r, k) => `<button class="vrow" data-a="pick" data-n="${esc(r.nick)}"><b>${k === 0 ? '🥇' : k === 1 ? '🥈' : k === 2 ? '🥉' : k + 1 + '.'}</b> @${esc(r.nick)} · ⏱ ${Number(r.race_best).toFixed(2)} s</button>`).join('');
     else rows = (GAME.board[tab] || []).map((r, k) => `<button class="vrow" data-a="pick" data-n="${esc(r.nick)}"><b>${k === 0 ? '🥇' : k === 1 ? '🥈' : k === 2 ? '🥉' : k + 1 + '.'}</b> @${esc(r.nick)} · ${tab === 'c' ? '💎 ' + r.crystals : '🔥 ' + r.streak}</button>`).join('');
-    c.innerHTML = `<button class="x" aria-label="×">×</button><h2>📊 ${T('board')}</h2><div class="tabs"><button class="${tab === 'c' ? 'on' : ''}" data-a="tab" data-t="c">${T('boardC')}</button><button class="${tab === 's' ? 'on' : ''}" data-a="tab" data-t="s">${T('boardS')}</button><button class="${tab === 'l' ? 'on' : ''}" data-a="tab" data-t="l">${T('boardL')}</button></div><div class="vlist">${rows || '<p class="vh">—</p>'}</div>`;
+    c.innerHTML = `<button class="x" aria-label="×">×</button><h2>📊 ${T('board')}</h2><div class="tabs"><button class="${tab === 'c' ? 'on' : ''}" data-a="tab" data-t="c">${T('boardC')}</button><button class="${tab === 's' ? 'on' : ''}" data-a="tab" data-t="s">${T('boardS')}</button><button class="${tab === 'l' ? 'on' : ''}" data-a="tab" data-t="l">${T('boardL')}</button><button class="${tab === 'r' ? 'on' : ''}" data-a="tab" data-t="r">${T('boardR')}</button></div><div class="vlist">${rows || '<p class="vh">—</p>'}</div>`;
     if (tab !== 'l' && !GAME.board[tab]) loadBoard(tab);
   } else if (st.kind === 'sponsors') {
     const best = new Map(); for (const r of UPG_ROWS) { const n = clean(r.nickname); const b = best.get(n) || { tier: 0, stars: 0 }; best.set(n, { tier: Math.max(b.tier, r.tier), stars: b.stars + (r.stars || 0) }); }
@@ -1007,7 +1009,7 @@ const randomRes = () => specs.length && select(specs[Math.floor(Math.random() * 
 $('#card').addEventListener('click', (e) => {
   const b = e.target.closest('button'); if (!b) return;
   if (b.classList.contains('x')) return home();
-  const a = b.dataset.a;
+  const a = b.dataset.a; if (window.__cardAct && window.__cardAct(a, b)) return;
   if (a === 'near' && selected) { follow = true; const [x, z] = robotPos(selected, UTIME.value); const tg = new THREE.Vector3(x, 2.2, z); const d = viewDir(selected, x, z).applyAxisAngle(YAX, 0.5).multiplyScalar(8.5); flyTo(tg.clone().add(d).setY(5.5), tg, 1.2); }
   if (a === 'house' && selected) { const h = houseIdx[selected.i]; const tg = new THREE.Vector3(h.x, 3, h.z); const [fx, fz] = dirOf(h.face); followOff = false; selected = null; labelAssignT = -9; flyTo(new THREE.Vector3(h.x + fx * 22 + 6, 12, h.z + fz * 22 + 6), tg); }
   if (a === 'tour') startTour();
@@ -1078,8 +1080,8 @@ function pickAt(cx, cy) {
     if (bc) return toast('🚗 ' + bc.m.n); }
   // houses and the owner's giant robot
   NDC.set(((cx - rect.left) / rect.width) * 2 - 1, -((cy - rect.top) / rect.height) * 2 + 1); ray.setFromCamera(NDC, camera);
-  const hits = ray.intersectObjects([B.house.mesh, ownerGroup], true);
-  if (hits.length) { const h = hits[0]; if (h.object === B.house.mesh && specs[houseOfInst[h.instanceId]]) return select(specs[houseOfInst[h.instanceId]]); if (h.object !== B.house.mesh) return showOwner(); }
+  const hits = ray.intersectObjects([B.house.mesh, ownerGroup, ...(window.__bbMeshes || [])], true);
+  if (hits.length) { const h = hits[0]; if (h.object.userData.bb) return window.__bbOpen(); if (h.object === B.house.mesh && specs[houseOfInst[h.instanceId]]) return select(specs[houseOfInst[h.instanceId]]); if (h.object !== B.house.mesh) return showOwner(); }
 }
 
 // ======================= Instagram story image =======================
@@ -1305,16 +1307,16 @@ function startMusic(ctx, master) {
 }
 
 // ======================= Reel recorder (admin) =======================
-async function recordReel(secs = 15) {
+async function recordReel(secs = 15, custom = null) {
   if (recording) return; const mime = ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp9', 'video/webm'].find((m) => window.MediaRecorder && MediaRecorder.isTypeSupported(m));
   if (!mime || !canvas.captureStream) return toast(T('recNo'));
   const W = 720, H = 1280, oldPR = renderer.getPixelRatio(); recording = true;
   renderer.setPixelRatio(1); renderer.setSize(W, H, false); camera.aspect = W / H; camera.updateProjectionMatrix(); if (composer) composer.setSize(W, H);
   const stream = canvas.captureStream(30); if (SND.on && SND.dest) for (const tr of SND.dest.stream.getAudioTracks()) stream.addTrack(tr);
   const rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 8e6 }), chunks = []; rec.ondataavailable = (e) => e.data.size && chunks.push(e.data); const done = new Promise((r) => (rec.onstop = r));
-  const badge = $('#recbadge'); badge.classList.add('on'); startTour(); rec.start(500);
+  const badge = $('#recbadge'); badge.classList.add('on'); if (custom) custom.start(); else startTour(); rec.start(500);
   for (let s = secs; s > 0; s--) { badge.textContent = `● ${T('recording')} ${s}s`; await new Promise((r) => setTimeout(r, 1000)); }
-  rec.stop(); await done; recording = false; stopTour(); badge.classList.remove('on');
+  rec.stop(); await done; recording = false; if (custom) custom.stop(); else stopTour(); badge.classList.remove('on');
   renderer.setPixelRatio(oldPR); dispatchEvent(new Event('resize'));
   const ext = mime.includes('mp4') ? 'mp4' : 'webm', blob = new Blob(chunks, { type: 'video/' + ext }), url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = url; a.download = `ai-shahar-reel-${new Date().toISOString().slice(0, 10)}.${ext}`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000); toast(T('recDone'));
@@ -1386,7 +1388,7 @@ function collectSceneColliders() { if (sceneColl) return; sceneColl = true; scen
 const RR = 0.42; // robot radius
 function hitCar(x, z) { for (const c of cars) { const dx = x - c.x, dz = z - c.z; if (dx * dx + dz * dz > 64) continue; const [W, , L] = c.m.b; const along = c.ax ? Math.abs(dz) : Math.abs(dx), across = c.ax ? Math.abs(dx) : Math.abs(dz);
     if (along < L / 2 + RR && across < W / 2 + RR) return true; } return false; }
-const blocked = (x, z) => hitStatic(x, z, RR) || hitCar(x, z);
+const blocked = (x, z) => hitStatic(x, z, RR) || (!(drive && drive.turbo) && hitCar(x, z));
 function startDrive(sp) {
   if (GAME.me !== sp.name) { toast(T('driveOwn'), 6000); return; }
   if (drive) stopDrive(); stopTour();
@@ -1406,7 +1408,7 @@ function updateDrive(dt) {
   if (!drive) return; let ix = JOY.x, iy = JOY.y;
   if (KEYS.has('KeyW') || KEYS.has('ArrowUp')) iy -= 1; if (KEYS.has('KeyS') || KEYS.has('ArrowDown')) iy += 1; if (KEYS.has('KeyA') || KEYS.has('ArrowLeft')) ix -= 1; if (KEYS.has('KeyD') || KEYS.has('ArrowRight')) ix += 1;
   const mag = Math.min(1, Math.hypot(ix, iy)); camera.getWorldDirection(DF); DF.y = 0; DF.normalize(); DR.crossVectors(DF, YAX).normalize();
-  DM.set(0, 0, 0).addScaledVector(DF, -iy).addScaledVector(DR, ix); const target = mag > 0.08 ? 7.5 * mag : 0; drive.speed += (target - drive.speed) * Math.min(1, dt * 6);
+  DM.set(0, 0, 0).addScaledVector(DF, -iy).addScaledVector(DR, ix); const target = drive.freeze && performance.now() < drive.freeze ? 0 : mag > 0.08 ? 7.5 * mag * (drive.turbo || 1) : 0; drive.speed += (target - drive.speed) * Math.min(1, dt * 6);
   if (DM.lengthSq() > 0.001 && mag > 0.08) { DM.normalize(); const want = Math.atan2(DM.x, DM.z); let d = want - drive.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); drive.yaw += d * Math.min(1, dt * 10);
     const lim = HWY + 400, nx = THREE.MathUtils.clamp(drive.x + DM.x * drive.speed * dt, -lim, lim), nz = THREE.MathUtils.clamp(drive.z + DM.z * drive.speed * dt, -lim, lim);
     const stuck = blocked(drive.x, drive.z); // already inside something (e.g. start spot) → let it walk out
@@ -1459,7 +1461,7 @@ async function sendChat(e) {
   if (nick === OWNER) { const pw = $('#chatPw'); admin = (pw.value || store.get('aishahar_admin_pw') || '').trim(); if (!admin) { document.body.classList.add('needpw'); pw.focus(); toast('🔑 ' + T('chatAdmin')); return; } store.set('aishahar_admin_pw', admin); }
   $('#chatSendBtn').disabled = true;
   try { const r = await fetch('/api/chat', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ nick, text, admin }) }); const j = await r.json().catch(() => ({}));
-    if (r.ok) { inp.value = ''; document.body.classList.remove('needpw'); } else { if (j.error === 'owner') { store.set('aishahar_admin_pw', ''); $('#chatPw').value = ''; document.body.classList.add('needpw'); toast('🔑 ' + T('chatPwWrong')); } else toast(j.error === 'banned' ? T('banned') : j.error === 'slow' ? T('chatSlow') : j.error === 'limit' ? T('chatLimit') : j.error === 'nick' ? T('chatNickBad') : T('chatErr') + (j.detail ? ': ' + j.detail : '')); } }
+    if (r.ok) { inp.value = ''; document.body.classList.remove('needpw'); if (window.__qBump) window.__qBump('chat'); } else { if (j.error === 'owner') { store.set('aishahar_admin_pw', ''); $('#chatPw').value = ''; document.body.classList.add('needpw'); toast('🔑 ' + T('chatPwWrong')); } else toast(j.error === 'banned' ? T('banned') : j.error === 'slow' ? T('chatSlow') : j.error === 'limit' ? T('chatLimit') : j.error === 'nick' ? T('chatNickBad') : T('chatErr') + (j.detail ? ': ' + j.detail : '')); } }
   catch (err) { toast(T('chatErr')); } finally { $('#chatSendBtn').disabled = false; inp.focus(); }
 }
 function setChatOpen(v) { CHAT.open = v; document.body.classList.toggle('chatopen', v); if (v) { CHAT.unread = 0; updChatBtn(); const l = $('#chatList'); l.scrollTop = l.scrollHeight; } }
@@ -1492,7 +1494,7 @@ function isoWeek(d = new Date()) { const t = new Date(tkDay(d) + 'T00:00:00Z'); 
 try { const L = JSON.parse(store.get('aishahar_liked') || '{}'); if (L.w === isoWeek()) for (const n of L.n || []) GAME.liked.add(n); } catch (e) {}
 async function loadPlayers() { if (!shared.on) return; try { for (const r of await fetchAll('players', 'nick,crystals,streak,equipped')) PLAYERS.set(clean(r.nick), r); } catch (e) {} }
 async function loadLikes() { if (!shared.on) return; try { const c = await sb(); const { data } = await c.from('house_likes_week').select('target,likes').eq('week', isoWeek()); for (const r of data || []) LIKES.set(clean(r.target), r.likes); } catch (e) {} }
-async function loadBoard(tab) { try { const c = await sb(); const col = tab === 'c' ? 'crystals' : 'streak'; const { data } = await c.from('players').select('nick,crystals,streak').order(col, { ascending: false }).limit(15); GAME.board[tab] = data || []; if (cardState && cardState.kind === 'board') renderCard(); } catch (e) {} }
+async function loadBoard(tab) { try { const c = await sb(); if (tab === 'r') { const { data } = await c.from('players').select('nick,race_best').eq('race_week', isoWeek()).not('race_best', 'is', null).order('race_best', { ascending: true }).limit(15); GAME.board.r = data || []; if (cardState && cardState.kind === 'board') renderCard(); return; } const col = tab === 'c' ? 'crystals' : 'streak'; const { data } = await c.from('players').select('nick,crystals,streak').order(col, { ascending: false }).limit(15); GAME.board[tab] = data || []; if (cardState && cardState.kind === 'board') renderCard(); } catch (e) {} }
 async function api(body) { const r = await fetch('/api/game', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ uid: CHAT.myId, ...body }) }); const j = await r.json().catch(() => ({})); return { ok: r.ok && j.ok, ...j }; }
 function setPlayer(p) { GAME.player = p; PLAYERS.set(p.nick, { ...(PLAYERS.get(p.nick) || {}), crystals: p.crystals, streak: p.streak, equipped: p.equipped }); for (const c of CRYSTALS) c.got = !!(p.col_mask & (1 << c.id)); updHud(); }
 function updHud() { const el = $('#gameHud'); if (!el) return; if (!GAME.me || !GAME.player) { el.style.display = 'none'; return; } const left = CRYSTALS.filter((c) => !c.got).length;
@@ -1504,7 +1506,7 @@ async function claimMe(nick) { const r = await api({ action: 'hello', nick }); i
 async function shopAction(a, item, kind) { if (GAME.busy || !GAME.me) return; GAME.busy = true; const r = await api({ action: a === 'unequip' ? 'equip' : a, nick: GAME.me, item: a === 'unequip' ? '' : item, kind }); GAME.busy = false;
   if (!r.ok) return toast(r.error === 'poor' ? T('poor') : T('chatErr')); setPlayer(r.player); if (index.has(GAME.me)) reRobot(specs[index.get(GAME.me)]); renderCard(); }
 async function likeHouse(n, btn) { if (GAME.liked.has(n)) return toast(T('liked')); const r = await api({ action: 'like', target: n }); if (!r.ok) return toast(T('chatErr'));
-  GAME.liked.add(n); store.set('aishahar_liked', JSON.stringify({ w: isoWeek(), n: [...GAME.liked] })); LIKES.set(n, r.likes); btn.textContent = '❤️ ' + r.likes; btn.classList.add('on'); toast(T('liked')); }
+  GAME.liked.add(n); store.set('aishahar_liked', JSON.stringify({ w: isoWeek(), n: [...GAME.liked] })); LIKES.set(n, r.likes); btn.textContent = '❤️ ' + r.likes; btn.classList.add('on'); toast(T('liked')); if (window.__qBump) window.__qBump('like'); }
 function reRobot(sp) { const wasDriving = drive && drive.sp === sp; if (wasDriving) stopDrive(); setRobotHidden(sp, true); sp.parts = []; sp.traits = traits(sp.name); placeRobot(sp); refreshRobots(); syncPet(sp); labelAssignT = -9; if (wasDriving) startDrive(sp); }
 async function doRecover(nick, code) { const r = await api({ action: 'recover', nick, code }); if (!r.ok) return toast(T('recBad'));
   store.set('aishahar_rec_' + nick, code.toUpperCase()); GAME.me = nick; store.set('aishahar_me', nick); setPlayer(r.player); toast(T('recOk')); if (index.has(nick)) select(specs[index.get(nick)]); }
@@ -1629,7 +1631,7 @@ function frame() {
     camera.position.set(around.x + Math.cos(a) * r, y, around.z + Math.sin(a) * r); controls.target.copy(around); }
   moveKeys(dt); controls.update();
   if (SHADOWS) { sun.target.position.copy(controls.target); sun.position.copy(controls.target).addScaledVector(SUN_DIR, 400); const d = THREE.MathUtils.clamp(camera.position.distanceTo(controls.target) * 1.2, 60, 260); const c = sun.shadow.camera; if (Math.abs(c.right - d) > 5) { c.left = -d; c.right = d; c.top = d; c.bottom = -d; c.updateProjectionMatrix(); } }
-  updateCars(t, dt); updateLights(t); updateLabels(t); drawMap(t); updateExtras(t, dt); updateDonations(t, dt); updateDrive(dt); updateChatBubbles(t); updateGame(t, dt);
+  updateCars(t, dt); updateLights(t); updateLabels(t); drawMap(t); updateExtras(t, dt); updateDonations(t, dt); updateDrive(dt); updateChatBubbles(t); updateGame(t, dt); if (window.__v7u) window.__v7u(t, dt);
   ownerGroup.rotation.y = Math.sin(t * 0.2) * 0.5;
   if (beam.visible) { const cd = camera.position.distanceTo(controls.target); beam.material.opacity = (0.14 + Math.sin(t * 3) * 0.06) * THREE.MathUtils.clamp((cd - 25) / 60, 0, 1); const s = 1 + (t % 1.4) * 0.9; hring.scale.set(s, s, s); hring.material.opacity = 1 - (t % 1.4) / 1.4; }
   if (composer) composer.render(); else renderer.render(scene, camera);
@@ -1693,4 +1695,234 @@ setTimeout(() => { $('#loader').style.opacity = 0; setTimeout(() => $('#loader')
 const hashNick = clean(decodeURIComponent(location.hash.slice(1) || ''));
 if (hashNick) setTimeout(() => { if (hashNick === OWNER) showOwner(); else if (index.has(hashNick)) select(specs[index.get(hashNick)]); else showNew(hashNick); }, 3800);
 checkGoals(false); initExtrasUI(); initDonations(); initDriveUI(); initChat(); initGame();
+// ======================= v7: daily quests · race · football · guestbook · weather · billboard · weekly reel · perf =======================
+{
+const I18N_7 = {
+  uz: { quests: 'Kunlik vazifalar', qHint: "Har kuni 3 ta yangi vazifa. Har biri +10 💎, hammasi bajarilsa yana +15 💎!", qNeedMe: "Vazifalar uchun avval o'z robotingizni toping: qidiruvga nikneymingizni yozing va «Bu menman»ni bosing.", qClaim: 'Olish', qDone: '🎯 Vazifa bajarildi: {q} — mukofotni oling!', qGot: '+{v} 💎 vazifa mukofoti!',
+    q: { crystals: "💎 5 ta kristall yig'", like: "❤️ 2 ta qo'shni uyiga layk bos", stadium: '🏟 Robotingni stadionga olib bor', mall: '🛍 Savdo markaziga bor', race: '🏁 Shahar poygasini tugat', guest: "📖 Biror uyning mehmonlar daftariga yoz", walk: '🚶 Robotingda 300 m yur', goal: '⚽ Stadionda gol ur', chat: '💬 Shahar chatiga yoz' },
+    race: 'Poyga', raceGo: 'Start! Yashil halqalardan o\'ting 🏁', raceGate: 'Halqa', raceDone: '🏁 Marra! Vaqtingiz: {t} s', raceBest: '🏆 Haftalik rekordingiz: {t} s!', raceAbort: 'Poyga to\'xtatildi', boardR: '🏁 Poyga',
+    goal: '⚽ GOOOL! @{n}', guestBtn: 'Mehmonlar daftari', guestTitle: 'Mehmonlar daftari', guestEmpty: "Hali hech kim yozmagan. Birinchi bo'ling!", guestPh: 'Uy egasiga iliq so\'z yozing…', guestSend: 'Yozish', guestNeed: "Yozish uchun avval o'z robotingizni toping (qidiruvga nikneymingiz → «Bu menman»).", guestOk: 'Yozildi! 📖', noLinks: 'Havola yuborish mumkin emas', visit: 'Mehmonga kirish',
+    tgOn: '🔔 Telegram eslatmalari ulangan ✅', tgBtn: '🔔 Telegram eslatmalarini yoqish', tgHint: "Bot streak yo'qolay deganda, uyingizga layk yoki daftaringizga xabar kelganda yozadi.",
+    wx: { 0: 'ochiq osmon', 1: 'asosan ochiq', 2: 'qisman bulutli', 3: 'bulutli', 45: 'tuman', 51: "mayda yomg'ir", 61: "yomg'ir", 65: "kuchli yomg'ir", 71: 'qor', 75: "kuchli qor", 80: "jala", 95: "momaqaldiroq" }, wxToast: "Toshkentda hozir {d}, {t}°C — shaharda ham shunday!",
+    bbTitle: 'Telegram kanal', bbTap: '👆 Bosing — kanalga o\'ting', bbSub: "Obuna bo'ling: t.me/{c}", weekly: 'Haftalik Reel', wkTop: 'AI SHAHAR 2036 · BU HAFTA', wkNew: '+{n} YANGI ROBOT', wkMoved: "ko'chib keldi 🏠", wkEnd1: 'Robotingni ol 🤖', wkEnd2: 'Profildagi havola 👆', perfOn: '⚡ Yengil rejim yoqildi — sayt tezroq ishlaydi', perfBtn: 'Yengil rejim' },
+  ru: { quests: 'Ежедневные задания', qHint: 'Каждый день 3 новых задания. Каждое +10 💎, все три — ещё +15 💎!', qNeedMe: 'Для заданий сначала найдите своего робота: введите ник в поиск и нажмите «Это я».', qClaim: 'Забрать', qDone: '🎯 Задание выполнено: {q} — заберите награду!', qGot: '+{v} 💎 за задание!',
+    q: { crystals: '💎 Собери 5 кристаллов', like: '❤️ Лайкни 2 дома соседей', stadium: '🏟 Приведи робота на стадион', mall: '🛍 Зайди в торговый центр', race: '🏁 Пройди городскую гонку', guest: '📖 Напиши в гостевую книгу', walk: '🚶 Пройди роботом 300 м', goal: '⚽ Забей гол на стадионе', chat: '💬 Напиши в чат города' },
+    race: 'Гонка', raceGo: 'Старт! Проходи через зелёные кольца 🏁', raceGate: 'Кольцо', raceDone: '🏁 Финиш! Время: {t} с', raceBest: '🏆 Рекорд недели: {t} с!', raceAbort: 'Гонка остановлена', boardR: '🏁 Гонка',
+    goal: '⚽ ГОООЛ! @{n}', guestBtn: 'Гостевая книга', guestTitle: 'Гостевая книга', guestEmpty: 'Пока никто не писал. Будьте первым!', guestPh: 'Напишите хозяину тёплые слова…', guestSend: 'Написать', guestNeed: 'Чтобы писать, сначала найдите своего робота (ник в поиск → «Это я»).', guestOk: 'Записано! 📖', noLinks: 'Ссылки отправлять нельзя', visit: 'Зайти в гости',
+    tgOn: '🔔 Уведомления в Telegram подключены ✅', tgBtn: '🔔 Включить уведомления в Telegram', tgHint: 'Бот напишет, когда серия сгорает, или дому поставили лайк, или вам написали в книгу.',
+    wx: { 0: 'ясно', 1: 'преимущественно ясно', 2: 'переменная облачность', 3: 'облачно', 45: 'туман', 51: 'морось', 61: 'дождь', 65: 'сильный дождь', 71: 'снег', 75: 'сильный снег', 80: 'ливень', 95: 'гроза' }, wxToast: 'В Ташкенте сейчас {d}, {t}°C — в городе так же!',
+    bbTitle: 'Telegram канал', bbTap: '👆 Нажмите — перейти в канал', bbSub: 'Подписывайтесь: t.me/{c}', weekly: 'Reel недели', wkTop: 'AI SHAHAR 2036 · ЭТА НЕДЕЛЯ', wkNew: '+{n} НОВЫХ РОБОТОВ', wkMoved: 'переехал(а) 🏠', wkEnd1: 'Получи своего робота 🤖', wkEnd2: 'Ссылка в профиле 👆', perfOn: '⚡ Включён лёгкий режим — сайт работает быстрее', perfBtn: 'Лёгкий режим' },
+  en: { quests: 'Daily quests', qHint: '3 new quests every day. Each +10 💎, finish all three for +15 💎 more!', qNeedMe: 'For quests, first find your robot: type your username in search and tap “That\'s me”.', qClaim: 'Claim', qDone: '🎯 Quest done: {q} — claim your reward!', qGot: '+{v} 💎 quest reward!',
+    q: { crystals: '💎 Collect 5 crystals', like: '❤️ Like 2 neighbours\' houses', stadium: '🏟 Take your robot to the stadium', mall: '🛍 Visit the mall', race: '🏁 Finish the city race', guest: '📖 Sign someone\'s guestbook', walk: '🚶 Walk 300 m with your robot', goal: '⚽ Score a goal at the stadium', chat: '💬 Write in the city chat' },
+    race: 'Race', raceGo: 'Go! Pass through the green rings 🏁', raceGate: 'Ring', raceDone: '🏁 Finish! Your time: {t} s', raceBest: '🏆 Your best this week: {t} s!', raceAbort: 'Race stopped', boardR: '🏁 Race',
+    goal: '⚽ GOOOAL! @{n}', guestBtn: 'Guestbook', guestTitle: 'Guestbook', guestEmpty: 'No one has written yet. Be the first!', guestPh: 'Write something nice to the owner…', guestSend: 'Sign', guestNeed: 'To write, first find your robot (username in search → “That\'s me”).', guestOk: 'Signed! 📖', noLinks: 'Links are not allowed', visit: 'Visit',
+    tgOn: '🔔 Telegram reminders connected ✅', tgBtn: '🔔 Turn on Telegram reminders', tgHint: 'The bot writes when your streak is about to burn, or your house got likes or guestbook notes.',
+    wx: { 0: 'clear sky', 1: 'mostly clear', 2: 'partly cloudy', 3: 'overcast', 45: 'fog', 51: 'drizzle', 61: 'rain', 65: 'heavy rain', 71: 'snow', 75: 'heavy snow', 80: 'showers', 95: 'thunderstorm' }, wxToast: 'Right now in Tashkent: {d}, {t}°C — same in the city!',
+    bbTitle: 'Telegram channel', bbTap: '👆 Tap — open the channel', bbSub: 'Follow: t.me/{c}', weekly: 'Weekly Reel', wkTop: 'AI SHAHAR 2036 · THIS WEEK', wkNew: '+{n} NEW ROBOTS', wkMoved: 'moved in 🏠', wkEnd1: 'Get your robot 🤖', wkEnd2: 'Link in bio 👆', perfOn: '⚡ Light mode on — the site runs faster', perfBtn: 'Light mode' },
+};
+for (const l of Object.keys(I18N)) Object.assign(I18N[l], I18N_7[l] || I18N_7.en);
+const TQ = (k) => T('q')[k] || k;
+
+// ---------- daily quests ----------
+const QUESTS = ['crystals', 'like', 'stadium', 'mall', 'race', 'guest', 'walk', 'goal', 'chat'];
+function questsFor(dayStr) { let h = 2166136261; for (const c of dayStr) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); }
+  const out = []; let x = h >>> 0; while (out.length < 3) { x = (Math.imul(x ^ (x >>> 15), 2246822507) + 0x9e3779b9) >>> 0; const q = x % QUESTS.length; if (!out.includes(q)) out.push(q); } return out; }
+const qkey = (k) => 'aishahar_q_' + tkDay() + '_' + k;
+const pop = (m) => { let c = 0; m >>>= 0; while (m) { c += m & 1; m >>>= 1; } return c; };
+const QMEM = { walk: +(store.get(qkey('walk')) || 0), told: new Set(), lastSave: 0 };
+function qProgress(kind) { const P = GAME.player || {};
+  if (kind === 'crystals') return [Math.min(5, pop(P.col_mask || 0)), 5];
+  if (kind === 'like') return [Math.min(2, +(store.get(qkey('like')) || 0)), 2];
+  if (kind === 'walk') return [Math.min(300, Math.floor(QMEM.walk)), 300];
+  return [store.get(qkey(kind)) ? 1 : 0, 1]; }
+const todayQ = () => questsFor(tkDay()).map((q) => QUESTS[q]);
+const qClaimed = (slot) => { const P = GAME.player; return !!(P && P.day === tkDay() && (P.q_mask & (1 << slot))); };
+function qReadyCount() { if (!GAME.me || !GAME.player) return 0; return todayQ().filter((k, s) => { const [a, b] = qProgress(k); return a >= b && !qClaimed(s); }).length; }
+function updQuestBtn() { const b = $('#btnQuest'); if (!b) return; const n = qReadyCount(); b.innerHTML = '🎯' + (n ? `<i class="qdot">${n}</i>` : ''); }
+function qCheck() { if (!GAME.me || !GAME.player) return; todayQ().forEach((k, s) => { const [a, b] = qProgress(k); if (a >= b && !qClaimed(s) && !QMEM.told.has(k)) { QMEM.told.add(k); toast(T('qDone').replace('{q}', TQ(k)), 5000); } }); updQuestBtn(); }
+function qBump(kind, add = 1) { if (!GAME.me) return; if (kind === 'like') store.set(qkey('like'), String((+(store.get(qkey('like')) || 0)) + add)); else store.set(qkey(kind), '1'); qCheck(); if (cardState && cardState.kind === 'quests') renderCard(); }
+window.__qBump = qBump;
+async function claimQuest(slot) { const r = await api({ action: 'quest', nick: GAME.me, slot }); if (!r.ok) return toast(T('chatErr')); setPlayer(r.player); toast(T('qGot').replace('{v}', r.value || 10), 4000);
+  if (drive) sparkle(drive.x, drive.z, true); updQuestBtn(); renderCard(); }
+
+// ---------- race: 8 green rings around the inner city ring road ----------
+const RR_ = 1.5 * PITCH, GATES = [[RR_, 0], [RR_, RR_], [0, RR_], [-RR_, RR_], [-RR_, 0], [-RR_, -RR_], [0, -RR_], [RR_, -RR_], [RR_, 0]];
+let race = null;
+const gateMat = new THREE.MeshBasicMaterial({ color: 0x39ff88, transparent: true, opacity: 0.85, toneMapped: false, side: THREE.DoubleSide });
+const gate = new THREE.Mesh(new THREE.TorusGeometry(5, 0.35, 10, 40), gateMat); gate.visible = false; gate.userData.noColl = true; scene.add(gate);
+const gateBeam = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 60, 10, 1, true).translate(0, 30, 0), new THREE.MeshBasicMaterial({ color: 0x39ff88, transparent: true, opacity: 0.18, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false })); gateBeam.visible = false; scene.add(gateBeam);
+const raceHud = document.createElement('div'); raceHud.id = 'raceHud'; document.body.appendChild(raceHud);
+function placeGate(i) { const [x, z] = GATES[i], [px, pz] = GATES[Math.max(0, i - 1)]; gate.position.set(x, 4.2, z); gate.rotation.set(0, Math.atan2(x - px, z - pz), 0); gateBeam.position.set(x, 0, z); gate.visible = gateBeam.visible = true; }
+function startRace() { if (!drive) return; drive.x = GATES[0][0]; drive.z = GATES[0][1] - 4; drive.yaw = 0; drive.speed = 0; drive.turbo = 2.7; drive.freeze = performance.now() + 3000;
+  race = { i: 1, t0: performance.now() + 3000 }; placeGate(1); raceHud.classList.add('on');
+  const tg = new THREE.Vector3(drive.x, 2, drive.z); flyTo(new THREE.Vector3(drive.x, 9, drive.z - 14), tg, 0.8); }
+function endRace(msg) { race = null; gate.visible = gateBeam.visible = false; raceHud.classList.remove('on'); if (drive) { drive.turbo = 0; drive.freeze = 0; } if (msg) toast(msg); }
+async function finishRace(time) { endRace(); toast(T('raceDone').replace('{t}', time.toFixed(2)), 6000); qBump('race'); if (drive) sparkle(drive.x, drive.z, true);
+  const r = await api({ action: 'race', nick: GAME.me, time }); if (r.ok) { setPlayer(r.player); GAME.board.r = null; if (r.best) setTimeout(() => toast(T('raceBest').replace('{t}', time.toFixed(2)), 6000), 2500); } }
+function updateRace() { if (!race) return; if (!drive) return endRace();
+  const now = performance.now(); if (now < race.t0) { raceHud.textContent = '🏁 ' + Math.ceil((race.t0 - now) / 1000); return; }
+  if (!race.go) { race.go = true; toast(T('raceGo')); }
+  const el = (now - race.t0) / 1000; raceHud.textContent = `🏁 ${race.i}/${GATES.length - 1} · ${el.toFixed(1)} s`;
+  const [gx, gz] = GATES[race.i]; if ((drive.x - gx) ** 2 + (drive.z - gz) ** 2 < 7 * 7) { if (race.i === GATES.length - 1) return finishRace(el); race.i++; placeGate(race.i); sparkle(gx, gz, false); }
+  gate.rotation.z += 0.02; }
+
+// ---------- football at the stadium ----------
+const STAD = (amenityBlocks.stadium || [])[0]; const ball = { x: 0, z: 0, vx: 0, vz: 0, y: 0, vy: 0, lock: 0 };
+let ballMesh = null;
+if (STAD) {
+  const bt = canvasTex(128, 64, (g, w, h) => { g.fillStyle = '#f4f4f4'; g.fillRect(0, 0, w, h); g.fillStyle = '#16181c'; for (const [x, y] of [[16, 14], [48, 40], [80, 14], [112, 40], [32, 54], [96, 54], [64, 4]]) { g.beginPath(); for (let k = 0; k < 5; k++) { const a = k / 5 * 6.283 - 1.57; g.lineTo(x + Math.cos(a) * 9, y + Math.sin(a) * 9); } g.fill(); } });
+  ballMesh = new THREE.Mesh(new THREE.SphereGeometry(0.55, 20, 14), matStd({ map: bt, roughness: 0.5 })); ballMesh.castShadow = SHADOWS; ballMesh.userData.noColl = true; scene.add(ballMesh);
+  ball.x = STAD.cx; ball.z = STAD.cz;
+  for (const sd of [-1, 1]) { const gx = STAD.cx + sd * 12.6; for (const zz of [-2.6, 2.6]) B.cyl.add(gx, 0.4, STAD.cz + zz, 0.22, 2.6, 0.22, '#ffffff'); box(gx, 2.9, STAD.cz, 0.22, 0.22, 5.4, '#ffffff'); box(gx + sd * 1.2, 0.4, STAD.cz, 0.08, 2.5, 5.2, '#d9dde2'); }
+  B.cyl.done(); B.box.done();
+}
+function updateBall(dt) { if (!ballMesh) return; const cx = STAD.cx, cz = STAD.cz;
+  if (drive && Math.abs(drive.x - cx) < 30 && Math.abs(drive.z - cz) < 22) { const dx = ball.x - drive.x, dz = ball.z - drive.z, d = Math.hypot(dx, dz);
+    if (d < 1.15 && performance.now() > ball.lock) { const fx = Math.sin(drive.yaw), fz = Math.cos(drive.yaw); let kx = dx / (d || 1) * 0.6 + fx * 0.4, kz = dz / (d || 1) * 0.6 + fz * 0.4; const kl = Math.hypot(kx, kz) || 1; const pw = 5 + drive.speed * 1.7;
+      ball.vx = kx / kl * pw; ball.vz = kz / kl * pw; ball.vy = drive.speed > 5 ? 3 : 1; ball.lock = performance.now() + 250; } }
+  ball.x += ball.vx * dt; ball.z += ball.vz * dt; const f = Math.max(0, 1 - 0.9 * dt); ball.vx *= f; ball.vz *= f;
+  ball.vy -= 18 * dt; ball.y = Math.max(0, ball.y + ball.vy * dt); if (ball.y === 0 && ball.vy < 0) ball.vy = Math.abs(ball.vy) > 1.5 ? -ball.vy * 0.45 : 0;
+  const ex = (ball.x - cx) / 12.4, ez = (ball.z - cz) / 7.6;
+  if (Math.abs(ball.x - cx) > 12.6 && Math.abs(ball.z - cz) < 2.3 && ball.y < 2.6 && !ball.scored) { ball.scored = true; const who = drive ? drive.sp.name : '…'; toast(T('goal').replace('{n}', who), 4000); sparkle(ball.x, ball.z, true); sparkle(ball.x, ball.z, false); qBump('goal');
+    setTimeout(() => { ball.x = cx; ball.z = cz; ball.vx = ball.vz = 0; ball.scored = false; }, 1600); }
+  else if (!ball.scored && ex * ex + ez * ez > 1 && !(Math.abs(ball.z - cz) < 2.3 && ball.y < 2.6)) { const nx = ex / 12.4, nz = ez / 7.6, nl = Math.hypot(nx, nz) || 1, ux = nx / nl, uz = nz / nl, dot = ball.vx * ux + ball.vz * uz;
+    if (dot > 0) { ball.vx = (ball.vx - 2 * dot * ux) * 0.7; ball.vz = (ball.vz - 2 * dot * uz) * 0.7; } const k = 1 / Math.sqrt(ex * ex + ez * ez); ball.x = cx + (ball.x - cx) * k * 0.999; ball.z = cz + (ball.z - cz) * k * 0.999; }
+  ballMesh.position.set(ball.x, 0.95 + ball.y, ball.z); const sp = Math.hypot(ball.vx, ball.vz); if (sp > 0.05) { ballMesh.rotation.x += ball.vz * dt / 0.55; ballMesh.rotation.z -= ball.vx * dt / 0.55; } }
+
+// ---------- guestbook + "visit" while driving ----------
+const GB = new Map();
+async function loadGuest(nick) { try { const c = await sb(); const { data } = await c.from('guestbook').select('author,text,created_at').eq('target', nick).order('id', { ascending: false }).limit(40); GB.set(nick, data || []); } catch (e) { GB.set(nick, []); } if (cardState && cardState.kind === 'guest' && cardState.nick === nick) renderCard(); }
+async function sendGuest() { const inp = $('#gbIn'), text = (inp && inp.value || '').trim(), nick = cardState.nick; if (!text) return;
+  const r = await api({ action: 'guest', nick: GAME.me, target: nick, text }); if (!r.ok) return toast(r.error === 'link' ? T('noLinks') : r.error === 'slow' ? T('chatSlow') : T('chatErr'));
+  toast(T('guestOk')); qBump('guest'); setPlayer(r.player); loadGuest(nick); }
+const visitBtn = document.createElement('button'); visitBtn.id = 'visitBtn'; document.body.appendChild(visitBtn); let visitNick = null, visitT = 0;
+visitBtn.onclick = () => { if (!visitNick) return; const n = visitNick; stopDrive(); cardState = { kind: 'guest', nick: n }; renderCard(); };
+function updateVisit(t) { if (!drive || race) { if (visitNick) { visitNick = null; visitBtn.classList.remove('on'); } return; } if (t - visitT < 0.4) return; visitT = t;
+  let best = null, bd = 81; for (let i = 0; i < specs.length; i++) { const h = houseIdx[i]; if (!h || specs[i].name === drive.sp.name) continue; const d = (h.x - drive.x) ** 2 + (h.z - drive.z) ** 2; if (d < bd) { bd = d; best = specs[i].name; } }
+  if (best !== visitNick) { visitNick = best; visitBtn.classList.toggle('on', !!best); if (best) visitBtn.textContent = `🚪 ${T('visit')}: @${best}`; } }
+
+// ---------- Telegram reminders ----------
+async function linkTelegram() { const w = window.open('', '_blank'); const r = await api({ action: 'tglink', nick: GAME.me }); if (!r.ok) { if (w) w.close(); return toast(T('chatErr')); }
+  const url = `https://t.me/${CFG.botUsername}?start=link_${r.code}`; if (w) w.location.href = url; else location.href = url; }
+
+// ---------- cards ----------
+window.__cardExt = (c, st) => {
+  if (st.kind === 'quests') {
+    if (!GAME.me || !GAME.player) { c.innerHTML = `<button class="x" aria-label="×">×</button><h2>🎯 ${T('quests')}</h2><p class="vh">${T('qNeedMe')}</p>`; return true; }
+    const rows = todayQ().map((k, s) => { const [a, b] = qProgress(k), got = qClaimed(s), ok = a >= b;
+      return `<div class="qrow${got ? ' got' : ''}"><div class="qt">${TQ(k)}<div class="qbar"><i style="width:${Math.round(a / b * 100)}%"></i></div><span class="qn">${b > 1 ? a + ' / ' + b : ''}</span></div>${got ? '<b class="qok">✅</b>' : `<button class="${ok ? 'pri' : ''}" data-a="qclaim" data-s="${s}" ${ok ? '' : 'disabled'}>${T('qClaim')} +10</button>`}</div>`; }).join('');
+    c.innerHTML = `<button class="x" aria-label="×">×</button><h2>🎯 ${T('quests')}</h2><div class="code">${tkDay()} · 💎 ${GAME.player.crystals}</div><p class="vh">${T('qHint')}</p><div class="qlist">${rows}</div>`; return true; }
+  if (st.kind === 'guest') { const list = GB.get(st.nick); if (!list) loadGuest(st.nick);
+    const rows = (list || []).map((m) => `<div class="gb"><b data-n="${esc(m.author)}">@${esc(m.author)}</b> <span></span><i>${fmtTime(m.created_at)} · ${String(m.created_at).slice(5, 10)}</i></div>`).join('');
+    c.innerHTML = `<button class="x" aria-label="×">×</button><h2>📖 ${T('guestTitle')}</h2><div class="code">🏠 @${esc(st.nick)}</div><div class="gblist">${list ? rows || `<p class="vh">${T('guestEmpty')}</p>` : '<p class="vh">…</p>'}</div>
+      ${GAME.me ? `<div class="row2"><input id="gbIn" class="cardin" maxlength="200" placeholder="${T('guestPh')}"><button data-a="gbsend">${T('guestSend')}</button></div>` : `<p class="vh">${T('guestNeed')}</p>`}`;
+    if (list) c.querySelectorAll('.gb span').forEach((el, i) => (el.textContent = list[i].text)); return true; }
+  return false; };
+window.__cardAct = (a, b) => {
+  if (a === 'qclaim') { claimQuest(Number(b.dataset.s)); return true; }
+  if (a === 'guest' && cardState?.sp) { cardState = { kind: 'guest', nick: cardState.sp.name }; renderCard(); return true; }
+  if (a === 'gbsend') { sendGuest(); return true; }
+  if (a === 'tglink') { linkTelegram(); return true; }
+  if (a === 'weekly') { weeklyReel(); return true; }
+  return false; };
+$('#card').addEventListener('click', (e) => { const n = e.target.closest('.gb b'); if (n && index.has(n.dataset.n)) select(specs[index.get(n.dataset.n)]); });
+$('#card').addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.id === 'gbIn') sendGuest(); });
+$('#btnQuest').onclick = () => { selected = null; cardState = { kind: 'quests' }; renderCard(); };
+$('#raceBtn').textContent = '🏁 ' + T('race'); $('#raceBtn').onclick = () => (race ? endRace(T('raceAbort')) : startRace());
+
+// ---------- real Tashkent weather + time ----------
+const WX = { code: -1, temp: null, rain: 0, snow: 0, cloud: 0, fog: 0, thunder: false, sunrise: null, sunset: null };
+const DROPS = LITE ? 1400 : 4000, AREA = 150, rainPos = new Float32Array(DROPS * 6), snowPos = new Float32Array(DROPS * 3);
+for (let i = 0; i < DROPS; i++) { const x = (Math.random() - 0.5) * AREA, y = Math.random() * 70, z = (Math.random() - 0.5) * AREA; rainPos.set([x, y, z, x, y - 1.1, z], i * 6); snowPos.set([x, y, z], i * 3); }
+const rainGeo = new THREE.BufferGeometry(); rainGeo.setAttribute('position', new THREE.BufferAttribute(rainPos, 3));
+const rain = new THREE.LineSegments(rainGeo, new THREE.LineBasicMaterial({ color: 0xa9c8ff, transparent: true, opacity: 0.45, depthWrite: false })); rain.frustumCulled = false; rain.visible = false; scene.add(rain);
+const snowGeo = new THREE.BufferGeometry(); snowGeo.setAttribute('position', new THREE.BufferAttribute(snowPos, 3));
+const snow = new THREE.Points(snowGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.35, transparent: true, opacity: 0.9, depthWrite: false })); snow.frustumCulled = false; snow.visible = false; scene.add(snow);
+const wxChip = document.createElement('button'); wxChip.className = 'chip'; wxChip.id = 'wxChip'; wxChip.style.display = 'none'; $('.tbtns').insertBefore(wxChip, $('#btnTheme'));
+const wxIcon = (c) => (c >= 95 ? '⛈' : c >= 71 && c <= 86 && !(c >= 80 && c <= 82) ? '🌨' : c >= 51 ? '🌧' : c >= 45 ? '🌫' : c === 3 ? '☁' : c >= 1 ? '⛅' : WX.isDay === 0 ? '🌙' : '☀');
+const wxName = (c) => { const m = T('wx'); const ks = Object.keys(m).map(Number).sort((a, b) => a - b); let best = ks[0]; for (const k of ks) if (k <= c) best = k; return m[best]; };
+wxChip.onclick = () => toast(T('wxToast').replace('{d}', wxName(WX.code)).replace('{t}', Math.round(WX.temp)), 5000);
+async function loadWeather() { try {
+  const j = await fetch('https://api.open-meteo.com/v1/forecast?latitude=41.2995&longitude=69.2401&current=temperature_2m,weather_code,is_day,precipitation&daily=sunrise,sunset&timezone=Asia%2FTashkent&forecast_days=1').then((r) => r.json());
+  const c = j.current; if (!c || c.temperature_2m == null) return; WX.code = c.weather_code ?? 0; WX.temp = c.temperature_2m; WX.isDay = c.is_day; WX.sunrise = j.daily && j.daily.sunrise && j.daily.sunrise[0]; WX.sunset = j.daily && j.daily.sunset && j.daily.sunset[0];
+  const k = WX.code; WX.snow = (k >= 71 && k <= 77) || k === 85 || k === 86 ? (k === 75 || k === 86 ? 1 : 0.6) : 0; WX.rain = !WX.snow && ((k >= 51 && k <= 67) || (k >= 80 && k <= 82) || k >= 95) ? (k === 65 || k === 82 || k >= 95 ? 1 : k >= 61 ? 0.7 : 0.4) : 0;
+  WX.cloud = k >= 3 ? (WX.rain || WX.snow ? 0.8 : 0.45) : k === 2 ? 0.2 : 0; WX.fog = k === 45 || k === 48 ? 1 : 0; WX.thunder = k >= 95;
+  wxChip.style.display = ''; wxChip.textContent = `${wxIcon(k)} ${Math.round(WX.temp)}°`; autoTheme(); applyTheme(themeK); } catch (e) {} }
+window.__wxApply = () => { const cl = WX.cloud; if (cl) { sun.intensity *= 1 - 0.6 * cl; hemi.intensity *= 1 - 0.25 * cl; }
+  scene.fog.near = WX.fog ? 60 : 260 - 100 * cl; scene.fog.far = WX.fog ? 420 : 1300 - 450 * cl; };
+function tkMinutes(iso) { const m = /T(\d\d):(\d\d)/.exec(iso || ''); return m ? +m[1] * 60 + +m[2] : null; }
+function autoTheme() { const ts = +(store.get('aishahar_theme_ts') || 0); if (store.get('aishahar_theme') && Date.now() - ts < 3 * 3600e3) return;
+  const now = new Date(), nm = (() => { try { const [h, m] = new Intl.DateTimeFormat('en-GB', { timeZone: CFG.timezone, hour: '2-digit', minute: '2-digit', hour12: false }).format(now).split(':'); return (+h % 24) * 60 + +m; } catch (e) { return now.getHours() * 60 + now.getMinutes(); } })();
+  const sr = tkMinutes(WX.sunrise) ?? 390, ss = tkMinutes(WX.sunset) ?? 1110, ramp = 40, sm = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+  themeTarget = Math.round(sm(sr - ramp, sr + ramp, nm) * (1 - sm(ss - ramp, ss + ramp, nm)) * 20) / 20; }
+$('#btnTheme').onclick = () => { themeTarget = themeTarget > 0.5 ? 0 : 1; store.set('aishahar_theme', themeTarget ? 'day' : 'night'); store.set('aishahar_theme_ts', String(Date.now())); };
+let flashT = 0;
+function updateWeather(t, dt) { const tgt = controls.target, far = camera.position.y > 260;
+  rain.visible = WX.rain > 0 && !far; snow.visible = WX.snow > 0 && !far;
+  if (rain.visible) { const n = Math.floor(DROPS * WX.rain), p = rainPos; for (let i = 0; i < n; i++) { const o = i * 6; let y = p[o + 1] - 55 * dt; if (y < 0) y += 70; p[o + 1] = y; p[o + 4] = y - 1.1; } rainGeo.setDrawRange(0, n * 2); rainGeo.attributes.position.needsUpdate = true; rain.position.set(tgt.x, 0, tgt.z); }
+  if (snow.visible) { const n = Math.floor(DROPS * WX.snow), p = snowPos; for (let i = 0; i < n; i++) { const o = i * 3; let y = p[o + 1] - 5 * dt; if (y < 0) y += 70; p[o + 1] = y; p[o] += Math.sin(t + i) * 0.02; } snowGeo.setDrawRange(0, n); snowGeo.attributes.position.needsUpdate = true; snow.position.set(tgt.x, 0, tgt.z); }
+  if (WX.thunder) { if (t > flashT) { flashT = t + 7 + Math.random() * 10; hemi.intensity += 2.2; setTimeout(() => applyTheme(themeK), 140); } } }
+
+// ---------- billboard with the Telegram channel ----------
+const BB = { posts: [], i: 0, ch: 'otabek_ai_agent', meshes: [] };
+const bbCanvas = document.createElement('canvas'); bbCanvas.width = 1024; bbCanvas.height = 576; const bbTex = new THREE.CanvasTexture(bbCanvas); bbTex.colorSpace = THREE.SRGBColorSpace; bbTex.anisotropy = 4;
+function drawBB() { const g = bbCanvas.getContext('2d'), W = 1024, H = 576; const gr = g.createLinearGradient(0, 0, W, H); gr.addColorStop(0, '#0b1230'); gr.addColorStop(1, '#14082a'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  g.fillStyle = '#2aa3e0'; g.fillRect(0, 0, W, 86); g.fillStyle = '#fff'; g.font = '700 42px "Space Grotesk", system-ui, sans-serif'; g.textBaseline = 'middle'; g.fillText('✈ ' + T('bbTitle') + ' · @' + BB.ch, 30, 44);
+  const p = BB.posts[BB.i % Math.max(1, BB.posts.length)]; g.fillStyle = '#e9f1ff'; g.font = '500 38px "Space Grotesk", system-ui, sans-serif'; g.textBaseline = 'top';
+  const text = p ? p.text : T('bbSub').replace('{c}', BB.ch); const lines = []; for (const para of text.split('\n')) { let cur = ''; for (const w of para.split(' ')) { const t2 = cur ? cur + ' ' + w : w; if (g.measureText(t2).width > W - 70) { lines.push(cur); cur = w; } else cur = t2; } lines.push(cur); if (lines.length > 9) break; }
+  lines.filter((l, i) => !(l === '' && lines[i - 1] === '')).slice(0, 9).forEach((l, i) => g.fillText(l, 34, 110 + i * 46));
+  g.fillStyle = 'rgba(57,255,136,.95)'; g.fillRect(0, H - 60, W, 60); g.fillStyle = '#04140b'; g.font = '700 32px "Space Grotesk", system-ui, sans-serif'; g.textBaseline = 'middle'; g.fillText(T('bbTap') + (BB.posts.length ? `  ·  ${BB.i % BB.posts.length + 1}/${BB.posts.length}` : ''), 30, H - 30);
+  bbTex.needsUpdate = true; }
+{ const ry = Math.PI / 4, cx = -12, cz = -12, ux = Math.cos(ry), uz = -Math.sin(ry);
+  for (const s of [-7, 7]) B.cyl.add(cx + ux * s, 0.3, cz + uz * s, 0.9, 16, 0.9, '#30353d'); B.cyl.done();
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(17, 10, 0.5), matStd({ color: 0x11151c, metalness: 0.6, roughness: 0.3 })); frame.position.set(cx, 11, cz); frame.rotation.y = ry; frame.userData.bb = true; scene.add(frame);
+  const mat = new THREE.MeshBasicMaterial({ map: bbTex, toneMapped: false, color: 0xd8d8d8 });
+  for (const sd of [1, -1]) { const pl = new THREE.Mesh(new THREE.PlaneGeometry(16, 9), mat); pl.position.set(cx + Math.sin(ry) * 0.27 * sd, 11, cz + Math.cos(ry) * 0.27 * sd); pl.rotation.y = sd > 0 ? ry : ry + Math.PI; pl.userData.bb = true; scene.add(pl); BB.meshes.push(pl); }
+  BB.meshes.push(frame); drawBB(); }
+window.__bbMeshes = BB.meshes;
+window.__bbOpen = () => { const p = BB.posts[BB.i % Math.max(1, BB.posts.length)]; open(p ? 'https://t.me/' + p.id : 'https://t.me/' + BB.ch, '_blank', 'noopener'); };
+async function loadFeed() { try { const j = await fetch('/api/tgfeed').then((r) => r.json()); if (j.channel) BB.ch = j.channel; BB.posts = j.posts || []; BB.i = 0; drawBB(); } catch (e) {} }
+setInterval(() => { if (BB.posts.length > 1 && !document.hidden) { BB.i++; drawBB(); } }, 9000);
+
+// ---------- weekly Reel (admin): new residents fly-through with captions ----------
+async function weeklyReel() {
+  let names = []; try { const j = await fetch('residents.json', { cache: 'no-store' }).then((r) => r.json()); const jo = j.joined || {}, wk = Date.now() - 7 * 864e5; names = Object.entries(jo).filter(([, d]) => Date.parse(d) >= wk).map(([n]) => clean(n)).filter((n) => index.has(n)); } catch (e) {}
+  if (!names.length) names = specs.slice(-8).map((s) => s.name); names = names.slice(-10);
+  const W = 720, H = 1280, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const tx = new THREE.CanvasTexture(cv); tx.colorSpace = THREE.SRGBColorSpace;
+  const pl = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: tx, transparent: true, depthTest: false, depthWrite: false, toneMapped: false })); pl.renderOrder = 999; pl.userData.noColl = true;
+  const draw = (top, big, small) => { const g = cv.getContext('2d'); g.clearRect(0, 0, W, H); const gt = g.createLinearGradient(0, 0, 0, 300); gt.addColorStop(0, 'rgba(5,6,12,.85)'); gt.addColorStop(1, 'rgba(5,6,12,0)'); g.fillStyle = gt; g.fillRect(0, 0, W, 300);
+    const gb = g.createLinearGradient(0, H - 380, 0, H); gb.addColorStop(0, 'rgba(5,6,12,0)'); gb.addColorStop(1, 'rgba(5,6,12,.9)'); g.fillStyle = gb; g.fillRect(0, H - 380, W, 380); g.textAlign = 'center';
+    g.fillStyle = '#39ff88'; g.font = '700 34px "Space Grotesk", system-ui'; g.fillText(top, W / 2, 110); g.fillStyle = '#ffffff'; g.font = '800 64px "Space Grotesk", system-ui'; g.fillText(big, W / 2, H - 200); g.fillStyle = '#50d7ff'; g.font = '600 38px "Space Grotesk", system-ui'; g.fillText(small, W / 2, H - 130); tx.needsUpdate = true; };
+  const fit = () => { const h = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2); pl.scale.set(h * camera.aspect, h, 1); pl.position.set(0, 0, -1); };
+  const steps = []; const timers = [];
+  const secs = Math.ceil(3 + names.length * 1.8 + 3.5);
+  await recordReel(secs, { start() { if (!camera.parent) scene.add(camera); camera.add(pl); fit(); selected = null;
+      draw(T('wkTop'), T('wkNew').replace('{n}', names.length), '@' + OWNER); flyTo(new THREE.Vector3(cityExtent * 0.6, cityExtent * 0.5, cityExtent * 0.7), new THREE.Vector3(0, 0, 0), 2.6);
+      names.forEach((n, k) => timers.push(setTimeout(() => { fit(); const sp = specs[index.get(n)], h = houseIdx[sp.i], [fx, fz] = dirOf(h.face); selected = sp; follow = false;
+        flyTo(new THREE.Vector3(h.x + fx * 16 + 5, 9, h.z + fz * 16 + 5), new THREE.Vector3(h.x, 2, h.z), 1.2); draw(T('wkTop'), '@' + n, T('wkMoved')); }, 3000 + k * 1800)));
+      timers.push(setTimeout(() => { fit(); selected = null; draw('AI SHAHAR 2036', T('wkEnd1'), T('wkEnd2')); flyTo(new THREE.Vector3(70, 60, 90), new THREE.Vector3(0, 8, 0), 3); }, 3000 + names.length * 1800)); },
+    stop() { timers.forEach(clearTimeout); camera.remove(pl); pl.material.map.dispose(); pl.material.dispose(); selected = null; } });
+}
+
+// ---------- performance: auto light mode for weak phones ----------
+const PERF = { lvl: +(store.get('aishahar_perf') || 0), n: 0, acc: 0, since: performance.now() + 9000, told: false };
+function applyPerf(l) { if (l >= 1) { renderer.setPixelRatio(Math.min(devicePixelRatio, 1)); composer = null; }
+  if (l >= 2) { renderer.setPixelRatio(0.85); sun.castShadow = false; rain.material.opacity = 0.3; } if (l >= 3) renderer.setPixelRatio(0.7); dispatchEvent(new Event('resize')); }
+if (PERF.lvl) applyPerf(PERF.lvl);
+function updatePerf(dt) { if (recording || document.hidden) { PERF.since = performance.now() + 3000; PERF.n = PERF.acc = 0; return; } if (performance.now() < PERF.since) return;
+  PERF.n++; PERF.acc += dt; if (PERF.acc < 4) return; const fps = PERF.n / PERF.acc; PERF.n = PERF.acc = 0;
+  if (fps < 24 && PERF.lvl < 3) { PERF.lvl++; store.set('aishahar_perf', String(PERF.lvl)); applyPerf(PERF.lvl); PERF.since = performance.now() + 3000; if (!PERF.told) { PERF.told = true; toast(T('perfOn'), 5000); } } }
+const pb = $('#btnPerf'); const setPB = () => pb.classList.toggle('on', LITE || PERF.lvl > 0); setPB(); pb.title = T('perfBtn');
+pb.onclick = () => { const on = LITE || PERF.lvl > 0; if (on) { store.set('aishahar_perf', '0'); store.set('aishahar_lite', '0'); } else { store.set('aishahar_perf', '2'); store.set('aishahar_lite', '1'); } location.reload(); };
+
+// ---------- per-frame hook ----------
+let lastX = null, lastZ = null, amenT = 0;
+window.__v7u = (t, dt) => { updateRace(); updateBall(dt); updateVisit(t); updateWeather(t, dt); updatePerf(dt);
+  if (drive && GAME.me === drive.sp.name) { if (lastX != null) { const d = Math.hypot(drive.x - lastX, drive.z - lastZ); if (d < 5) QMEM.walk += d; } lastX = drive.x; lastZ = drive.z;
+    if (t - QMEM.lastSave > 2) { QMEM.lastSave = t; store.set(qkey('walk'), String(Math.floor(QMEM.walk))); qCheck(); }
+    if (t - amenT > 1) { amenT = t; for (const k of ['stadium', 'mall']) for (const b of amenityBlocks[k] || []) if ((b.cx - drive.x) ** 2 + (b.cz - drive.z) ** 2 < 28 * 28 && !store.get(qkey(k))) qBump(k); } } else lastX = null; };
+loadWeather(); setInterval(() => { loadWeather(); }, 15 * 60e3); setInterval(autoTheme, 60e3); loadFeed(); setInterval(loadFeed, 10 * 60e3);
+setTimeout(() => { updQuestBtn(); qCheck(); }, 4000); setInterval(updQuestBtn, 5000);
+}
+
 window.__city = { hitStatic, blocked, getDrive: () => drive, CGRID, reRobot, PLAYERS, CRYSTALS, startDrive, cars, recordReel, GOALS, goalSite, specs, B, RP, robotPos, UTIME, labelPool, scene, camera, controls, THREE, signs, carBody, carCab, carLamp, carTail, ownerGroup, stars, beam };

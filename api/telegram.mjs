@@ -25,6 +25,16 @@ async function saveUpgrade(row) {
   const r = await fetch(SB_URL + '/rest/v1/upgrades', { method: 'POST', headers: h, body: JSON.stringify(row) });
   if (!r.ok && r.status !== 409) throw new Error('supabase ' + r.status + ' ' + (await r.text()));
 }
+async function sbFetch(path, opt = {}) {
+  const key = (process.env.SUPABASE_SECRET_KEY || '').replace(/[\s'"]+/g, ''); const h = { 'content-type': 'application/json', apikey: key, Prefer: 'return=representation' }; if (!key.startsWith('sb_')) h.Authorization = 'Bearer ' + key;
+  const r = await fetch(SB_URL + '/rest/v1' + path, { ...opt, headers: h }); const t = await r.text(); if (!r.ok) throw new Error('supabase ' + r.status + ' ' + t.slice(0, 160)); return t ? JSON.parse(t) : null;
+}
+async function linkChat(chatId, code) {
+  code = String(code || '').replace(/[^a-f0-9]/g, ''); if (code.length < 8) return;
+  const rows = await sbFetch(`/players?tg_link=eq.${code}`, { method: 'PATCH', body: JSON.stringify({ tg_chat: chatId, tg_link: null, notify: true }) });
+  if (!rows || !rows[0]) return tg('sendMessage', { chat_id: chatId, text: "Havola eskirgan 😕 Saytda «🔔 Telegram eslatmalari» tugmasini qayta bosing." });
+  return tg('sendMessage', { chat_id: chatId, text: `✅ Ulandi! @${rows[0].nick} robotingiz endi sizga xabar beradi:\n\n🔥 streak yo'qolay deganda\n❤️ uyingizga layk bosishganda\n📖 mehmonlar daftaringizga yozishganda\n\nO'chirish: /stop\n\n🏙 ${SITE}/#${rows[0].nick}` });
+}
 async function offer(chatId, nick) {
   if (!(await isResident(nick))) return tg('sendMessage', { chat_id: chatId, text: `@${nick} hali AI SHAHAR aholisi emas 🤖\n\nAvval Instagramda @${OWNER} ga obuna bo'ling — yangi obunachilar muntazam shaharga ko'chiriladi. Keyin qaytib keling!` });
   const rows = [];
@@ -53,6 +63,9 @@ export default async function handler(req, res) {
       const text = m.text.trim();
       if (text.startsWith('/paysupport')) await tg('sendMessage', { chat_id: m.chat.id, text: `To'lov bo'yicha savol yoki muammo bo'lsa, Instagramda @${OWNER} ga yozing. To'lov cheki (Telegram'dagi xabar) va nikneymingizni ilova qiling.` });
       else if (text.startsWith('/terms')) await tg('sendMessage', { chat_id: m.chat.id, text: `Shartlar: AI SHAHAR 2036 dagi uy yaxshilanishi — virtual bezak. U faqat saytdagi uyingiz ko'rinishini o'zgartiradi, pul qaytarilmaydi. Texnik xato bo'lsa — /paysupport.` });
+      else if (text.startsWith('/start link_')) await linkChat(m.chat.id, text.split(/\s+/)[1].slice(5));
+      else if (text.startsWith('/stop')) { await sbFetch(`/players?tg_chat=eq.${m.chat.id}`, { method: 'PATCH', body: JSON.stringify({ notify: false }) }); await tg('sendMessage', { chat_id: m.chat.id, text: "🔕 Eslatmalar o'chirildi. Qayta yoqish uchun /notify" }); }
+      else if (text.startsWith('/notify')) { await sbFetch(`/players?tg_chat=eq.${m.chat.id}`, { method: 'PATCH', body: JSON.stringify({ notify: true }) }); await tg('sendMessage', { chat_id: m.chat.id, text: '🔔 Eslatmalar yoqildi!' }); }
       else if (text.startsWith('/start')) { const arg = text.split(/\s+/)[1] || ''; const nick = clean(dec(arg.replace(/^up_/, ''))); if (nick) await offer(m.chat.id, nick); else await tg('sendMessage', { chat_id: m.chat.id, text: `🏙 AI SHAHAR 2036 ga xush kelibsiz!\n\nInstagram nikneymingizni yozing — uyingizni qasr yoki saroyga aylantirish mumkin 👇` }); }
       else { const nick = clean(text); if (nick) await offer(m.chat.id, nick); }
     }

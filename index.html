@@ -129,6 +129,16 @@
   .card .bars { display:flex; flex-direction:column; gap:3px; } .card .bar { display:flex; align-items:center; gap:6px; font-size:11px; } .card .bar span { width:38px; color:var(--dim); } .card .bar i { height:8px; border-radius:4px; background:linear-gradient(90deg,#39ff88,#50d7ff); } .card .bar b { font-size:11px; }
   .card .refs { display:flex; flex-wrap:wrap; gap:4px 10px; font-size:12px; } .card .rc { color:#ffc94a; font-family:'JetBrains Mono', monospace; }
   .msg .mod { margin-left:4px; } .msg .mod button { background:none; border:0; cursor:pointer; font-size:12px; padding:0 2px; opacity:.7; } .msg .mod button:hover { opacity:1; }
+  #btnQuest { position:relative; } #btnQuest .qdot { position:absolute; top:-5px; right:-5px; min-width:17px; height:17px; border-radius:9px; background:#ff4fd8; color:#fff; font:700 11px/17px 'Space Grotesk'; font-style:normal; text-align:center; padding:0 3px; }
+  #btnPerf.on { background:rgba(57,255,136,.22); border-color:#39ff88; }
+  #raceHud { position:fixed; top:60px; left:50%; transform:translateX(-50%); display:none; background:rgba(8,12,22,.88); border:1px solid #39ff88; color:#39ff88; font:800 22px 'JetBrains Mono', monospace; padding:6px 16px; border-radius:12px; z-index:16; }
+  #raceHud.on { display:block; }
+  #visitBtn { position:fixed; left:50%; bottom:150px; transform:translateX(-50%); display:none; background:rgba(8,12,22,.9); border:1px solid #ffc94a; color:#ffc94a; font:700 14px 'Space Grotesk'; padding:9px 16px; border-radius:999px; z-index:16; cursor:pointer; }
+  body.driving #visitBtn.on { display:block; }
+  .card .qlist { display:flex; flex-direction:column; gap:8px; margin-top:6px; } .card .qrow { display:flex; align-items:center; gap:8px; } .card .qrow .qt { flex:1; font-size:13px; } .card .qrow.got .qt { opacity:.6; }
+  .card .qbar { height:6px; border-radius:3px; background:rgba(255,255,255,.1); margin-top:4px; overflow:hidden; } .card .qbar i { display:block; height:100%; background:linear-gradient(90deg,#39ff88,#50d7ff); }
+  .card .qn { font-size:11px; color:var(--dim); } .card .qrow button { border:1px solid var(--line); background:rgba(255,255,255,.06); color:var(--ink); border-radius:10px; padding:6px 10px; font-weight:700; white-space:nowrap; } .card .qrow button.pri { background:#39ff88; color:#04140b; border-color:#39ff88; } .card .qrow button:disabled { opacity:.45; }
+  .card .gblist { max-height:240px; overflow:auto; display:flex; flex-direction:column; gap:6px; margin:8px 0; } .card .gb { font-size:13px; line-height:1.35; background:rgba(255,255,255,.04); border-radius:10px; padding:6px 9px; } .card .gb b { color:#50d7ff; cursor:pointer; } .card .gb i { display:block; font-size:10px; color:var(--dim); font-style:normal; }
   #loader { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#05060c; z-index:9; transition:opacity .6s; font:700 14px 'JetBrains Mono', monospace; color:#39ff88; letter-spacing:.2em; text-align:center; }
   #loader .big { font:700 34px 'Space Grotesk'; letter-spacing:.08em; color:#e8f6ee; margin-bottom:10px; text-shadow:0 0 18px rgba(57,255,136,.6); }
   body.cinema #ui { opacity:0; } body.cinema #ui * { pointer-events:none !important; }
@@ -192,10 +202,12 @@ setTimeout(function(){if(document.getElementById('loader'))show('20 soniyadan be
       <button class="chip" id="btnSound" aria-label="Sound">🔇</button>
       <button class="chip" id="btnVip" style="display:none">🏆</button>
       <button class="chip" id="btnSponsors" style="display:none">💎</button>
+      <button class="chip" id="btnQuest">🎯</button>
       <button class="chip" id="btnBoard">📊</button>
       <button class="chip" id="btnRec" style="display:none">🎬 Reel</button>
       <button class="chip" id="btnRand" data-t="random"></button>
       <button class="chip" id="btnTour" data-t="tour"></button>
+      <button class="chip" id="btnPerf" aria-label="Light mode">⚡</button>
       <button class="chip" id="btnHome" aria-label="Home">⌂</button>
     </div>
   </div>
@@ -211,7 +223,7 @@ setTimeout(function(){if(document.getElementById('loader'))show('20 soniyadan be
 </div>
 <div class="cinehint" data-t="cineExit"></div>
 <div class="recbadge" id="recbadge"></div>
-<div id="drivebar"><div id="driveHint"></div><button id="driveExit"></button></div>
+<div id="drivebar"><div id="driveHint"></div><button id="raceBtn">🏁</button><button id="driveExit"></button></div>
 <div id="joy"><div id="joyk"></div></div>
 <div id="onb"></div>
 <button id="chatBtn">💬 <span class="dot"></span><b id="onlN">1</b> <span data-t="online"></span><span id="chatUnread" style="display:none"></span></button>
