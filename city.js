@@ -169,9 +169,11 @@ const BLOCKS = [];
   BLOCKS.sort((a, b) => (Math.max(Math.abs(a[0]), Math.abs(a[1])) - Math.max(Math.abs(b[0]), Math.abs(b[1]))) || (Math.atan2(a[1], a[0]) - Math.atan2(b[1], b[0]))); }
 const ringOf = (b) => Math.max(Math.abs(b[0]), Math.abs(b[1]));
 const AMEN_TYPES = ['stadium', 'restaurant', 'cafe', 'pool', 'park', 'fitness', 'mall', 'cafe', 'sports', 'billiard', 'park', 'restaurant', 'cafe', 'park', 'fitness', 'cafe'];
+// skyscraper blocks are spread over rings 1–2 (mixed with leisure), plus mid-rise apartments inside residential blocks
+const DOWN_AT = new Set([3, 11, 17, 23]); let amenK = 0;
 const blockInfo = BLOCKS.map((b, i) => {
   const r = ringOf(b); let type = 'res';
-  if (r === 0) type = 'plaza'; else if (r === 1) type = 'down'; else if (r === 2) type = AMEN_TYPES[(i - 9) % AMEN_TYPES.length];
+  if (r === 0) type = 'plaza'; else if (r <= 2) type = DOWN_AT.has(i) ? 'down' : AMEN_TYPES[amenK++ % AMEN_TYPES.length];
   return { bx: b[0], bz: b[1], cx: b[0] * PITCH, cz: b[1] * PITCH, ring: r, type };
 });
 const resBlocks = blockInfo.filter((b) => b.type === 'res');
@@ -339,9 +341,12 @@ function buildPlaza(b) {
   blockLamps(b);
 }
 function buildDowntown(b, idx) {
-  slab(b, '#a9aeb6'); const r = rng(1000 + idx);
-  for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
-    const x = b.cx + sx * 11, z = b.cz + sz * 11, w = 15 + r() * 4, h = 45 + Math.pow(r(), 1.5) * 120;
+  slab(b, '#a9aeb6'); const r = rng(1000 + idx), layout = idx % 3; // 0: four towers · 1: one giant + plaza · 2: two towers + park
+  const spots = layout === 0 ? [[-11, -11], [11, -11], [-11, 11], [11, 11]] : layout === 1 ? [[0, 0]] : [[-11, -11], [11, 11]];
+  if (layout === 2) { for (const [ox, oz] of [[-11, 11], [11, -11]]) { box(b.cx + ox, 0.32, b.cz + oz, 18, 0.06, 18, snowy('#86b866')); tree(b.cx + ox - 4, b.cz + oz - 3, 0.6, r); tree(b.cx + ox + 4, b.cz + oz + 3, 0.55, r); bench(b.cx + ox, b.cz + oz, 0); } }
+  if (layout === 1) for (const [ox, oz] of [[-17, -17], [17, -17], [-17, 17], [17, 17]]) tree(b.cx + ox, b.cz + oz, 0.6, r);
+  for (const [ox, oz] of spots) {
+    const giant = layout === 1, x = b.cx + ox, z = b.cz + oz, w = giant ? 24 : 14 + r() * 5, h = giant ? 150 + r() * 70 : 40 + Math.pow(r(), 1.4) * 110;
     const tint = pick(r, ['#9fb4c9', '#c9d3dd', '#8fa7a0', '#b9a98f', '#a3b0c2', '#d8dde3']);
     B.tower.add(x, 0.3, z, w, h, w, tint);
     box(x, h + 0.3, z, w * 0.8, 3, w * 0.8, '#6b7480');
@@ -412,7 +417,11 @@ function buildResidentialBlock(b, bi) {
   // the middle lot of every block is a small neighbourhood place, so leisure is spread over the whole city
   const t = MINI[(bi * 7 + (b.bx & 3)) % MINI.length], cx = b.cx, cz = b.cz, r = rng(500 + bi), ry = faceToCentre(cx, cz), A = LOT - 2;
   const sign = (key, y = 3.2, bg = '#0b1020', fg = '#39ff88') => { const [fx, fz] = dirOf(ry); addSign(key, cx + fx * (A / 2 - 0.4), y, cz + fz * (A / 2 - 0.4), 5.2, ry, bg, fg); };
-  if (t === 'cafe' || t === 'restaurant') {
+  if (b.ring >= 3 && (bi * 7 + 3) % 4 === 0) { // high-rise apartment block in the middle lot: skyline spread over the whole city
+    box(cx, 0.32, cz, A, 0.06, A, '#b4b9c1'); const h = 35 + Math.pow(r(), 1.3) * 75, w = 9.5 + r() * 2;
+    B.tower.add(cx, 0.36, cz, w, h, w, pick(r, ['#c9d3dd', '#d8cfbd', '#b9c4cf', '#e2d6c3', '#a9b8c6'])); box(cx, h + 0.36, cz, w * 0.7, 2, w * 0.7, '#6b7480');
+    if (r() < 0.5) glow(cx, h + 3, cz, 0.8, '#ff3b3b', false);
+  } else if (t === 'cafe' || t === 'restaurant') {
     box(cx, 0.32, cz, A, 0.06, A, '#d9cbb2'); const [fx, fz] = dirOf(ry), kx = cx - fx * 3.4, kz = cz - fz * 3.4;
     box(kx, 0.36, kz, Math.abs(fx) ? 3.4 : 6, 3, Math.abs(fx) ? 6 : 3.4, t === 'cafe' ? '#c98b5b' : '#7a3e2b'); box(kx + fx * 1.9, 2.6, kz + fz * 1.9, Math.abs(fx) ? 1.2 : 6.4, 0.25, Math.abs(fx) ? 6.4 : 1.2, pick(r, ['#e74c3c', '#2ecc71', '#f39c12', '#16a085']));
     for (const o of [-2.6, 0, 2.6]) { const tx = cx + fx * 2 + (Math.abs(fx) ? 0 : o), tz = cz + fz * 2 + (Math.abs(fx) ? o : 0); B.cyl.add(tx, 0.36, tz, 1.2, 0.8, 1.2, '#f2efe8'); B.cyl.add(tx, 0.36, tz, 0.1, 2.6, 0.1, '#666'); B.cone.add(tx, 2.6, tz, 2.8, 0.8, 2.8, pick(r, ['#e74c3c', '#ffffff', '#ffd166'])); spot(t, tx + 1.1, tz, -Math.PI / 2); spot(t, tx - 1.1, tz, Math.PI / 2); }
