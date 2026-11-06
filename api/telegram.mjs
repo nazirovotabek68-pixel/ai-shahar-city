@@ -57,10 +57,14 @@ async function offer(chatId, nick) {
   }
   return tg('sendMessage', { chat_id: chatId, text: `🏙 AI SHAHAR 2036\n\n@${nick} uyini yaxshilash uchun darajani tanlang 👇\n\nTo'lovdan keyin uy saytda o'zi o'zgaradi (1 daqiqagacha).\n\nℹ️ Bu virtual bezak, to'lov qaytarilmaydi. Savollar: /paysupport`, reply_markup: { inline_keyboard: rows } });
 }
+const APP_URL = SITE + '/?ref=tgapp&tg=1';
+const openBtn = (text = '🏙 Shaharni ochish') => ({ inline_keyboard: [[{ text, web_app: { url: APP_URL } }]] });
+let menuSet = false;
+async function ensureMenu() { if (menuSet) return; menuSet = true; try { await tg('setChatMenuButton', { menu_button: { type: 'web_app', text: '🏙 Shahar', web_app: { url: APP_URL } } }); } catch (e) {} }
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(200).send('ok');
   if (!process.env.TELEGRAM_WEBHOOK_SECRET || req.headers['x-telegram-bot-api-secret-token'] !== process.env.TELEGRAM_WEBHOOK_SECRET) return res.status(401).send('unauthorized');
-  const u = req.body || {};
+  const u = req.body || {}; await ensureMenu();
   try {
     if (u.pre_checkout_query) {
       const q = u.pre_checkout_query, parts = String(q.invoice_payload || '').split('|'); let ok = false;
@@ -91,12 +95,13 @@ export default async function handler(req, res) {
       const text = m.text.trim();
       if (text.startsWith('/paysupport')) await tg('sendMessage', { chat_id: m.chat.id, text: `To'lov bo'yicha savol yoki muammo bo'lsa, Instagramda @${OWNER} ga yozing. To'lov cheki (Telegram'dagi xabar) va nikneymingizni ilova qiling.` });
       else if (text.startsWith('/terms')) await tg('sendMessage', { chat_id: m.chat.id, text: `Shartlar: AI SHAHAR 2036 dagi uy yaxshilanishi — virtual bezak. U faqat saytdagi uyingiz ko'rinishini o'zgartiradi, pul qaytarilmaydi. Texnik xato bo'lsa — /paysupport.` });
+      else if (text.startsWith('/app')) await tg('sendMessage', { chat_id: m.chat.id, text: '🏙 AI SHAHAR 2036', reply_markup: openBtn() });
       else if (text.startsWith('/start gems_')) await offerGems(m.chat.id, clean(dec(text.split(/\s+/)[1].slice(5))));
       else if (text.startsWith('/start sh_')) await offerShout(m.chat.id, text.split(/\s+/)[1].slice(3));
       else if (text.startsWith('/start link_')) await linkChat(m.chat.id, text.split(/\s+/)[1].slice(5));
       else if (text.startsWith('/stop')) { await sbFetch(`/players?tg_chat=eq.${m.chat.id}`, { method: 'PATCH', body: JSON.stringify({ notify: false }) }); await tg('sendMessage', { chat_id: m.chat.id, text: "🔕 Eslatmalar o'chirildi. Qayta yoqish uchun /notify" }); }
       else if (text.startsWith('/notify')) { await sbFetch(`/players?tg_chat=eq.${m.chat.id}`, { method: 'PATCH', body: JSON.stringify({ notify: true }) }); await tg('sendMessage', { chat_id: m.chat.id, text: '🔔 Eslatmalar yoqildi!' }); }
-      else if (text.startsWith('/start')) { const arg = text.split(/\s+/)[1] || ''; const nick = clean(dec(arg.replace(/^up_/, ''))); if (nick) await offer(m.chat.id, nick); else await tg('sendMessage', { chat_id: m.chat.id, text: `🏙 AI SHAHAR 2036 ga xush kelibsiz!\n\nInstagram nikneymingizni yozing — uyingizni qasr yoki saroyga aylantirish mumkin 👇` }); }
+      else if (text.startsWith('/start')) { const arg = text.split(/\s+/)[1] || ''; const nick = clean(dec(arg.replace(/^up_/, ''))); if (nick) await offer(m.chat.id, nick); else await tg('sendMessage', { chat_id: m.chat.id, text: `🏙 AI SHAHAR 2036 ga xush kelibsiz!\n\n🤖 Shaharni shu yerning o'zida oching — pastdagi tugmani bosing.\n\n💎 Uyingizni qasr yoki saroyga aylantirish uchun Instagram nikneymingizni yozing.`, reply_markup: openBtn() }); }
       else { const nick = clean(text); if (nick) await offer(m.chat.id, nick); }
     }
   } catch (e) { console.error(e); }

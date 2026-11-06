@@ -1701,7 +1701,7 @@ if (!LITE) setTimeout(() => { try { const g = renderer.getContext(), px = new Ui
   for (let k = 0; k < 9; k++) { const p = new Uint8Array(4); renderer.setRenderTarget(null); if (composer) composer.render(); else renderer.render(scene, camera); g.readPixels(Math.floor(g.drawingBufferWidth * (0.2 + 0.3 * (k % 3))), Math.floor(g.drawingBufferHeight * (0.2 + 0.3 * Math.floor(k / 3))), 1, 1, g.RGBA, g.UNSIGNED_BYTE, p); if (p[0] > 245 && p[1] > 245 && p[2] > 245) white++; }
   if (white >= 8) { try { localStorage.setItem('aishahar_lite', '1'); } catch (_) {} location.reload(); } } catch (e) {} }, 6000);
 setTimeout(() => { $('#loader').style.opacity = 0; setTimeout(() => $('#loader').remove(), 700); flyTo(HOME_P, HOME_T, 3.2); animatePop(specs.length + 1); setTimeout(() => { if (!cardState) toast('👆 ' + T('tapHint'), 7000); }, 3600); }, 500);
-const hashNick = clean(decodeURIComponent(location.hash.slice(1) || ''));
+const hashNick = /tgWebApp/.test(location.hash) ? '' : clean(decodeURIComponent(location.hash.slice(1) || ''));
 if (QS.has('admin') || hashNick === 'admin') setTimeout(() => { selected = null; cardState = { kind: 'admin' }; renderCard(); }, 3800);
 else if (hashNick) setTimeout(() => { if (hashNick === OWNER) showOwner(); else if (index.has(hashNick)) select(specs[index.get(hashNick)]); else showNew(hashNick); }, 3800);
 checkGoals(false); initExtrasUI(); initDonations(); initDriveUI(); initChat(); initGame();

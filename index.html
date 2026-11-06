@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
+<script>/* Telegram Mini App: full screen, no swipe-to-close while moving the map */
+if (/tgWebApp/.test(location.hash) || /[?&]tg=1/.test(location.search)) { const sc = document.createElement('script'); sc.src = 'https://telegram.org/js/telegram-web-app.js';
+  sc.onload = () => { try { const W = Telegram.WebApp; W.ready(); W.expand(); W.disableVerticalSwipes && W.disableVerticalSwipes(); W.setHeaderColor && W.setHeaderColor('#05060c'); W.setBackgroundColor && W.setBackgroundColor('#05060c');
+    const o = window.open; window.open = (u, ...a) => { if (/^https:\/\/t\.me\//.test(u || '')) { W.openTelegramLink(u); return null; } if (u && /^https?:/.test(u)) { W.openLink(u); return null; } return o.call(window, u, ...a); }; } catch (e) {} };
+  document.head.appendChild(sc); }
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>AI SHAHAR 2036</title>
