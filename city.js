@@ -1348,13 +1348,15 @@ function startDrive(sp) {
   if (drive) stopDrive(); stopTour();
   const [x, z] = robotPos(sp, UTIME.value), { g, pivots } = buildRobotGroup(sp.traits); g.position.set(x, 0, z); scene.add(g);
   setRobotHidden(sp, true); drive = { sp, g, pivots, x, z, yaw: 0, phase: 0, speed: 0 }; sp.drv = drive;
+  controls.enablePan = false; controls.mouseButtons.LEFT = THREE.MOUSE.ROTATE; controls.touches.ONE = THREE.TOUCH.ROTATE; controls.minDistance = 4; controls.rotateSpeed = MOBILE ? 0.9 : 0.7;
   selected = sp; follow = true; lastSel = null; labelAssignT = -9; $('#card').classList.remove('on'); document.body.classList.remove('cardopen'); document.body.classList.add('driving');
   $('#driveHint').textContent = '🎮 @' + sp.name + ' · ' + T('driveHint'); $('#driveExit').textContent = '✕ ' + T('driveExit');
   const tg = new THREE.Vector3(x, 2, z); flyTo(new THREE.Vector3(x + 9, 8, z + 11), tg, 1.0);
 }
 function stopDrive() {
   if (!drive) return; const sp = drive.sp; scene.remove(drive.g); drive.g.traverse((o) => o.material && o.material.dispose());
-  sp.drv = null; setRobotHidden(sp, false); drive = null; JOY.x = JOY.y = 0; document.body.classList.remove('driving'); follow = false; labelAssignT = -9;
+  sp.drv = null; setRobotHidden(sp, false); drive = null;
+  controls.enablePan = true; controls.mouseButtons.LEFT = THREE.MOUSE.PAN; controls.touches.ONE = THREE.TOUCH.PAN; controls.minDistance = 6; controls.rotateSpeed = 0.6; JOY.x = JOY.y = 0; document.body.classList.remove('driving'); follow = false; labelAssignT = -9;
 }
 function updateDrive(dt) {
   if (!drive) return; let ix = JOY.x, iy = JOY.y;
@@ -1366,6 +1368,8 @@ function updateDrive(dt) {
   drive.phase += drive.speed * dt * 2.4 / Math.max(0.9, drive.sp.traits.u); const amp = Math.min(1, drive.speed / 3);
   for (const [pv, sw] of drive.pivots) pv.rotation.x = Math.sin(drive.phase) * sw * (0.4 + amp * 0.8) * (drive.speed > 0.2 ? 1 : 0);
   drive.g.position.set(drive.x, Math.abs(Math.cos(drive.phase)) * 0.05 * amp, drive.z); drive.g.rotation.y = drive.yaw;
+  if (!fly) { const dx = drive.x - controls.target.x, dz = drive.z - controls.target.z; controls.target.x += dx; controls.target.z += dz; controls.target.y += (2 - controls.target.y) * Math.min(1, dt * 4); camera.position.x += dx; camera.position.z += dz; }
+  follow = false;
 }
 function initDriveUI() {
   const joy = $('#joy'), knob = $('#joyk'); let jid = null, jc = null;
