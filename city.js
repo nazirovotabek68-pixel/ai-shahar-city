@@ -85,6 +85,8 @@ const SIGN_X = { uz: { airport: 'AEROPORT', metro: 'METRO', beach: "DENGIZ BO'YI
   ru: { airport: 'АЭРОПОРТ', metro: 'МЕТРО', beach: 'ПЛЯЖ', f1: 'ФОРМУЛА-1', winter: 'С НОВЫМ ГОДОМ! 🎄', navruz: 'С НАВРУЗОМ! 🌷' },
   en: { airport: 'AIRPORT', metro: 'METRO', beach: 'BEACH', f1: 'FORMULA-1', winter: 'HAPPY NEW YEAR! 🎄', navruz: 'HAPPY NAVRUZ! 🌷' } };
 for (const l of Object.keys(I18N)) { Object.assign(I18N[l], I18N_X[l]); Object.assign(I18N[l].sign, SIGN_X[l]); }
+const I18N_G = {"uz": {"isMe": "🙋 Bu men", "shop": "🛍 Do'kon", "board": "Reyting", "boardC": "💎 Kristallar", "boardS": "🔥 Seriya", "boardL": "❤️ Eng chiroyli uylar", "likesW": "bu hafta", "meSet": "Endi siz @{n} sifatida o'ynaysiz! 🎮 Robotingni boshqarib, kristallarni yig'", "taken": "Bu robot boshqa qurilmaga bog'langan", "bonus": "🔥 {s} kunlik seriya! Bugungi sovg'a: +{b} 💎", "crystalHint": "💎 Kristallarni yig'ish uchun o'z robotingni boshqar (kartada 🙋 Bu men → 🎮 Boshqarish)", "got": "+{v} 💎", "allGot": "🎉 Bugungi hamma kristallarni yig'ding! Ertaga yangilari chiqadi", "poor": "Kristall yetmaydi 💎", "buy": "Olish", "equip": "Kiyish", "unequip": "Yechish", "owned": "bor", "liked": "❤️ Like qo'yildi!", "likeBtn": "Like", "shopTitle": "Robot do'koni", "shopHint": "Kristallarni shahar bo'ylab yig'asiz, har kuni kirsangiz sovg'a beriladi 🔥", "items": {"cap_red": "Qizil kepka", "cap_blue": "Ko'k kepka", "cap_gold": "Oltin kepka", "shades": "Qora ko'zoynak", "neon_phones": "Neon naushnik", "cape": "Qahramon plashi", "halo": "Nur halqasi", "dog": "Robo-kuchukcha 🐕", "cat": "Robo-mushuk 🐈"}, "today": "Bugun", "left": "qoldi", "onb": ["🔎 Pastdagi qatorga Instagram nikneymingni yoz — robotingni top", "🙋 Kartada «Bu men» ni bos, keyin 🎮 «Boshqarish» bilan shahar bo'ylab yur", "💎 Kristallarni yig', har kuni kir — 🔥 seriya o'ssin! Do'kondan robotingga kiyim va uy hayvoni ol"], "onbTitle": "AI SHAHAR ga xush kelibsiz! 🤖", "next": "Keyingi ▸", "start": "Boshladik! 🚀", "skip": "O'tkazib yuborish", "weekTop": "Haftaning eng chiroyli uyi 🏆"}, "ru": {"isMe": "🙋 Это я", "shop": "🛍 Магазин", "board": "Рейтинг", "boardC": "💎 Кристаллы", "boardS": "🔥 Серия", "boardL": "❤️ Самые красивые дома", "likesW": "на этой неделе", "meSet": "Теперь вы играете как @{n}! 🎮 Управляйте роботом и собирайте кристаллы", "taken": "Этот робот привязан к другому устройству", "bonus": "🔥 Серия {s} дн.! Подарок сегодня: +{b} 💎", "crystalHint": "💎 Чтобы собирать кристаллы, управляйте своим роботом (в карточке 🙋 Это я → 🎮 Управлять)", "got": "+{v} 💎", "allGot": "🎉 Все кристаллы на сегодня собраны! Завтра появятся новые", "poor": "Не хватает кристаллов 💎", "buy": "Купить", "equip": "Надеть", "unequip": "Снять", "owned": "есть", "liked": "❤️ Лайк поставлен!", "likeBtn": "Лайк", "shopTitle": "Магазин робота", "shopHint": "Кристаллы собираются по городу, за ежедневный вход — подарок 🔥", "items": {"cap_red": "Красная кепка", "cap_blue": "Синяя кепка", "cap_gold": "Золотая кепка", "shades": "Тёмные очки", "neon_phones": "Неон-наушники", "cape": "Плащ героя", "halo": "Нимб", "dog": "Робо-щенок 🐕", "cat": "Робо-кот 🐈"}, "today": "Сегодня", "left": "осталось", "onb": ["🔎 Введите свой ник в Instagram внизу — найдите своего робота", "🙋 В карточке нажмите «Это я», затем 🎮 «Управлять» и гуляйте по городу", "💎 Собирайте кристаллы и заходите каждый день — 🔥 серия растёт! В магазине — одежда и питомцы"], "onbTitle": "Добро пожаловать в AI SHAHAR! 🤖", "next": "Далее ▸", "start": "Поехали! 🚀", "skip": "Пропустить", "weekTop": "Самый красивый дом недели 🏆"}, "en": {"isMe": "🙋 That's me", "shop": "🛍 Shop", "board": "Leaderboard", "boardC": "💎 Crystals", "boardS": "🔥 Streak", "boardL": "❤️ Prettiest houses", "likesW": "this week", "meSet": "You're now playing as @{n}! 🎮 Drive your robot and collect crystals", "taken": "This robot is linked to another device", "bonus": "🔥 {s}-day streak! Today's gift: +{b} 💎", "crystalHint": "💎 To collect crystals, drive your own robot (card → 🙋 That's me → 🎮 Drive)", "got": "+{v} 💎", "allGot": "🎉 You collected all of today's crystals! New ones tomorrow", "poor": "Not enough crystals 💎", "buy": "Buy", "equip": "Wear", "unequip": "Take off", "owned": "owned", "liked": "❤️ Liked!", "likeBtn": "Like", "shopTitle": "Robot shop", "shopHint": "Collect crystals around the city, come back daily for a gift 🔥", "items": {"cap_red": "Red cap", "cap_blue": "Blue cap", "cap_gold": "Gold cap", "shades": "Sunglasses", "neon_phones": "Neon headphones", "cape": "Hero cape", "halo": "Halo", "dog": "Robo-puppy 🐕", "cat": "Robo-cat 🐈"}, "today": "Today", "left": "left", "onb": ["🔎 Type your Instagram username below — find your robot", "🙋 On the card tap «That's me», then 🎮 «Drive» around the city", "💎 Collect crystals and come back daily — 🔥 grow your streak! Buy outfits and pets in the shop"], "onbTitle": "Welcome to AI SHAHAR! 🤖", "next": "Next ▸", "start": "Let's go! 🚀", "skip": "Skip", "weekTop": "Prettiest house of the week 🏆"}};
+for (const l of Object.keys(I18N)) Object.assign(I18N[l], I18N_G[l]);
 const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 let LANG = store.get('aishahar_lang') || (/^(ru|kk|ky|be|uk|tg)/.test(navigator.language || '') ? 'ru' : 'uz');
 if (!I18N[LANG]) LANG = 'uz';
@@ -718,7 +720,7 @@ function traits(name) {
   const r = rng(hash(name + 'bot'));
   const g = overrides.get(name) || (isFemale(name) ? 'f' : 'm');
   const f = g === 'f';
-  return { g, f, vip: VIP.get(name) || 0, santa: SEASON === 'winter',
+  return { g, f, vip: VIP.get(name) || 0, santa: SEASON === 'winter', eq: (PLAYERS.get(name) || {}).equipped || {},
     u: f ? 0.93 + r() * 0.06 : 1.0 + r() * 0.08,
     metal: f ? pick(r, METAL_F) : pick(r, METAL), eye: pick(r, NEON), led: pick(r, NEON),
     top: f ? pick(r, DRESS) : pick(r, SHIRT), bottom: f ? pick(r, DRESS) : pick(r, PANTS), shoe: pick(r, SHOES),
@@ -781,6 +783,12 @@ function robotParts(t, part) {
   }
   if (t.glasses) P_('vBox', 0, 2.86, hs * 0.5, hs * 0.86, 0.11, 0.03, '#000');
   if (t.santa) { P_('fCyl', 0, 3.0, -0.02, hs * 1.16, 0.16, hs * 1.16, '#ffffff'); P_('fCone', 0, 3.1, -0.02, hs * 1.08, 0.8, hs * 1.08, '#d62828', 0, 0, 0, -0.2); P_('fSph', -0.16, 3.84, -0.02, 0.2, 0.2, 0.2, '#ffffff'); }
+  { const eq = t.eq || {}, HAT = { cap_red: '#e53935', cap_blue: '#1e88e5', cap_gold: '#ffc400' };
+    if (HAT[eq.hat]) { P_('fCyl', 0, 3.02, 0, hs * 1.08, 0.22, hs * 1.08, HAT[eq.hat]); P_('fBox', 0, 3.05, hs * 0.55, hs * 0.8, 0.05, 0.34, HAT[eq.hat]); }
+    if (eq.glasses === 'shades') { P_('vBox', 0, 2.86, hs * 0.52, hs * 0.92, 0.14, 0.03, '#000'); P_('gBox', 0, 2.94, hs * 0.53, hs * 0.92, 0.02, 0.02, '#ffd84d'); }
+    if (eq.phones === 'neon_phones') { P_('gBox', 0, 3.16, 0, hs * 1.14, 0.06, 0.1, '#ff4fd8'); for (const sg of [-1, 1]) P_('gBox', sg * hs * 0.56, 2.72, 0, 0.12, 0.26, 0.26, '#50d7ff'); }
+    if (eq.cape === 'cape') P_('fBox', 0, 1.0, -(td / 2 + 0.06), tw * 0.98, 1.38, 0.05, '#c0392b');
+    if (eq.halo === 'halo') for (let k = 0; k < 10; k++) { const a = k / 10 * Math.PI * 2; P_('gBox', Math.cos(a) * hs * 0.62, 3.62, Math.sin(a) * hs * 0.62, 0.16, 0.06, 0.16, '#fff1a8'); } }
   if (t.vip) { const cy = t.santa ? 3.95 : 3.22; P_('mCyl', 0, cy, 0, hs * 0.9, 0.22, hs * 0.9, '#ffc400'); for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2; P_('gBox', Math.cos(a) * hs * 0.4, cy + 0.2, Math.sin(a) * hs * 0.4, 0.1, 0.22, 0.1, '#ffd84d'); } }
   if (t.phones) { P_('mBox', 0, 3.12 + (t.cap ? 0.08 : 0), 0, hs * 1.12, 0.06, 0.08, '#2b2f35'); for (const s of [-1, 1]) P_('fCyl', s * hs * 0.55, 2.78, 0, 0.2, 0.1, 0.2, '#1c1f24', 0, 0, 0, Math.PI / 2); }
 }
@@ -921,10 +929,20 @@ function renderCard() {
       <dt>${T('home')}</dt><dd>${T('homeV').replace('{b}', h.block).replace('{l}', h.lot)}</dd>
       <dt>${T('num')}</dt><dd>#${(sp.i + 1).toLocaleString('ru-RU')}</dd>
       <dt>${T('status')}</dt><dd>${T('st')[sp.act] || ''}</dd>${sp.traits.vip ? `<dt>👑</dt><dd>${T('vipBadge')} #${sp.traits.vip}</dd>` : ''}${UPG.get(sp.name) ? `<dt>${TIER_INFO[UPG.get(sp.name)].icon}</dt><dd>${T('tierNames')[UPG.get(sp.name)]}</dd>` : ''}</dl>
-      <div class="acts"><button class="pri" data-a="near">${T('near')}</button><button data-a="house">🏠 ${T('goHome')}</button><button class="drive" data-a="drive">🎮 ${T('drive')}</button><button class="story" data-a="story">📲 ${T('story')}</button>${CFG.botUsername && (UPG.get(sp.name) || 0) < 3 ? `<a class="upg" href="https://t.me/${CFG.botUsername}?start=up_${sp.name.replace(/\./g, '-')}" target="_blank" rel="noopener">${T('upgrade')}</a>` : ''}</div>`;
+      <div class="acts"><button class="pri" data-a="near">${T('near')}</button><button data-a="house">🏠 ${T('goHome')}</button><button class="drive" data-a="drive">🎮 ${T('drive')}</button>${GAME.me === sp.name ? `<button class="shopb" data-a="shop">${T('shop')}</button>` : !GAME.me ? `<button class="meb" data-a="me">${T('isMe')}</button>` : ''}${GAME.me !== sp.name ? `<button class="likeb${GAME.liked.has(sp.name) ? ' on' : ''}" data-a="like">❤️ ${LIKES.get(sp.name) || 0}</button>` : ''}<button class="story" data-a="story">📲 ${T('story')}</button>${CFG.botUsername && (UPG.get(sp.name) || 0) < 3 ? `<a class="upg" href="https://t.me/${CFG.botUsername}?start=up_${sp.name.replace(/\./g, '-')}" target="_blank" rel="noopener">${T('upgrade')}</a>` : ''}</div>`;
     if (st.fresh) { toast(T('toastNew')); st.fresh = false; }
   } else if (st.kind === 'new') {
     c.innerHTML = `<button class="x" aria-label="×">×</button><div class="bot">${robotSVG(st.name)}</div><div class="new"><h2>@${esc(st.name)}</h2><p>${T('newText')}</p><p>${T('followFirst').replace('{o}', esc(OWNER))}</p></div><div class="acts"><a class="ig" href="https://instagram.com/${OWNER}" target="_blank" rel="noopener">${T('follow')}</a></div>`;
+  } else if (st.kind === 'shop') {
+    const P = GAME.player || { crystals: 0, items: [], equipped: {} }, rows = Object.entries(GAME_SHOP).map(([id, it]) => { const own = (P.items || []).includes(id), on = (P.equipped || {})[it.kind] === id;
+      return `<div class="srow"><span>${T('items')[id]}</span><b>${own ? '✓ ' + T('owned') : it.price + ' 💎'}</b>${own ? (on ? `<button data-a="unequip" data-i="${id}" data-k="${it.kind}">${T('unequip')}</button>` : `<button data-a="equip" data-i="${id}">${T('equip')}</button>`) : `<button class="pri" data-a="buy" data-i="${id}" ${P.crystals < it.price ? 'disabled' : ''}>${T('buy')}</button>`}</div>`; }).join('');
+    c.innerHTML = `<button class="x" aria-label="×">×</button><h2>🛍 ${T('shopTitle')}</h2><div class="code">💎 ${P.crystals} · 🔥 ${P.streak || 0}</div><p class="vh">${T('shopHint')}</p><div class="shop">${rows}</div>`;
+  } else if (st.kind === 'board') {
+    const tab = st.tab || 'c'; let rows = '';
+    if (tab === 'l') rows = [...LIKES.entries()].sort((a, b) => b[1] - a[1]).slice(0, 15).map(([n, v], k) => `<button class="vrow" data-a="pick" data-n="${esc(n)}"><b>${k + 1}.</b> @${esc(n)} · ❤️ ${v}</button>`).join('');
+    else rows = (GAME.board[tab] || []).map((r, k) => `<button class="vrow" data-a="pick" data-n="${esc(r.nick)}"><b>${k === 0 ? '🥇' : k === 1 ? '🥈' : k === 2 ? '🥉' : k + 1 + '.'}</b> @${esc(r.nick)} · ${tab === 'c' ? '💎 ' + r.crystals : '🔥 ' + r.streak}</button>`).join('');
+    c.innerHTML = `<button class="x" aria-label="×">×</button><h2>📊 ${T('board')}</h2><div class="tabs"><button class="${tab === 'c' ? 'on' : ''}" data-a="tab" data-t="c">${T('boardC')}</button><button class="${tab === 's' ? 'on' : ''}" data-a="tab" data-t="s">${T('boardS')}</button><button class="${tab === 'l' ? 'on' : ''}" data-a="tab" data-t="l">${T('boardL')}</button></div><div class="vlist">${rows || '<p class="vh">—</p>'}</div>`;
+    if (tab !== 'l' && !GAME.board[tab]) loadBoard(tab);
   } else if (st.kind === 'sponsors') {
     const best = new Map(); for (const r of UPG_ROWS) { const n = clean(r.nickname); const b = best.get(n) || { tier: 0, stars: 0 }; best.set(n, { tier: Math.max(b.tier, r.tier), stars: b.stars + (r.stars || 0) }); }
     const rows = [...best.entries()].sort((a, b) => b[1].tier - a[1].tier || b[1].stars - a[1].stars).map(([n, v]) => `<button class="vrow" data-a="pick" data-n="${esc(n)}"><b>${TIER_INFO[v.tier].icon}</b> @${esc(n)} · ${T('tierNames')[v.tier]}</button>`).join('');
@@ -969,6 +987,11 @@ $('#card').addEventListener('click', (e) => {
   if (a === 'claim' && cardState?.name) claim(cardState.name);
   if (a === 'random') randomRes();
   if (a === 'drive' && cardState?.sp) startDrive(cardState.sp);
+  if (a === 'me' && cardState?.sp) claimMe(cardState.sp.name);
+  if (a === 'shop') { cardState = { kind: 'shop', back: cardState }; renderCard(); }
+  if (a === 'like' && cardState?.sp) likeHouse(cardState.sp.name, b);
+  if (a === 'buy' || a === 'equip' || a === 'unequip') shopAction(a, b.dataset.i, b.dataset.k);
+  if (a === 'tab') { cardState = { kind: 'board', tab: b.dataset.t }; renderCard(); }
   if (a === 'more') { $('#card').classList.toggle('exp'); b.textContent = T('more') + ($('#card').classList.contains('exp') ? ' ▴' : ' ▾'); }
   if (a === 'pick' && index.has(b.dataset.n)) select(specs[index.get(b.dataset.n)]);
 });
@@ -1407,6 +1430,85 @@ async function initChat() {
   $('#chatList').addEventListener('click', (e) => { const w = e.target.closest('.who'); if (w && index.has(w.dataset.n)) { setChatOpen(innerWidth > 700); select(specs[index.get(w.dataset.n)]); } });
 }
 
+// ======================= game: daily crystals, streaks, shop, pets, house likes, onboarding =======================
+const GAME_SHOP = { cap_red: { price: 15, kind: 'hat' }, cap_blue: { price: 15, kind: 'hat' }, cap_gold: { price: 30, kind: 'hat' }, shades: { price: 20, kind: 'glasses' }, neon_phones: { price: 25, kind: 'phones' }, cape: { price: 40, kind: 'cape' }, halo: { price: 80, kind: 'halo' }, dog: { price: 60, kind: 'pet' }, cat: { price: 60, kind: 'pet' } };
+const PLAYERS = new Map(), LIKES = new Map();
+const GAME = { me: clean(store.get('aishahar_me') || ''), player: null, board: {}, liked: new Set(), busy: false };
+const tkDay = (d = new Date()) => d.toLocaleDateString('sv-SE', { timeZone: 'Asia/Tashkent' });
+function isoWeek(d = new Date()) { const t = new Date(tkDay(d) + 'T00:00:00Z'); const dn = (t.getUTCDay() + 6) % 7; t.setUTCDate(t.getUTCDate() - dn + 3); const y = t.getUTCFullYear(); const w1 = new Date(Date.UTC(y, 0, 4)); return y + '-W' + String(1 + Math.round(((t - w1) / 864e5 - 3 + ((w1.getUTCDay() + 6) % 7)) / 7)).padStart(2, '0'); }
+try { const L = JSON.parse(store.get('aishahar_liked') || '{}'); if (L.w === isoWeek()) for (const n of L.n || []) GAME.liked.add(n); } catch (e) {}
+async function loadPlayers() { if (!shared.on) return; try { for (const r of await fetchAll('players', 'nick,crystals,streak,equipped')) PLAYERS.set(clean(r.nick), r); } catch (e) {} }
+async function loadLikes() { if (!shared.on) return; try { const c = await sb(); const { data } = await c.from('house_likes_week').select('target,likes').eq('week', isoWeek()); for (const r of data || []) LIKES.set(clean(r.target), r.likes); } catch (e) {} }
+async function loadBoard(tab) { try { const c = await sb(); const col = tab === 'c' ? 'crystals' : 'streak'; const { data } = await c.from('players').select('nick,crystals,streak').order(col, { ascending: false }).limit(15); GAME.board[tab] = data || []; if (cardState && cardState.kind === 'board') renderCard(); } catch (e) {} }
+async function api(body) { const r = await fetch('/api/game', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ uid: CHAT.myId, ...body }) }); const j = await r.json().catch(() => ({})); return { ok: r.ok && j.ok, ...j }; }
+function setPlayer(p) { GAME.player = p; PLAYERS.set(p.nick, { ...(PLAYERS.get(p.nick) || {}), crystals: p.crystals, streak: p.streak, equipped: p.equipped }); for (const c of CRYSTALS) c.got = !!(p.col_mask & (1 << c.id)); updHud(); }
+function updHud() { const el = $('#gameHud'); if (!el) return; if (!GAME.me || !GAME.player) { el.style.display = 'none'; return; } const left = CRYSTALS.filter((c) => !c.got).length;
+  el.style.display = ''; el.innerHTML = `🙋 <b>@${esc(GAME.me)}</b> · 💎 <b>${GAME.player.crystals}</b> · 🔥 <b>${GAME.player.streak || 0}</b> <span class="cl">· ${T('today')}: ${left} ${T('left')}</span>`; }
+async function claimMe(nick) { const r = await api({ action: 'hello', nick }); if (!r.ok) return toast(r.error === 'taken' ? T('taken') : T('chatErr'));
+  GAME.me = nick; store.set('aishahar_me', nick); setPlayer(r.player); if (!store.get('aishahar_chat_nick')) store.set('aishahar_chat_nick', nick); toast(T('meSet').replace('{n}', nick), 6000);
+  if (r.bonus) setTimeout(() => toast(T('bonus').replace('{s}', r.player.streak).replace('{b}', r.bonus), 6000), 6200); renderCard(); }
+async function shopAction(a, item, kind) { if (GAME.busy || !GAME.me) return; GAME.busy = true; const r = await api({ action: a === 'unequip' ? 'equip' : a, nick: GAME.me, item: a === 'unequip' ? '' : item, kind }); GAME.busy = false;
+  if (!r.ok) return toast(r.error === 'poor' ? T('poor') : T('chatErr')); setPlayer(r.player); if (index.has(GAME.me)) reRobot(specs[index.get(GAME.me)]); renderCard(); }
+async function likeHouse(n, btn) { if (GAME.liked.has(n)) return toast(T('liked')); const r = await api({ action: 'like', target: n }); if (!r.ok) return toast(T('chatErr'));
+  GAME.liked.add(n); store.set('aishahar_liked', JSON.stringify({ w: isoWeek(), n: [...GAME.liked] })); LIKES.set(n, r.likes); btn.textContent = '❤️ ' + r.likes; btn.classList.add('on'); toast(T('liked')); }
+function reRobot(sp) { const wasDriving = drive && drive.sp === sp; if (wasDriving) stopDrive(); setRobotHidden(sp, true); sp.parts = []; sp.traits = traits(sp.name); placeRobot(sp); refreshRobots(); syncPet(sp); labelAssignT = -9; if (wasDriving) startDrive(sp); }
+// ---- crystals: 20 per day, same spots for everybody (seeded by the Tashkent date) ----
+const CRYSTALS = []; let crystalMesh = null, crystalBeams = null; const CQ = new THREE.Quaternion(), CE = new THREE.Euler();
+function buildCrystals() {
+  const r = rng(hash('crystals-' + tkDay())), blocks = blockInfo.filter((b) => b.ring >= 1 && b.ring <= cityRings), H2 = SLAB / 2 - 1.2;
+  for (let id = 0; id < 20; id++) { const b = blocks[Math.floor(r() * blocks.length)], side = Math.floor(r() * 4), u = (r() - 0.5) * 2 * (H2 - 2);
+    const [x, z] = side === 0 ? [b.cx + u, b.cz - H2] : side === 1 ? [b.cx + H2, b.cz + u] : side === 2 ? [b.cx + u, b.cz + H2] : [b.cx - H2, b.cz + u]; CRYSTALS.push({ id, x, z, big: id % 5 === 0, got: false, ph: r() * 6 }); }
+  crystalMesh = new THREE.InstancedMesh(new THREE.OctahedronGeometry(0.62, 0), new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false }), 20);
+  crystalBeams = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.25, 0.6, 40, 8, 1, true).translate(0, 20, 0), new THREE.MeshBasicMaterial({ color: 0x7fe3ff, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }), 20);
+  CRYSTALS.forEach((c, i) => crystalMesh.setColorAt(i, COL.set(c.big ? '#ff4fd8' : '#7fe3ff'))); crystalMesh.frustumCulled = crystalBeams.frustumCulled = false; scene.add(crystalMesh, crystalBeams);
+}
+let crystalHinted = false, collecting = new Set();
+function updateGame(t, dt) {
+  if (crystalMesh) { CRYSTALS.forEach((c, i) => { const s = c.got ? 0 : (c.big ? 1.5 : 1); CE.set(0, t * 1.6 + c.ph, 0); CQ.setFromEuler(CE); M.compose(P.set(c.x, 1.3 + Math.sin(t * 2.2 + c.ph) * 0.25, c.z), CQ, S.set(s, s * 1.4, s)); crystalMesh.setMatrixAt(i, M);
+      M.compose(P.set(c.x, 0, c.z), Q.identity(), S.set(c.got ? 0 : 1, 1, c.got ? 0 : 1)); crystalBeams.setMatrixAt(i, M); }); crystalMesh.instanceMatrix.needsUpdate = crystalBeams.instanceMatrix.needsUpdate = true; }
+  if (drive) { const mine = GAME.me && drive.sp.name === GAME.me && GAME.player;
+    for (const c of CRYSTALS) { if (c.got || collecting.has(c.id)) continue; if ((c.x - drive.x) ** 2 + (c.z - drive.z) ** 2 > 2.6 * 2.6) continue;
+      if (!mine) { if (!crystalHinted) { crystalHinted = true; toast(T('crystalHint'), 6000); } continue; }
+      collecting.add(c.id); api({ action: 'collect', nick: GAME.me, id: c.id }).then((r) => { collecting.delete(c.id); if (r.ok && r.player) { setPlayer(r.player); if (!r.already) { toast(T('got').replace('{v}', r.value)); sparkle(c.x, c.z, c.big); } if (CRYSTALS.every((q) => q.got)) setTimeout(() => toast(T('allGot'), 6000), 1500); } }); } }
+  for (const pet of PETS.values()) updatePet(pet, t, dt);
+}
+function sparkle(x, z, big) { FWC.set(big ? '#ff4fd8' : '#7fe3ff'); for (let k = 0; k < 60; k++) { const i = fwI++ % FW_N, th = Math.random() * 6.283, ph = Math.acos(2 * Math.random() - 1), sp = 3 + Math.random() * 3;
+  fwPos[i * 3] = x; fwPos[i * 3 + 1] = 1.5; fwPos[i * 3 + 2] = z; fwVel[i * 3] = Math.sin(ph) * Math.cos(th) * sp; fwVel[i * 3 + 1] = Math.abs(Math.cos(ph)) * sp + 2; fwVel[i * 3 + 2] = Math.sin(ph) * Math.sin(th) * sp; fwLife[i] = 1.1; fwCol[i * 3] = FWC.r; fwCol[i * 3 + 1] = FWC.g; fwCol[i * 3 + 2] = FWC.b; } }
+// ---- pets that follow their robot ----
+const PETS = new Map();
+function makePet(kind, color) {
+  const g = new THREE.Group(), m = (c, met = 0.6) => matStd({ color: c, metalness: met, roughness: 0.35 }), body = m(color), dark = m('#2b2f35', 0.3), glowM = new THREE.MeshBasicMaterial({ color: 0x39ff88, toneMapped: false });
+  const add = (geo, mat, x, y, z) => { const o = new THREE.Mesh(geo, mat); o.position.set(x, y, z); o.castShadow = SHADOWS; g.add(o); return o; };
+  const cat = kind === 'cat', s = cat ? 0.85 : 1;
+  add(new THREE.BoxGeometry(0.55 * s, 0.42 * s, 0.95 * s), body, 0, 0.58 * s, 0); const head = add(new THREE.BoxGeometry(0.46 * s, 0.4 * s, 0.42 * s), body, 0, 0.92 * s, 0.55 * s);
+  for (const sx of [-1, 1]) { add(new THREE.BoxGeometry(0.06, 0.06, 0.02), glowM, sx * 0.11 * s, 0.96 * s, 0.77 * s); if (cat) add(new THREE.ConeGeometry(0.09, 0.2, 4), body, sx * 0.14, 1.2 * s, 0.5 * s); else add(new THREE.BoxGeometry(0.1, 0.22, 0.08), dark, sx * 0.2, 1.12, 0.5); }
+  const legs = []; for (const [lx, lz] of [[-0.18, 0.3], [0.18, 0.3], [-0.18, -0.3], [0.18, -0.3]]) legs.push(add(new THREE.BoxGeometry(0.12 * s, 0.4 * s, 0.12 * s).translate(0, -0.2 * s, 0), dark, lx * s, 0.42 * s, lz * s));
+  const tail = add(new THREE.BoxGeometry(0.08, 0.08, cat ? 0.6 : 0.35).translate(0, 0, -0.2), body, 0, 0.75 * s, -0.5 * s); tail.rotation.x = cat ? -0.9 : -0.5;
+  scene.add(g); return { g, legs, tail, head };
+}
+function syncPet(sp) { const want = ((sp.traits && sp.traits.eq) || {}).pet; const cur = PETS.get(sp.name);
+  if (cur && cur.kind !== want) { scene.remove(cur.g); PETS.delete(sp.name); } if (want && (!cur || cur.kind !== want)) { const p = makePet(want === 'cat' ? 'cat' : 'dog', want === 'cat' ? '#f0a35e' : '#c9ced6'); const [x, z] = robotPos(sp, UTIME.value); p.g.position.set(x, 0, z); PETS.set(sp.name, { ...p, kind: want, sp, x, z, yaw: 0, ph: 0 }); } }
+const PV2 = new THREE.Vector3();
+function updatePet(p, t, dt) { const [x, z] = robotPos(p.sp, t), [x0, z0] = robotPos(p.sp, t - 0.25); let yaw = Math.atan2(x - x0, z - z0); if (Math.hypot(x - x0, z - z0) < 0.02) yaw = p.yaw;
+  if (p.sp.drv) yaw = p.sp.drv.yaw; const tx = x - Math.sin(yaw) * 1.6 + Math.cos(yaw) * 0.9, tz = z - Math.cos(yaw) * 1.6 - Math.sin(yaw) * 0.9, d = Math.hypot(tx - p.x, tz - p.z);
+  const k = Math.min(1, dt * 4); p.x += (tx - p.x) * k; p.z += (tz - p.z) * k; if (d > 0.05) p.yaw = Math.atan2(tx - p.x, tz - p.z) || p.yaw; p.ph += Math.min(d, 2) * dt * 14;
+  p.g.position.set(p.x, Math.abs(Math.sin(p.ph)) * 0.05, p.z); p.g.rotation.y = p.yaw; p.legs.forEach((l, i) => (l.rotation.x = Math.sin(p.ph + (i % 2 ? Math.PI : 0) + (i > 1 ? Math.PI : 0)) * 0.6 * Math.min(1, d)));
+  p.tail.rotation.y = Math.sin(t * 8) * 0.5; }
+// ---- weekly prettiest house ----
+function placeWeekTrophy() { let best = null, bv = 0; for (const [n, v] of LIKES) if (v > bv && index.has(n)) { best = n; bv = v; } if (!best || bv < 2) return;
+  const h = houseIdx[index.get(best)], y = 14; B.cyl.add(h.x, y, h.z, 1.2, 1.6, 1.2, '#ffc400'); B.cyl.add(h.x, y - 1.2, h.z, 0.3, 1.2, 0.3, '#ffc400'); B.sph.add(h.x, y + 1.8, h.z, 1.6, 1.6, 1.6, '#ffc400'); glow(h.x, y + 3.2, h.z, 1.4, '#fff1a8', false); B.cyl.done(); B.sph.done(); B.glow.done(); GAME.weekTop = best; }
+// ---- UI: hud, leaderboard chip, onboarding ----
+async function initGame() {
+  $('#btnBoard').onclick = () => { selected = null; cardState = { kind: 'board', tab: 'c' }; renderCard(); };
+  $('#gameHud').onclick = () => { if (GAME.me) { cardState = { kind: 'shop' }; renderCard(); } };
+  if (GAME.me && index.has(GAME.me)) { const r = await api({ action: 'hello', nick: GAME.me }); if (r.ok) { setPlayer(r.player); if (r.bonus) setTimeout(() => toast(T('bonus').replace('{s}', r.player.streak).replace('{b}', r.bonus), 6000), 5000); } else if (r.error === 'taken') { GAME.me = ''; store.set('aishahar_me', ''); } }
+  updHud();
+  if (!store.get('aishahar_onb') && !location.hash) setTimeout(showOnboarding, 4200);
+}
+function showOnboarding() { let step = 0; const o = $('#onb'); const draw = () => { const steps = T('onb');
+    o.innerHTML = `<div class="ob"><h3>${T('onbTitle')}</h3><div class="dots">${steps.map((_, i) => `<i class="${i === step ? 'on' : ''}"></i>`).join('')}</div><p>${steps[step]}</p><div class="acts"><button data-o="skip">${T('skip')}</button><button class="pri" data-o="next">${step < steps.length - 1 ? T('next') : T('start')}</button></div></div>`; };
+  draw(); o.classList.add('on'); o.onclick = (e) => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.o === 'next' && step < T('onb').length - 1) { step++; draw(); return; } o.classList.remove('on'); store.set('aishahar_onb', '1'); setTimeout(() => $('#q').focus(), 200); }; }
+
 // ======================= minimap =======================
 const mapC = $('#mapc'), mapG = mapC.getContext('2d'); let mapStatic = null;
 const W2M = (x, z) => { const E = HWY + 20, s = mapC.width / (2 * E); return [(x + E) * s, (z + E) * s]; };
@@ -1428,6 +1530,7 @@ let mapT = 0;
 function drawMap(t) {
   if (!mapStatic || t - mapT < 0.25) return; mapT = t;
   mapG.drawImage(mapStatic, 0, 0);
+  mapG.fillStyle = '#7fe3ff'; for (const c of CRYSTALS) if (!c.got) { const [mx, mz] = W2M(c.x, c.z); mapG.beginPath(); mapG.arc(mx, mz, 3.2, 0, 7); mapG.fill(); }
   mapG.fillStyle = '#39ff88'; for (const sp of specs) { const [x, z] = robotPos(sp, t); const [mx, mz] = W2M(x, z); mapG.fillRect(mx - 1.5, mz - 1.5, 3, 3); }
   if (selected) { const [x, z] = robotPos(selected, t); const [mx, mz] = W2M(x, z); mapG.fillStyle = '#ff4fd8'; mapG.beginPath(); mapG.arc(mx, mz, 6, 0, 7); mapG.fill(); }
   const [cx, cz] = W2M(controls.target.x, controls.target.z); const [px, pz] = W2M(camera.position.x, camera.position.z);
@@ -1462,7 +1565,7 @@ function frame() {
     camera.position.set(around.x + Math.cos(a) * r, y, around.z + Math.sin(a) * r); controls.target.copy(around); }
   moveKeys(dt); controls.update();
   if (SHADOWS) { sun.target.position.copy(controls.target); sun.position.copy(controls.target).addScaledVector(SUN_DIR, 400); const d = THREE.MathUtils.clamp(camera.position.distanceTo(controls.target) * 1.2, 60, 260); const c = sun.shadow.camera; if (Math.abs(c.right - d) > 5) { c.left = -d; c.right = d; c.top = d; c.bottom = -d; c.updateProjectionMatrix(); } }
-  updateCars(t, dt); updateLights(t); updateLabels(t); drawMap(t); updateExtras(t, dt); updateDonations(t, dt); updateDrive(dt); updateChatBubbles(t);
+  updateCars(t, dt); updateLights(t); updateLabels(t); drawMap(t); updateExtras(t, dt); updateDonations(t, dt); updateDrive(dt); updateChatBubbles(t); updateGame(t, dt);
   ownerGroup.rotation.y = Math.sin(t * 0.2) * 0.5;
   if (beam.visible) { const cd = camera.position.distanceTo(controls.target); beam.material.opacity = (0.14 + Math.sin(t * 3) * 0.06) * THREE.MathUtils.clamp((cd - 25) / 60, 0, 1); const s = 1 + (t % 1.4) * 0.9; hring.scale.set(s, s, s); hring.material.opacity = 1 - (t % 1.4) / 1.4; }
   if (composer) composer.render(); else renderer.render(scene, camera);
@@ -1487,7 +1590,7 @@ function moveKeys(dt) {
 
 // ======================= boot =======================
 applyLang();
-const [{ list }, ovr] = await Promise.all([loadResidents(), loadOverrides(), loadVip(), loadUpgrades()]); const claims = [];
+const [{ list }, ovr] = await Promise.all([loadResidents(), loadOverrides(), loadVip(), loadUpgrades(), loadPlayers(), loadLikes()]); const claims = [];
 for (const [k, v] of ovr) overrides.set(k, v);
 const names = []; { const seen = new Set([OWNER]); for (const n of [...list, ...claims.map((s) => clean(String(s)))]) if (n && !seen.has(n)) { seen.add(n); names.push(n); } }
 // size the city: residential rings needed for all residents + room to grow
@@ -1504,6 +1607,7 @@ recent = list.slice(-12).reverse();
   for (const n of names) for (const [k, v] of Object.entries(cnt(n))) { need[k] = (need[k] || 0) + v; maxPer[k] = Math.max(maxPer[k] || 0, v); }
   makeRobotMeshes((k) => (need[k] || 0) + (maxPer[k] || 4) * 120 + 8); }
 for (const n of names) addResident(n);
+buildCrystals(); for (const sp of specs) syncPet(sp); placeWeekTrophy();
 { const firstFree = specs.length; const freeBlocks = new Set(); for (let i = firstFree; i < CAP_RES; i++) freeBlocks.add(Math.floor(i / HPB));
   let c = 0; for (const bi of freeBlocks) { if (c++ > 6) break; const b = resBlocks[bi]; const ry = faceToCentre(b.cx, b.cz); const [fx, fz] = dirOf(ry); addSign('free', b.cx + fx * 2, 2.2, b.cz + fz * 2, 7, ry, '#39ff88', '#04140b'); } }
 // owner: giant robot in the plaza
@@ -1524,5 +1628,5 @@ if (!LITE) setTimeout(() => { try { const g = renderer.getContext(), px = new Ui
 setTimeout(() => { $('#loader').style.opacity = 0; setTimeout(() => $('#loader').remove(), 700); flyTo(HOME_P, HOME_T, 3.2); animatePop(specs.length + 1); setTimeout(() => { if (!cardState) toast('👆 ' + T('tapHint'), 7000); }, 3600); }, 500);
 const hashNick = clean(decodeURIComponent(location.hash.slice(1) || ''));
 if (hashNick) setTimeout(() => { if (hashNick === OWNER) showOwner(); else if (index.has(hashNick)) select(specs[index.get(hashNick)]); else showNew(hashNick); }, 3800);
-checkGoals(false); initExtrasUI(); initDonations(); initDriveUI(); initChat();
-window.__city = { cars, recordReel, GOALS, goalSite, specs, B, RP, robotPos, UTIME, labelPool, scene, camera, controls, THREE, signs, carBody, carCab, carLamp, carTail, ownerGroup, stars, beam };
+checkGoals(false); initExtrasUI(); initDonations(); initDriveUI(); initChat(); initGame();
+window.__city = { reRobot, PLAYERS, CRYSTALS, startDrive, cars, recordReel, GOALS, goalSite, specs, B, RP, robotPos, UTIME, labelPool, scene, camera, controls, THREE, signs, carBody, carCab, carLamp, carTail, ownerGroup, stars, beam };
