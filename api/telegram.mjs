@@ -20,7 +20,7 @@ async function isResident(nick) {
   try { const j = await fetch(SITE + '/residents.json', { cache: 'no-store' }).then((r) => r.json()); return (Array.isArray(j) ? j : j.residents || []).map(clean).includes(nick); } catch (e) { return true; }
 }
 async function saveUpgrade(row) {
-  const key = (process.env.SUPABASE_SECRET_KEY || '').trim().replace(/^['"]|['"]$/g, ''); const h = { 'content-type': 'application/json', apikey: key, Prefer: 'return=minimal' };
+  const key = (process.env.SUPABASE_SECRET_KEY || '').replace(/[\s'"]+/g, ''); const h = { 'content-type': 'application/json', apikey: key, Prefer: 'return=minimal' };
   if (!key.startsWith('sb_')) h.Authorization = 'Bearer ' + key;
   const r = await fetch(SB_URL + '/rest/v1/upgrades', { method: 'POST', headers: h, body: JSON.stringify(row) });
   if (!r.ok && r.status !== 409) throw new Error('supabase ' + r.status + ' ' + (await r.text()));

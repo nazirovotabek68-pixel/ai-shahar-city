@@ -2,7 +2,7 @@
 const SITE = process.env.SITE_URL || 'https://ai-shahar-city.vercel.app';
 async function tg(method, body) { const r = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/${method}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }); return r.json(); }
 export default async function handler(req, res) {
-  if (req.query.check) { const k = (process.env.SUPABASE_SECRET_KEY || '').trim(); const shape = k.startsWith('sb_secret_') ? 'sb_secret' : k.startsWith('sb_publishable_') ? 'sb_publishable (NOTO\'G\'RI: bu ochiq kalit)' : k.startsWith('eyJ') ? 'jwt (service_role yoki anon)' : 'boshqa';
+  if (req.query.check) { const k = (process.env.SUPABASE_SECRET_KEY || '').replace(/[\s'"]+/g, ''); const shape = k.startsWith('sb_secret_') ? 'sb_secret' : k.startsWith('sb_publishable_') ? 'sb_publishable (NOTO\'G\'RI: bu ochiq kalit)' : k.startsWith('eyJ') ? 'jwt (service_role yoki anon)' : 'boshqa';
     const r = await fetch('https://doeqliwebntqzjqkaqrt.supabase.co/rest/v1/chat?select=id&limit=1', { headers: { apikey: k, ...(k.startsWith('sb_') ? {} : { Authorization: 'Bearer ' + k }) } });
     return res.status(200).json({ keyShape: shape, keyLength: k.length, supabaseStatus: r.status }); }
   const missing = ['TELEGRAM_BOT_TOKEN', 'TELEGRAM_WEBHOOK_SECRET', 'SUPABASE_SECRET_KEY'].filter((k) => !process.env[k]);
