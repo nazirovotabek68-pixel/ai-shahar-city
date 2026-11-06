@@ -36,9 +36,11 @@ export default async function handler(req, res) {
     const row = Array.isArray(r) ? r[0] : null; let n = 1, win = new Date(now).toISOString();
     if (row) { const last = Date.parse(row.last_at), w = Date.parse(row.win_at); if (now - last < 4000) return res.status(429).json({ ok: false, error: 'slow' });
       if (now - w < 600000) { n = row.n + 1; win = row.win_at; if (n > 20) return res.status(429).json({ ok: false, error: 'limit' }); } }
-    await fetch(`${SB_URL}/rest/v1/chat_limits`, { method: 'POST', headers: { ...headers(), Prefer: 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify({ ip_hash: ipHash, last_at: new Date(now).toISOString(), win_at: win, n }) });
+    const up = await fetch(`${SB_URL}/rest/v1/chat_limits`, { method: 'POST', headers: { ...headers(), Prefer: 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify({ ip_hash: ipHash, last_at: new Date(now).toISOString(), win_at: win, n }) });
+    if (!up.ok) throw new Error('limits ' + up.status + ' ' + (await up.text()));
+    if (b.dry) return res.status(200).json({ ok: true, dry: true, verified, text });
     const ins = await fetch(`${SB_URL}/rest/v1/chat`, { method: 'POST', headers: { ...headers(), Prefer: 'return=minimal' }, body: JSON.stringify({ nick, text, verified }) });
     if (!ins.ok) throw new Error('insert ' + ins.status + ' ' + (await ins.text()));
     return res.status(200).json({ ok: true, text });
-  } catch (e) { console.error(e); return res.status(500).json({ ok: false, error: 'server' }); }
+  } catch (e) { console.error(e); return res.status(500).json({ ok: false, error: 'server', detail: String(e.message || e).slice(0, 200) }); }
 }

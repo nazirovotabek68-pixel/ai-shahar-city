@@ -97,6 +97,7 @@
   #chatForm input { background:rgba(255,255,255,.06); border:1px solid var(--line); color:var(--ink); border-radius:10px; padding:8px 10px; font:500 13px 'JetBrains Mono', monospace; outline:0; min-width:0; }
   #chatForm .row { display:flex; gap:6px; } #chatForm .row input { flex:1; font-family:'Space Grotesk'; font-size:14px; }
   #chatSendBtn { background:var(--g); color:var(--acc); border:0; border-radius:10px; padding:0 14px; font-size:16px; font-weight:700; }
+  #chatPw { display:none; } body.needpw #chatPw { display:block; border-color:#ffc94a !important; }
   .ch-r { font-size:10px; color:var(--dim); text-align:center; }
   .cbub { position:fixed; transform:translate(-50%,-100%); background:#39ff88; color:#04140b; padding:6px 10px; border-radius:12px; font:600 12px 'Space Grotesk'; max-width:200px; text-align:center; pointer-events:none; z-index:5; box-shadow:0 4px 14px rgba(0,0,0,.35); }
   body.driving #chatBtn, body.cinema #chatBtn, body.cinema #chatPanel { display:none; }
@@ -187,6 +188,7 @@ setTimeout(function(){if(document.getElementById('loader'))show('20 soniyadan be
   <div id="chatList"></div>
   <form id="chatForm" autocomplete="off">
     <input id="chatNick" maxlength="31" spellcheck="false" autocapitalize="off">
+    <input id="chatPw" type="password" autocomplete="current-password">
     <div class="row"><input id="chatInput" maxlength="200"><button id="chatSendBtn" type="submit">➤</button></div>
     <div class="ch-r" data-t="chatRules"></div>
   </form>
