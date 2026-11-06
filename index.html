@@ -73,6 +73,14 @@
   .card .vh { color:var(--dim); font-size:13px; text-align:center; } .card .vlist { display:flex; flex-direction:column; gap:6px; margin-top:8px; }
   .card .vrow { text-align:left; padding:9px 12px; border-radius:10px; border:1px solid rgba(255,196,0,.45); background:rgba(255,196,0,.08); color:var(--ink); font:600 14px 'Space Grotesk'; }
   .hint a { color:inherit; }
+  #drivebar { position:fixed; top:12px; left:50%; transform:translateX(-50%); display:none; align-items:center; gap:10px; background:rgba(8,12,22,.85); border:1px solid #39ff88; color:#e8f6ee; padding:6px 8px 6px 14px; border-radius:999px; font:600 13px 'Space Grotesk'; z-index:15; max-width:94vw; }
+  #drivebar button { background:#39ff88; color:#04140b; border:0; border-radius:999px; padding:6px 12px; font:700 13px 'Space Grotesk'; }
+  #joy { position:fixed; left:22px; bottom:26px; width:120px; height:120px; border-radius:50%; background:rgba(8,12,22,.45); border:2px solid rgba(57,255,136,.6); display:none; z-index:15; touch-action:none; backdrop-filter:blur(4px); }
+  #joyk { position:absolute; left:50%; top:50%; width:52px; height:52px; margin:-26px 0 0 -26px; border-radius:50%; background:radial-gradient(circle at 35% 35%, #9bffc6, #39ff88); box-shadow:0 0 18px rgba(57,255,136,.7); pointer-events:none; }
+  #driveHint { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:62vw; }
+  body.driving #drivebar { display:flex; } body.driving .brand { display:none; } body.driving #joy { display:block; }
+  body.driving .card, body.driving .search, body.driving .map, body.driving .ticker, body.driving .goal, body.driving .tbtns { display:none !important; }
+  .card .acts button.drive { background:linear-gradient(90deg,#39ff88,#50d7ff); color:#04140b; border:0; font-weight:700; }
   #loader { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#05060c; z-index:9; transition:opacity .6s; font:700 14px 'JetBrains Mono', monospace; color:#39ff88; letter-spacing:.2em; text-align:center; }
   #loader .big { font:700 34px 'Space Grotesk'; letter-spacing:.08em; color:#e8f6ee; margin-bottom:10px; text-shadow:0 0 18px rgba(57,255,136,.6); }
   body.cinema #ui { opacity:0; } body.cinema #ui * { pointer-events:none !important; }
@@ -150,6 +158,8 @@ setTimeout(function(){if(document.getElementById('loader'))show('20 soniyadan be
 </div>
 <div class="cinehint" data-t="cineExit"></div>
 <div class="recbadge" id="recbadge"></div>
+<div id="drivebar"><div id="driveHint"></div><button id="driveExit"></button></div>
+<div id="joy"><div id="joyk"></div></div>
 <script type="module" src="city.js"></script>
 </body>
 </html>

@@ -65,17 +65,17 @@ const I18N = {
     roles: ['Content manager', 'Translator', 'Developer', 'Designer', 'Video editor', 'Marketer', 'Scriptwriter', 'Analyst', 'Mentor', 'Sales agent', 'Musician', 'Researcher', 'Assistant', 'Strategist'] },
 };
 const I18N_X = {
-  uz: { more: 'Batafsil', upgrade: '💎 Uyimni yaxshilash', sponsors: 'Shahar homiylari', sponsorsHint: "Uyini donat orqali yaxshilagan obunachilar ❤️ Rahmat!", level: 'Daraja', tierNames: { 1: 'Kumush villa', 2: 'Oltin qasr', 3: 'Olmos saroy' }, upgradedLive: '💎 @{n} uyini {t}ga aylantirdi!', newText: "Bu sening robotingning ko'rinishi 👆 U nikneymingdan yaratildi, boshqa hech kimda bunday robot yo'q. Hozircha u shaharda yashamaydi.", soon: 'OBUNACHIDA OCHILADI', goalDone: 'Barcha bosqichlar ochildi 🏆', unlocked: '{x} ochildi! 🎉 Sahifani yangilang', follow: "📸 Instagramda obuna bo'lish",
+  uz: { drive: 'Boshqarish', driveHint: "Joystik yoki W A S D bilan yuring", driveExit: 'Chiqish', more: 'Batafsil', upgrade: '💎 Uyimni yaxshilash', sponsors: 'Shahar homiylari', sponsorsHint: "Uyini donat orqali yaxshilagan obunachilar ❤️ Rahmat!", level: 'Daraja', tierNames: { 1: 'Kumush villa', 2: 'Oltin qasr', 3: 'Olmos saroy' }, upgradedLive: '💎 @{n} uyini {t}ga aylantirdi!', newText: "Bu sening robotingning ko'rinishi 👆 U nikneymingdan yaratildi, boshqa hech kimda bunday robot yo'q. Hozircha u shaharda yashamaydi.", soon: 'OBUNACHIDA OCHILADI', goalDone: 'Barcha bosqichlar ochildi 🏆', unlocked: '{x} ochildi! 🎉 Sahifani yangilang', follow: "📸 Instagramda obuna bo'lish",
     followFirst: "Shaharga ko'chib o'tish uchun <b>@{o}</b> ga obuna bo'l. Yangi obunachilar muntazam shaharga ko'chiriladi va robotingga uy quriladi 🏠", moved: "shaharga ko'chib keldi", liveNew: "🆕 @{n} hozirgina shaharga ko'chib keldi!",
     vipTitle: 'Haftaning faollari', vipBadge: 'Haftaning faoli', vipHint: "Eng ko'p izoh qoldirgan obunachilar — robotlariga toj kiygizildi 👑", rec: '🎬 Reel', recording: 'Yozilmoqda...', recDone: 'Video tayyor va yuklab olindi ✅', recNo: "Bu brauzer video yozishni qo'llamaydi",
     goals: { airport: 'Aeroport', metro: 'Metro', beach: "Dengiz bo'yi", f1: 'Formula-1 trassasi' },
     says: { home: ['Uyimda dam olyapman 🏠', "Bugun AI haqida yangi narsa o'rgandim 🤖", 'Qo\'shnilarim juda yaxshi odamlar'], walk: ['Shahar bugun juda chiroyli ✨', 'Sayr — eng yaxshi dam olish 🚶', 'Aeroport qachon ochilarkan? ✈️'], sport: ['Yana bir aylana! 🏃', "Sport — robotning moyi 💪", 'Bugun rekord qo\'yaman 🏆'], food: ['Bu yerda qahva zo\'r ☕', 'Plov qachon tayyor bo\'ladi? 🍛', 'Yangi naushnik olmoqchiman 🎧'], fun: ['Bu zarbani ko\'r! 🎱', 'Daraxtlar ostida o\'ylayapman 🌳', 'Dam olish ham kerak 😌'], all: ['@{o} ning yangi videosini ko\'rdingmi? 👀', "Do'stlarimni ham shaharga chaqiraman 📲"] } },
-  ru: { more: 'Подробнее', upgrade: '💎 Улучшить дом', sponsors: 'Спонсоры города', sponsorsHint: 'Подписчики, улучшившие дом через донат ❤️ Спасибо!', level: 'Уровень', tierNames: { 1: 'Серебряная вилла', 2: 'Золотой замок', 3: 'Бриллиантовый дворец' }, upgradedLive: '💎 @{n} превратил(а) дом в «{t}»!', newText: 'Так выглядит твой робот 👆 Он создан из твоего ника — ни у кого больше такого нет. Пока он не живёт в городе.', soon: 'ПОДПИСЧИКОВ — ОТКРЫТИЕ', goalDone: 'Все этапы открыты 🏆', unlocked: '{x} открыт! 🎉 Обнови страницу', follow: '📸 Подписаться в Instagram',
+  ru: { drive: 'Управлять', driveHint: 'Джойстик или W A S D', driveExit: 'Выйти', more: 'Подробнее', upgrade: '💎 Улучшить дом', sponsors: 'Спонсоры города', sponsorsHint: 'Подписчики, улучшившие дом через донат ❤️ Спасибо!', level: 'Уровень', tierNames: { 1: 'Серебряная вилла', 2: 'Золотой замок', 3: 'Бриллиантовый дворец' }, upgradedLive: '💎 @{n} превратил(а) дом в «{t}»!', newText: 'Так выглядит твой робот 👆 Он создан из твоего ника — ни у кого больше такого нет. Пока он не живёт в городе.', soon: 'ПОДПИСЧИКОВ — ОТКРЫТИЕ', goalDone: 'Все этапы открыты 🏆', unlocked: '{x} открыт! 🎉 Обнови страницу', follow: '📸 Подписаться в Instagram',
     followFirst: 'Чтобы переехать в город, подпишись на <b>@{o}</b>. Новых подписчиков регулярно заселяют в город и строят роботу дом 🏠', moved: 'переехал(а) в город', liveNew: '🆕 @{n} только что переехал(а) в город!',
     vipTitle: 'Активисты недели', vipBadge: 'Активист недели', vipHint: 'Подписчики с самыми активными комментариями — их роботы в коронах 👑', rec: '🎬 Reel', recording: 'Запись...', recDone: 'Видео готово и скачано ✅', recNo: 'Этот браузер не умеет записывать видео',
     goals: { airport: 'Аэропорт', metro: 'Метро', beach: 'Пляж', f1: 'Трасса Формулы-1' },
     says: { home: ['Отдыхаю дома 🏠', 'Сегодня узнал новое про ИИ 🤖', 'У меня классные соседи'], walk: ['Город сегодня очень красивый ✨', 'Прогулка — лучший отдых 🚶', 'Когда откроют аэропорт? ✈️'], sport: ['Ещё один круг! 🏃', 'Спорт — масло для робота 💪', 'Сегодня поставлю рекорд 🏆'], food: ['Здесь отличный кофе ☕', 'Когда будет плов? 🍛', 'Хочу новые наушники 🎧'], fun: ['Смотри, какой удар! 🎱', 'Думаю под деревьями 🌳', 'Отдыхать тоже нужно 😌'], all: ['Видел новое видео @{o}? 👀', 'Позову друзей в город 📲'] } },
-  en: { more: 'Details', upgrade: '💎 Upgrade my house', sponsors: 'City sponsors', sponsorsHint: 'Followers who upgraded their house with a donation ❤️ Thank you!', level: 'Level', tierNames: { 1: 'Silver villa', 2: 'Gold castle', 3: 'Diamond palace' }, upgradedLive: '💎 @{n} turned their house into a {t}!', newText: "This is your robot 👆 It was generated from your username — nobody else has this one. It doesn't live in the city yet.", soon: 'FOLLOWERS TO UNLOCK', goalDone: 'All stages unlocked 🏆', unlocked: '{x} unlocked! 🎉 Reload the page', follow: '📸 Follow on Instagram',
+  en: { drive: 'Drive', driveHint: 'Joystick or W A S D', driveExit: 'Exit', more: 'Details', upgrade: '💎 Upgrade my house', sponsors: 'City sponsors', sponsorsHint: 'Followers who upgraded their house with a donation ❤️ Thank you!', level: 'Level', tierNames: { 1: 'Silver villa', 2: 'Gold castle', 3: 'Diamond palace' }, upgradedLive: '💎 @{n} turned their house into a {t}!', newText: "This is your robot 👆 It was generated from your username — nobody else has this one. It doesn't live in the city yet.", soon: 'FOLLOWERS TO UNLOCK', goalDone: 'All stages unlocked 🏆', unlocked: '{x} unlocked! 🎉 Reload the page', follow: '📸 Follow on Instagram',
     followFirst: 'To move into the city, follow <b>@{o}</b>. New followers are moved in regularly and their robot gets a house 🏠', moved: 'moved into the city', liveNew: '🆕 @{n} just moved into the city!',
     vipTitle: 'Top fans of the week', vipBadge: 'Top fan of the week', vipHint: 'Followers with the most comments — their robots wear crowns 👑', rec: '🎬 Reel', recording: 'Recording...', recDone: 'Video ready and downloaded ✅', recNo: "This browser can't record video",
     goals: { airport: 'Airport', metro: 'Metro', beach: 'Beach', f1: 'Formula-1 track' },
@@ -789,7 +789,7 @@ function placeRobot(sp) {
   const t = sp.traits;
   robotParts(t, (k, x, y, z, sx, sy, sz, c, piv, swing, ry, rz) => {
     const m = RP[k]; if (RCNT[k] >= m.instanceMatrix.count) return; const i = RCNT[k]++;
-    RE.set(0, ry, rz); Q.setFromEuler(RE); M.compose(P.set(x, y, z), Q, S.set(sx, sy, sz)); m.setMatrixAt(i, M); m.setColorAt(i, COL.set(c));
+    RE.set(0, ry, rz); Q.setFromEuler(RE); M.compose(P.set(x, y, z), Q, S.set(sx, sy, sz)); m.setMatrixAt(i, M); m.setColorAt(i, COL.set(c)); (sp.parts ||= []).push([k, i, M.clone()]);
     m.geometry.attributes.aP1.setXYZW(i, sp.p1[0], sp.p1[1], sp.p1[2], sp.p1[3]);
     m.geometry.attributes.aP2.setXYZW(i, sp.p2[0], sp.p2[1], sp.p2[2], sp.p2[3]);
     m.geometry.attributes.aJ.setXYZW(i, piv, swing, t.u, 0);
@@ -813,6 +813,7 @@ function assignActivity(sp) {
   sp.act = act; sp.p1 = p1; sp.p2 = p2;
 }
 function robotPos(sp, t) { // CPU mirror of the GLSL path
+  if (sp.drv) return [sp.drv.x, sp.drv.z];
   const [cx, cz, a, b] = sp.p1, [ph, spd, kind] = sp.p2, tt = t * spd;
   if (kind < 0.5) { const Pm = 4 * (a + b); const d = ((tt + ph * Pm) % Pm + Pm) % Pm;
     if (d < 2 * a) return [cx - a + d, cz - b]; if (d < 2 * a + 2 * b) return [cx + a, cz - b + d - 2 * a]; if (d < 4 * a + 2 * b) return [cx + a - (d - 2 * a - 2 * b), cz + b]; return [cx - a, cz + b - (d - 4 * a - 2 * b)]; }
@@ -920,7 +921,7 @@ function renderCard() {
       <dt>${T('home')}</dt><dd>${T('homeV').replace('{b}', h.block).replace('{l}', h.lot)}</dd>
       <dt>${T('num')}</dt><dd>#${(sp.i + 1).toLocaleString('ru-RU')}</dd>
       <dt>${T('status')}</dt><dd>${T('st')[sp.act] || ''}</dd>${sp.traits.vip ? `<dt>👑</dt><dd>${T('vipBadge')} #${sp.traits.vip}</dd>` : ''}${UPG.get(sp.name) ? `<dt>${TIER_INFO[UPG.get(sp.name)].icon}</dt><dd>${T('tierNames')[UPG.get(sp.name)]}</dd>` : ''}</dl>
-      <div class="acts"><button class="pri" data-a="near">${T('near')}</button><button data-a="house">🏠 ${T('goHome')}</button><button class="story" data-a="story">📲 ${T('story')}</button>${CFG.botUsername && (UPG.get(sp.name) || 0) < 3 ? `<a class="upg" href="https://t.me/${CFG.botUsername}?start=up_${sp.name.replace(/\./g, '-')}" target="_blank" rel="noopener">${T('upgrade')}</a>` : ''}</div>`;
+      <div class="acts"><button class="pri" data-a="near">${T('near')}</button><button data-a="house">🏠 ${T('goHome')}</button><button class="drive" data-a="drive">🎮 ${T('drive')}</button><button class="story" data-a="story">📲 ${T('story')}</button>${CFG.botUsername && (UPG.get(sp.name) || 0) < 3 ? `<a class="upg" href="https://t.me/${CFG.botUsername}?start=up_${sp.name.replace(/\./g, '-')}" target="_blank" rel="noopener">${T('upgrade')}</a>` : ''}</div>`;
     if (st.fresh) { toast(T('toastNew')); st.fresh = false; }
   } else if (st.kind === 'new') {
     c.innerHTML = `<button class="x" aria-label="×">×</button><div class="bot">${robotSVG(st.name)}</div><div class="new"><h2>@${esc(st.name)}</h2><p>${T('newText')}</p><p>${T('followFirst').replace('{o}', esc(OWNER))}</p></div><div class="acts"><a class="ig" href="https://instagram.com/${OWNER}" target="_blank" rel="noopener">${T('follow')}</a></div>`;
@@ -967,6 +968,7 @@ $('#card').addEventListener('click', (e) => {
   if (a === 'story' && cardState?.sp) openStory(cardState.sp);
   if (a === 'claim' && cardState?.name) claim(cardState.name);
   if (a === 'random') randomRes();
+  if (a === 'drive' && cardState?.sp) startDrive(cardState.sp);
   if (a === 'more') { $('#card').classList.toggle('exp'); b.textContent = T('more') + ($('#card').classList.contains('exp') ? ' ▴' : ' ▾'); }
   if (a === 'pick' && index.has(b.dataset.n)) select(specs[index.get(b.dataset.n)]);
 });
@@ -999,7 +1001,7 @@ function animatePop(to) { const el = $('#pop'), from = parseInt(el.dataset.v || 
 const ray = new THREE.Raycaster(), NDC = new THREE.Vector2(), PV = new THREE.Vector3(); let downXY = null;
 renderer.domElement.addEventListener('pointerdown', (e) => { downXY = [e.clientX, e.clientY, performance.now()]; });
 renderer.domElement.addEventListener('pointerup', (e) => {
-  if (!downXY || tour) return; const moved = Math.hypot(e.clientX - downXY[0], e.clientY - downXY[1]), dt = performance.now() - downXY[2]; downXY = null;
+  if (!downXY || tour || drive) return; const moved = Math.hypot(e.clientX - downXY[0], e.clientY - downXY[1]), dt = performance.now() - downXY[2]; downXY = null;
   if (moved > 7 || dt > 600) return; pickAt(e.clientX, e.clientY);
 });
 function pickAt(cx, cy) {
@@ -1307,6 +1309,51 @@ function initDonations() {
     showChip(); drawMapStatic(); } catch (e) {} }, 20000);
 }
 
+// ======================= drive your own robot (joystick / WASD) =======================
+let drive = null; const JOY = { x: 0, y: 0 }; const DF = new THREE.Vector3(), DR = new THREE.Vector3(), DM = new THREE.Vector3();
+function buildRobotGroup(t) {
+  const g = new THREE.Group(), pivots = [], geos = {};
+  robotParts(t, (k, x, y, z, sx, sy, sz, c, piv, swing, ry, rz) => {
+    const [gF, mF] = RKINDS[k]; geos[k] ||= gF(); const mat = mF(); if (mat.color) mat.color.set(c);
+    const mesh = new THREE.Mesh(geos[k], mat); mesh.scale.set(sx, sy, sz); mesh.rotation.set(0, ry, rz); mesh.castShadow = SHADOWS;
+    if (swing) { const pv = new THREE.Group(); pv.position.set(0, piv, 0); mesh.position.set(x, y - piv, z); pv.add(mesh); g.add(pv); pivots.push([pv, swing]); } else { mesh.position.set(x, y, z); g.add(mesh); }
+  });
+  return { g, pivots };
+}
+function setRobotHidden(sp, hidden) { for (const [k, i, m] of sp.parts || []) { RP[k].setMatrixAt(i, hidden ? ZERO : m); RP[k].instanceMatrix.needsUpdate = true; } }
+function startDrive(sp) {
+  if (drive) stopDrive(); stopTour();
+  const [x, z] = robotPos(sp, UTIME.value), { g, pivots } = buildRobotGroup(sp.traits); g.position.set(x, 0, z); scene.add(g);
+  setRobotHidden(sp, true); drive = { sp, g, pivots, x, z, yaw: 0, phase: 0, speed: 0 }; sp.drv = drive;
+  selected = sp; follow = true; lastSel = null; labelAssignT = -9; $('#card').classList.remove('on'); document.body.classList.remove('cardopen'); document.body.classList.add('driving');
+  $('#driveHint').textContent = '🎮 @' + sp.name + ' · ' + T('driveHint'); $('#driveExit').textContent = '✕ ' + T('driveExit');
+  const tg = new THREE.Vector3(x, 2, z); flyTo(new THREE.Vector3(x + 9, 8, z + 11), tg, 1.0);
+}
+function stopDrive() {
+  if (!drive) return; const sp = drive.sp; scene.remove(drive.g); drive.g.traverse((o) => o.material && o.material.dispose());
+  sp.drv = null; setRobotHidden(sp, false); drive = null; JOY.x = JOY.y = 0; document.body.classList.remove('driving'); follow = false; labelAssignT = -9;
+}
+function updateDrive(dt) {
+  if (!drive) return; let ix = JOY.x, iy = JOY.y;
+  if (KEYS.has('KeyW') || KEYS.has('ArrowUp')) iy -= 1; if (KEYS.has('KeyS') || KEYS.has('ArrowDown')) iy += 1; if (KEYS.has('KeyA') || KEYS.has('ArrowLeft')) ix -= 1; if (KEYS.has('KeyD') || KEYS.has('ArrowRight')) ix += 1;
+  const mag = Math.min(1, Math.hypot(ix, iy)); camera.getWorldDirection(DF); DF.y = 0; DF.normalize(); DR.crossVectors(DF, YAX).normalize();
+  DM.set(0, 0, 0).addScaledVector(DF, -iy).addScaledVector(DR, ix); const target = mag > 0.08 ? 7.5 * mag : 0; drive.speed += (target - drive.speed) * Math.min(1, dt * 6);
+  if (DM.lengthSq() > 0.001 && mag > 0.08) { DM.normalize(); const want = Math.atan2(DM.x, DM.z); let d = want - drive.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); drive.yaw += d * Math.min(1, dt * 10);
+    const lim = HWY + 400; drive.x = THREE.MathUtils.clamp(drive.x + DM.x * drive.speed * dt, -lim, lim); drive.z = THREE.MathUtils.clamp(drive.z + DM.z * drive.speed * dt, -lim, lim); }
+  drive.phase += drive.speed * dt * 2.4 / Math.max(0.9, drive.sp.traits.u); const amp = Math.min(1, drive.speed / 3);
+  for (const [pv, sw] of drive.pivots) pv.rotation.x = Math.sin(drive.phase) * sw * (0.4 + amp * 0.8) * (drive.speed > 0.2 ? 1 : 0);
+  drive.g.position.set(drive.x, Math.abs(Math.cos(drive.phase)) * 0.05 * amp, drive.z); drive.g.rotation.y = drive.yaw;
+}
+function initDriveUI() {
+  const joy = $('#joy'), knob = $('#joyk'); let jid = null, jc = null;
+  const moveJ = (e) => { const R = 46; let dx = e.clientX - jc[0], dy = e.clientY - jc[1]; const L = Math.hypot(dx, dy); if (L > R) { dx *= R / L; dy *= R / L; } JOY.x = dx / R; JOY.y = dy / R; knob.style.transform = `translate(${dx}px,${dy}px)`; };
+  joy.addEventListener('pointerdown', (e) => { jid = e.pointerId; joy.setPointerCapture(jid); const r = joy.getBoundingClientRect(); jc = [r.left + r.width / 2, r.top + r.height / 2]; moveJ(e); e.preventDefault(); });
+  joy.addEventListener('pointermove', (e) => { if (e.pointerId === jid) moveJ(e); });
+  const endJ = (e) => { if (e.pointerId !== jid) return; jid = null; JOY.x = JOY.y = 0; knob.style.transform = ''; }; joy.addEventListener('pointerup', endJ); joy.addEventListener('pointercancel', endJ);
+  $('#driveExit').onclick = () => { const sp = drive && drive.sp; stopDrive(); if (sp) select(sp); };
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && drive) stopDrive(); });
+}
+
 // ======================= minimap =======================
 const mapC = $('#mapc'), mapG = mapC.getContext('2d'); let mapStatic = null;
 const W2M = (x, z) => { const E = HWY + 20, s = mapC.width / (2 * E); return [(x + E) * s, (z + E) * s]; };
@@ -1362,7 +1409,7 @@ function frame() {
     camera.position.set(around.x + Math.cos(a) * r, y, around.z + Math.sin(a) * r); controls.target.copy(around); }
   moveKeys(dt); controls.update();
   if (SHADOWS) { sun.target.position.copy(controls.target); sun.position.copy(controls.target).addScaledVector(SUN_DIR, 400); const d = THREE.MathUtils.clamp(camera.position.distanceTo(controls.target) * 1.2, 60, 260); const c = sun.shadow.camera; if (Math.abs(c.right - d) > 5) { c.left = -d; c.right = d; c.top = d; c.bottom = -d; c.updateProjectionMatrix(); } }
-  updateCars(t, dt); updateLights(t); updateLabels(t); drawMap(t); updateExtras(t, dt); updateDonations(t, dt);
+  updateCars(t, dt); updateLights(t); updateLabels(t); drawMap(t); updateExtras(t, dt); updateDonations(t, dt); updateDrive(dt);
   ownerGroup.rotation.y = Math.sin(t * 0.2) * 0.5;
   if (beam.visible) { const cd = camera.position.distanceTo(controls.target); beam.material.opacity = (0.14 + Math.sin(t * 3) * 0.06) * THREE.MathUtils.clamp((cd - 25) / 60, 0, 1); const s = 1 + (t % 1.4) * 0.9; hring.scale.set(s, s, s); hring.material.opacity = 1 - (t % 1.4) / 1.4; }
   if (composer) composer.render(); else renderer.render(scene, camera);
@@ -1371,13 +1418,13 @@ function frame() {
 addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); if (composer) composer.setSize(innerWidth, innerHeight); });
 
 // free camera: user drag stops follow-cam; WASD / arrow keys move; stay inside the world
-controls.addEventListener('start', () => { follow = false; fly = null; });
+controls.addEventListener('start', () => { if (!drive) follow = false; fly = null; });
 const KEYS = new Set();
 addEventListener('keydown', (e) => { if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return; const k = e.code; if (/^(Key[WASDQE]|Arrow(Up|Down|Left|Right))$/.test(k)) { KEYS.add(k); follow = false; fly = null; e.preventDefault(); } });
 addEventListener('keyup', (e) => KEYS.delete(e.code)); addEventListener('blur', () => KEYS.clear());
 const KV = new THREE.Vector3(), KF = new THREE.Vector3(), KR = new THREE.Vector3();
 function moveKeys(dt) {
-  if (KEYS.size && !tour) { const sp = Math.max(20, camera.position.distanceTo(controls.target) * 1.1) * dt; camera.getWorldDirection(KF); KF.y = 0; KF.normalize(); KR.crossVectors(KF, YAX).normalize(); KV.set(0, 0, 0);
+  if (KEYS.size && !tour && !drive) { const sp = Math.max(20, camera.position.distanceTo(controls.target) * 1.1) * dt; camera.getWorldDirection(KF); KF.y = 0; KF.normalize(); KR.crossVectors(KF, YAX).normalize(); KV.set(0, 0, 0);
     if (KEYS.has('KeyW') || KEYS.has('ArrowUp')) KV.add(KF); if (KEYS.has('KeyS') || KEYS.has('ArrowDown')) KV.sub(KF); if (KEYS.has('KeyD') || KEYS.has('ArrowRight')) KV.add(KR); if (KEYS.has('KeyA') || KEYS.has('ArrowLeft')) KV.sub(KR);
     if (KV.lengthSq()) { KV.normalize().multiplyScalar(sp); camera.position.add(KV); controls.target.add(KV); }
     const rot = (KEYS.has('KeyQ') ? 1 : 0) - (KEYS.has('KeyE') ? 1 : 0); if (rot) { const off = camera.position.clone().sub(controls.target).applyAxisAngle(YAX, rot * dt * 1.2); camera.position.copy(controls.target).add(off); } }
@@ -1424,5 +1471,5 @@ if (!LITE) setTimeout(() => { try { const g = renderer.getContext(), px = new Ui
 setTimeout(() => { $('#loader').style.opacity = 0; setTimeout(() => $('#loader').remove(), 700); flyTo(HOME_P, HOME_T, 3.2); animatePop(specs.length + 1); setTimeout(() => { if (!cardState) toast('👆 ' + T('tapHint'), 7000); }, 3600); }, 500);
 const hashNick = clean(decodeURIComponent(location.hash.slice(1) || ''));
 if (hashNick) setTimeout(() => { if (hashNick === OWNER) showOwner(); else if (index.has(hashNick)) select(specs[index.get(hashNick)]); else showNew(hashNick); }, 3800);
-checkGoals(false); initExtrasUI(); initDonations();
+checkGoals(false); initExtrasUI(); initDonations(); initDriveUI();
 window.__city = { cars, recordReel, GOALS, goalSite, specs, B, RP, robotPos, UTIME, labelPool, scene, camera, controls, THREE, signs, carBody, carCab, carLamp, carTail, ownerGroup, stars, beam };
