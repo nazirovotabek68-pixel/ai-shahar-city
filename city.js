@@ -956,7 +956,7 @@ function renderCard() {
     const pw = store.get('aishahar_admin_pw');
     if (!pw) c.innerHTML = `<button class="x" aria-label="×">×</button><h2>🛠 ${T('admin')}</h2><input id="admPw" class="cardin" type="password" placeholder="🔑 ${T('adminPw')}"><div class="acts"><button class="pri" data-a="admlogin">${T('adminSave')}</button></div>`;
     else { const S = st.stats; const days = S ? S.daily.map((d) => `<div class="bar"><span>${d.day.slice(5)}</span><i style="width:${Math.max(4, d.uniques / Math.max(...S.daily.map((x) => x.uniques), 1) * 100)}%"></i><b>${d.uniques}</b></div>`).join('') : '…';
-      c.innerHTML = `<button class="x" aria-label="×">×</button><h2>🛠 ${T('admin')}</h2><div class="acts"><button class="pri" data-a="weekly">🎬 ${T('weekly')}</button></div><div class="code">${T('stats')}</div>
+      c.innerHTML = `<button class="x" aria-label="×">×</button><h2>🛠 ${T('admin')}</h2><div class="acts"><button class="pri" data-a="weekly">🎬 ${T('weekly')}</button><button data-a="income">💰 ${T('income')}</button></div><div class="code">${T('stats')}</div>
         ${S ? `<dl><dt>${T('players')}</dt><dd>${S.players}</dd><dt>${T('msgs')}</dt><dd>${S.chat}</dd></dl><p class="vh">${T('visitors')}</p><div class="bars">${days}</div><p class="vh">${T('refs')}</p><div class="refs">${S.refs.map((r) => `<span>${esc(r.ref)}: <b>${r.visits}</b></span>`).join('')}</div>` : '<p class="vh">…</p>'}
         <p class="vh">${T('unlink')}</p><div class="row2"><input id="admNick" class="cardin" placeholder="nikneym"><button data-a="admunlink">${T('unlinkBtn')}</button></div>
         <p class="vh">${T('bans')}</p><div class="vlist">${(st.bans || []).map((b) => `<button class="vrow" data-a="admunban" data-n="${esc(b.nick)}">🚫 @${esc(b.nick)} · ${T('unban')}</button>`).join('') || '<p class="vh">—</p>'}</div>`;
@@ -965,7 +965,7 @@ function renderCard() {
     const P = GAME.player || { crystals: 0, items: [], equipped: {} }, rows = Object.entries(GAME_SHOP).map(([id, it]) => { const own = (P.items || []).includes(id), on = (P.equipped || {})[it.kind] === id;
       return `<div class="srow"><span>${T('items')[id]}</span><b>${own ? '✓ ' + T('owned') : it.price + ' 💎'}</b>${own ? (on ? `<button data-a="unequip" data-i="${id}" data-k="${it.kind}">${T('unequip')}</button>` : `<button data-a="equip" data-i="${id}">${T('equip')}</button>`) : `<button class="pri" data-a="buy" data-i="${id}" ${P.crystals < it.price ? 'disabled' : ''}>${T('buy')}</button>`}</div>`; }).join('');
     const rc = store.get('aishahar_rec_' + GAME.me);
-    c.innerHTML = `<button class="x" aria-label="×">×</button><h2>🛍 ${T('shopTitle')}</h2><div class="code">💎 ${P.crystals} · 🔥 ${P.streak || 0}</div><p class="vh">${T('shopHint')}</p><div class="shop">${rows}</div>${CFG.botUsername ? (P.tg ? `<p class="vh">${T('tgOn')}</p>` : `<div class="acts"><button class="pri" data-a="tglink">${T('tgBtn')}</button></div><p class="vh">${T('tgHint')}</p>`) : ''}${rc ? `<p class="vh">🔑 ${T('recSaved')}: <b class="rc">${esc(rc)}</b></p>` : ''}`;
+    c.innerHTML = `<button class="x" aria-label="×">×</button><h2>🛍 ${T('shopTitle')}</h2><div class="code">💎 ${P.crystals} · 🔥 ${P.streak || 0}</div><p class="vh">${T('shopHint')}</p><div class="shop">${rows}</div>${CFG.botUsername ? `<div class="acts"><a class="upg" href="https://t.me/${CFG.botUsername}?start=gems_${GAME.me.replace(/\./g, '-')}" target="_blank" rel="noopener">${T('buyGems')}</a><button data-a="shout">${T('shoutBtn')}</button></div>` : ''}${CFG.botUsername ? (P.tg ? `<p class="vh">${T('tgOn')}</p>` : `<div class="acts"><button class="pri" data-a="tglink">${T('tgBtn')}</button></div><p class="vh">${T('tgHint')}</p>`) : ''}${rc ? `<p class="vh">🔑 ${T('recSaved')}: <b class="rc">${esc(rc)}</b></p>` : ''}`;
   } else if (st.kind === 'board') {
     const tab = st.tab || 'c'; let rows = '';
     if (tab === 'l') rows = [...LIKES.entries()].sort((a, b) => b[1] - a[1]).slice(0, 15).map(([n, v], k) => `<button class="vrow" data-a="pick" data-n="${esc(n)}"><b>${k + 1}.</b> @${esc(n)} · ❤️ ${v}</button>`).join('');
@@ -1722,6 +1722,11 @@ const I18N_7 = {
     bbTitle: 'Telegram channel', bbTap: '👆 Tap — open the channel', bbSub: 'Follow: t.me/{c}', weekly: 'Weekly Reel', wkTop: 'AI SHAHAR 2036 · THIS WEEK', wkNew: '+{n} NEW ROBOTS', wkMoved: 'moved in 🏠', wkEnd1: 'Get your robot 🤖', wkEnd2: 'Link in bio 👆', perfOn: '⚡ Light mode on — the site runs faster', perfBtn: 'Light mode' },
 };
 for (const l of Object.keys(I18N)) Object.assign(I18N[l], I18N_7[l] || I18N_7.en);
+const I18N_8 = {
+  uz: { buyGems: "💎 Kristall sotib olish (Telegram Stars)", shoutBtn: "📣 Katta ekranga xabar — 50 ⭐", shoutTitle: 'Katta ekranga xabar', shoutHint: "Xabaringiz shahar markazidagi katta ekranda 2 soat ko'rinadi. Hamma ko'radi! Havola va so'kinish mumkin emas.", shoutPh: "Masalan: Hammaga salom! Uyimga mehmonga kelinglar 🏠", shoutPay: "Telegram orqali to'lash", shoutErr: "Havola yoki odobsiz so'z bor", ad: 'Reklama', income: 'Daromad', sales: 'Sotuvlar (oxirgi 30 kun)', adsT: 'Biznes reklamalar', adAdd: "Reklama qo'shish", adTitle: 'Sarlavha (masalan: Cafe Lola — 20% chegirma)', adText: "Qisqa matn", adLink: 'Havola (https://...)', adDays: 'Necha kun', shoutsT: 'Ekrandagi xabarlar', del: "O'chirish", needMe2: "Avval o'z robotingizni toping (qidiruv → «Bu menman»)." },
+  ru: { buyGems: '💎 Купить кристаллы (Telegram Stars)', shoutBtn: '📣 Сообщение на большой экран — 50 ⭐', shoutTitle: 'Сообщение на большой экран', shoutHint: 'Ваше сообщение 2 часа будет на большом экране в центре города. Его увидят все! Без ссылок и мата.', shoutPh: 'Например: Всем привет! Заходите в гости 🏠', shoutPay: 'Оплатить в Telegram', shoutErr: 'Есть ссылка или грубое слово', ad: 'Реклама', income: 'Доход', sales: 'Продажи (30 дней)', adsT: 'Реклама бизнеса', adAdd: 'Добавить рекламу', adTitle: 'Заголовок', adText: 'Короткий текст', adLink: 'Ссылка (https://...)', adDays: 'Дней', shoutsT: 'Сообщения на экране', del: 'Удалить', needMe2: 'Сначала найдите своего робота (поиск → «Это я»).' },
+  en: { buyGems: '💎 Buy crystals (Telegram Stars)', shoutBtn: '📣 Message on the big screen — 50 ⭐', shoutTitle: 'Message on the big screen', shoutHint: 'Your message shows on the big screen in the city centre for 2 hours. Everyone sees it! No links or swearing.', shoutPh: 'E.g. Hi everyone! Come visit my house 🏠', shoutPay: 'Pay in Telegram', shoutErr: 'Contains a link or a rude word', ad: 'Ad', income: 'Income', sales: 'Sales (30 days)', adsT: 'Business ads', adAdd: 'Add ad', adTitle: 'Title', adText: 'Short text', adLink: 'Link (https://...)', adDays: 'Days', shoutsT: 'Messages on screen', del: 'Delete', needMe2: 'First find your robot (search → “That\'s me”).' } };
+for (const l of Object.keys(I18N)) Object.assign(I18N[l], I18N_8[l] || I18N_8.en);
 const TQ = (k) => T('q')[k] || k;
 
 // ---------- daily quests ----------
@@ -1806,6 +1811,17 @@ function updateVisit(t) { if (!drive || race) { if (visitNick) { visitNick = nul
 async function linkTelegram() { const w = window.open('', '_blank'); const r = await api({ action: 'tglink', nick: GAME.me }); if (!r.ok) { if (w) w.close(); return toast(T('chatErr')); }
   const url = `https://t.me/${CFG.botUsername}?start=link_${r.code}`; if (w) w.location.href = url; else location.href = url; }
 
+// ---------- paid extras ----------
+async function payShout() { const text = ($('#shIn') || {}).value || ''; if (!text.trim()) return; const w = window.open('', '_blank');
+  const r = await fetch('/api/shop', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'shout', nick: GAME.me, text }) }).then((x) => x.json()).catch(() => ({}));
+  if (!r.ok) { if (w) w.close(); return toast(r.error === 'link' || r.error === 'rude' ? T('shoutErr') : T('chatErr')); }
+  const url = `https://t.me/${CFG.botUsername}?start=sh_${r.id}`; if (w) w.location.href = url; else location.href = url; }
+async function shopAdmin(action, extra = {}) { const r = await fetch('/api/shop', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action, admin: store.get('aishahar_admin_pw'), ...extra }) }).then((x) => x.json()).catch(() => ({}));
+  if (action === 'ads') return r; if (!r.ok) return toast(T('chatErr')); loadExtras(); if (cardState && cardState.kind === 'income') { cardState = { kind: 'income' }; renderCard(); } }
+async function loadIncome() { const r = await shopAdmin('ads'); if (cardState && cardState.kind === 'income') { if (!r.ok) { toast('🔑 ' + T('chatPwWrong')); cardState = { kind: 'admin' }; } else cardState.data = r; renderCard(); } }
+async function loadExtras() { try { const c = await sb(); if (!c) return; const now = new Date().toISOString();
+  const [{ data: sh }, { data: ads }] = await Promise.all([c.from('shouts').select('id,nick,text,start_at,end_at').lte('start_at', now).gt('end_at', now).order('start_at').limit(5), c.from('ads').select('id,title,text,link').limit(10)]);
+  BB.shouts = sh || []; BB.ads = ads || []; } catch (e) {} }
 // ---------- cards ----------
 window.__cardExt = (c, st) => {
   if (st.kind === 'quests') {
@@ -1813,6 +1829,13 @@ window.__cardExt = (c, st) => {
     const rows = todayQ().map((k, s) => { const [a, b] = qProgress(k), got = qClaimed(s), ok = a >= b;
       return `<div class="qrow${got ? ' got' : ''}"><div class="qt">${TQ(k)}<div class="qbar"><i style="width:${Math.round(a / b * 100)}%"></i></div><span class="qn">${b > 1 ? a + ' / ' + b : ''}</span></div>${got ? '<b class="qok">✅</b>' : `<button class="${ok ? 'pri' : ''}" data-a="qclaim" data-s="${s}" ${ok ? '' : 'disabled'}>${T('qClaim')} +10</button>`}</div>`; }).join('');
     c.innerHTML = `<button class="x" aria-label="×">×</button><h2>🎯 ${T('quests')}</h2><div class="code">${tkDay()} · 💎 ${GAME.player.crystals}</div><p class="vh">${T('qHint')}</p><div class="qlist">${rows}</div>`; return true; }
+  if (st.kind === 'shout') { c.innerHTML = `<button class="x" aria-label="×">×</button><h2>📣 ${T('shoutTitle')}</h2><p class="vh">${T('shoutHint')}</p>${GAME.me ? `<input id="shIn" class="cardin" maxlength="90" placeholder="${T('shoutPh')}"><div class="acts"><button class="pri" data-a="shoutpay">${T('shoutPay')} · 50 ⭐</button></div>` : `<p class="vh">${T('needMe2')}</p>`}`; return true; }
+  if (st.kind === 'income') { const D = st.data; if (!D) { loadIncome(); c.innerHTML = `<button class="x" aria-label="×">×</button><h2>💰 ${T('income')}</h2><p class="vh">…</p>`; return true; }
+    const since = Date.now() - 30 * 864e5, sum = {}; let tot = 0; for (const x of D.sales || []) if (Date.parse(x.created_at) > since) { sum[x.kind] = (sum[x.kind] || 0) + x.stars; tot += x.stars; }
+    c.innerHTML = `<button class="x" aria-label="×">×</button><h2>💰 ${T('income')}</h2><div class="code">⭐ ${tot} · ${T('sales')}</div><div class="refs">${Object.entries(sum).map(([k, v]) => `<span>${k}: <b>${v} ⭐</b></span>`).join('') || '—'}</div>
+      <p class="vh">${T('shoutsT')}</p><div class="vlist">${(D.shouts || []).filter((x) => Date.parse(x.end_at) > Date.now()).map((x) => `<button class="vrow" data-a="shoutdel" data-i="${x.id}">🗑 @${esc(x.nick)}: ${esc(x.text)}</button>`).join('') || '<p class="vh">—</p>'}</div>
+      <p class="vh">${T('adsT')}</p><div class="vlist">${(D.ads || []).map((x) => `<button class="vrow" data-a="addel" data-i="${x.id}">🗑 ${esc(x.title)} · ${esc(x.until)}</button>`).join('') || '<p class="vh">—</p>'}</div>
+      <p class="vh">${T('adAdd')}</p><input id="adT" class="cardin" maxlength="60" placeholder="${T('adTitle')}"><input id="adX" class="cardin" maxlength="200" placeholder="${T('adText')}"><input id="adL" class="cardin" placeholder="${T('adLink')}"><div class="row2"><input id="adD" class="cardin" type="number" min="1" max="365" value="7" placeholder="${T('adDays')}"><button data-a="adadd">${T('adAdd')}</button></div>`; return true; }
   if (st.kind === 'guest') { const list = GB.get(st.nick); if (!list) loadGuest(st.nick);
     const rows = (list || []).map((m) => `<div class="gb"><b data-n="${esc(m.author)}">@${esc(m.author)}</b> <span></span><i>${fmtTime(m.created_at)} · ${String(m.created_at).slice(5, 10)}</i></div>`).join('');
     c.innerHTML = `<button class="x" aria-label="×">×</button><h2>📖 ${T('guestTitle')}</h2><div class="code">🏠 @${esc(st.nick)}</div><div class="gblist">${list ? rows || `<p class="vh">${T('guestEmpty')}</p>` : '<p class="vh">…</p>'}</div>
@@ -1825,6 +1848,11 @@ window.__cardAct = (a, b) => {
   if (a === 'gbsend') { sendGuest(); return true; }
   if (a === 'tglink') { linkTelegram(); return true; }
   if (a === 'weekly') { weeklyReel(); return true; }
+  if (a === 'shout') { cardState = { kind: 'shout' }; renderCard(); return true; }
+  if (a === 'shoutpay') { payShout(); return true; }
+  if (a === 'income') { cardState = { kind: 'income' }; renderCard(); return true; }
+  if (a === 'shoutdel' || a === 'addel') { shopAdmin(a, { id: Number(b.dataset.i) }); return true; }
+  if (a === 'adadd') { shopAdmin('adadd', { title: $('#adT').value, text: $('#adX').value, link: $('#adL').value, days: $('#adD').value }); return true; }
   return false; };
 $('#card').addEventListener('click', (e) => { const n = e.target.closest('.gb b'); if (n && index.has(n.dataset.n)) select(specs[index.get(n.dataset.n)]); });
 $('#card').addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.id === 'gbIn') sendGuest(); });
@@ -1865,14 +1893,18 @@ function updateWeather(t, dt) { const tgt = controls.target, far = camera.positi
   if (WX.thunder) { if (t > flashT) { flashT = t + 7 + Math.random() * 10; hemi.intensity += 2.2; setTimeout(() => applyTheme(themeK), 140); } } }
 
 // ---------- billboard with the Telegram channel ----------
-const BB = { posts: [], i: 0, ch: 'otabek_ai_agent', meshes: [] };
+const BB = { posts: [], shouts: [], ads: [], i: 0, ch: 'otabek_ai_agent', meshes: [] };
+const bbItems = () => { const out = []; const p = BB.posts.map((x) => ({ k: 'post', ...x })), sh = BB.shouts.map((x) => ({ k: 'shout', ...x })), ad = BB.ads.map((x) => ({ k: 'ad', ...x })); const n = Math.max(p.length, 1); for (let i = 0; i < n; i++) { if (sh.length) out.push(sh[i % sh.length]); if (ad.length && i % 2 === 0) out.push(ad[(i / 2) % ad.length]); if (p[i]) out.push(p[i]); } return out; };
+const bbCur = () => { const it = bbItems(); return it.length ? it[BB.i % it.length] : null; };
 const bbCanvas = document.createElement('canvas'); bbCanvas.width = 1024; bbCanvas.height = 576; const bbTex = new THREE.CanvasTexture(bbCanvas); bbTex.colorSpace = THREE.SRGBColorSpace; bbTex.anisotropy = 4;
 function drawBB() { const g = bbCanvas.getContext('2d'), W = 1024, H = 576; const gr = g.createLinearGradient(0, 0, W, H); gr.addColorStop(0, '#0b1230'); gr.addColorStop(1, '#14082a'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
   g.fillStyle = '#2aa3e0'; g.fillRect(0, 0, W, 86); g.fillStyle = '#fff'; g.font = '700 42px "Space Grotesk", system-ui, sans-serif'; g.textBaseline = 'middle'; g.fillText('✈ ' + T('bbTitle') + ' · @' + BB.ch, 30, 44);
-  const p = BB.posts[BB.i % Math.max(1, BB.posts.length)]; g.fillStyle = '#e9f1ff'; g.font = '500 38px "Space Grotesk", system-ui, sans-serif'; g.textBaseline = 'top';
-  const text = p ? p.text : T('bbSub').replace('{c}', BB.ch); const lines = []; for (const para of text.split('\n')) { let cur = ''; for (const w of para.split(' ')) { const t2 = cur ? cur + ' ' + w : w; if (g.measureText(t2).width > W - 70) { lines.push(cur); cur = w; } else cur = t2; } lines.push(cur); if (lines.length > 9) break; }
-  lines.filter((l, i) => !(l === '' && lines[i - 1] === '')).slice(0, 9).forEach((l, i) => g.fillText(l, 34, 110 + i * 46));
-  g.fillStyle = 'rgba(57,255,136,.95)'; g.fillRect(0, H - 60, W, 60); g.fillStyle = '#04140b'; g.font = '700 32px "Space Grotesk", system-ui, sans-serif'; g.textBaseline = 'middle'; g.fillText(T('bbTap') + (BB.posts.length ? `  ·  ${BB.i % BB.posts.length + 1}/${BB.posts.length}` : ''), 30, H - 30);
+  const p = bbCur(); if (p && p.k === 'shout') { g.fillStyle = '#ff4fd8'; g.fillRect(0, 0, W, 86); g.fillStyle = '#fff'; g.font = '700 42px "Space Grotesk", system-ui, sans-serif'; g.textBaseline = 'middle'; g.fillText('📣 @' + p.nick, 30, 44); }
+  if (p && p.k === 'ad') { g.fillStyle = '#ffc94a'; g.fillRect(0, 0, W, 86); g.fillStyle = '#1a1200'; g.font = '700 40px "Space Grotesk", system-ui, sans-serif'; g.textBaseline = 'middle'; g.fillText('★ ' + T('ad') + ' · ' + p.title, 30, 44); }
+  g.fillStyle = '#e9f1ff'; g.font = '500 38px "Space Grotesk", system-ui, sans-serif'; g.textBaseline = 'top';
+  if (p && p.k === 'shout') g.font = '700 58px "Space Grotesk", system-ui, sans-serif'; const text = p ? (p.k === 'ad' ? (p.text || p.title) : p.text) : T('bbSub').replace('{c}', BB.ch); const lines = []; for (const para of text.split('\n')) { let cur = ''; for (const w of para.split(' ')) { const t2 = cur ? cur + ' ' + w : w; if (g.measureText(t2).width > W - 70) { lines.push(cur); cur = w; } else cur = t2; } lines.push(cur); if (lines.length > 9) break; }
+  lines.filter((l, i) => !(l === '' && lines[i - 1] === '')).slice(0, p && p.k === 'shout' ? 6 : 9).forEach((l, i) => g.fillText(l, 34, (p && p.k === 'shout' ? 130 : 110) + i * (p && p.k === 'shout' ? 68 : 46)));
+  g.fillStyle = 'rgba(57,255,136,.95)'; g.fillRect(0, H - 60, W, 60); g.fillStyle = '#04140b'; g.font = '700 32px "Space Grotesk", system-ui, sans-serif'; g.textBaseline = 'middle'; const its = bbItems(); g.fillText((p && p.k === 'shout' ? '📣 ' + T('shoutBtn').replace(/^📣 /, '') : T('bbTap')) + (its.length ? `  ·  ${BB.i % its.length + 1}/${its.length}` : ''), 30, H - 30);
   bbTex.needsUpdate = true; }
 { const ry = Math.PI / 4, cx = -12, cz = -12, ux = Math.cos(ry), uz = -Math.sin(ry);
   for (const s of [-7, 7]) B.cyl.add(cx + ux * s, 0.3, cz + uz * s, 0.9, 16, 0.9, '#30353d'); B.cyl.done();
@@ -1881,9 +1913,10 @@ function drawBB() { const g = bbCanvas.getContext('2d'), W = 1024, H = 576; cons
   for (const sd of [1, -1]) { const pl = new THREE.Mesh(new THREE.PlaneGeometry(16, 9), mat); pl.position.set(cx + Math.sin(ry) * 0.27 * sd, 11, cz + Math.cos(ry) * 0.27 * sd); pl.rotation.y = sd > 0 ? ry : ry + Math.PI; pl.userData.bb = true; scene.add(pl); BB.meshes.push(pl); }
   BB.meshes.push(frame); drawBB(); }
 window.__bbMeshes = BB.meshes;
-window.__bbOpen = () => { const p = BB.posts[BB.i % Math.max(1, BB.posts.length)]; open(p ? 'https://t.me/' + p.id : 'https://t.me/' + BB.ch, '_blank', 'noopener'); };
+window.__bbOpen = () => { const p = bbCur(); if (p && p.k === 'shout') { if (index.has(p.nick)) select(specs[index.get(p.nick)]); return; } if (p && p.k === 'ad') { if (p.link) open(p.link, '_blank', 'noopener'); return; } open(p ? 'https://t.me/' + p.id : 'https://t.me/' + BB.ch, '_blank', 'noopener'); };
 async function loadFeed() { try { const j = await fetch('/api/tgfeed').then((r) => r.json()); if (j.channel) BB.ch = j.channel; BB.posts = j.posts || []; BB.i = 0; drawBB(); } catch (e) {} }
-setInterval(() => { if (BB.posts.length > 1 && !document.hidden) { BB.i++; drawBB(); } }, 9000);
+setInterval(() => { if (bbItems().length > 1 && !document.hidden) { BB.i++; drawBB(); } }, 8000);
+loadExtras().then(drawBB); setInterval(loadExtras, 60e3);
 
 // ---------- weekly Reel (admin): new residents fly-through with captions ----------
 async function weeklyReel() {
