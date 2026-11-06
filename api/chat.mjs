@@ -11,7 +11,7 @@ async function residents() {
   try { const j = await fetch(SITE + '/residents.json', { cache: 'no-store' }).then((r) => r.json()); residentsCache = { at: Date.now(), set: new Set((Array.isArray(j) ? j : j.residents || []).map((s) => String(s).toLowerCase())) }; } catch (e) {}
   return residentsCache.set || new Set();
 }
-function headers() { const key = process.env.SUPABASE_SECRET_KEY || ''; const h = { 'content-type': 'application/json', apikey: key }; if (!key.startsWith('sb_')) h.Authorization = 'Bearer ' + key; return h; }
+function headers() { const key = (process.env.SUPABASE_SECRET_KEY || '').trim().replace(/^['"]|['"]$/g, ''); const h = { 'content-type': 'application/json', apikey: key }; if (!key.startsWith('sb_')) h.Authorization = 'Bearer ' + key; return h; }
 function cleanText(t) {
   let s = String(t || '').replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 200);
   s = s.replace(/(https?:\/\/|www\.)\S+/gi, '[havola]').replace(/\b\S+\.(com|ru|uz|net|org|me|io|xyz|link)\b\S*/gi, '[havola]');
