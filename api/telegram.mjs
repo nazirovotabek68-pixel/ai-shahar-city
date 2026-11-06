@@ -60,7 +60,18 @@ async function offer(chatId, nick) {
 const APP_URL = SITE + '/?ref=tgapp&tg=1';
 const openBtn = (text = '🏙 Shaharni ochish') => ({ inline_keyboard: [[{ text, web_app: { url: APP_URL } }]] });
 let menuSet = false;
-async function ensureMenu() { if (menuSet) return; menuSet = true; try { await tg('setChatMenuButton', { menu_button: { type: 'web_app', text: '🏙 Shahar', web_app: { url: APP_URL } } }); } catch (e) {} }
+const DESC = {
+  uz: `🏙 AI SHAHAR 2036 — @${OWNER} obunachilari yashaydigan 3D robot shahar!\n\n🤖 1 obunachi = 1 robot: har bir obunachining o'z roboti va uyi bor\n🎮 Robotingni boshqar, kristall yig', poyga va futbol o'yna\n🎯 Har kuni yangi vazifalar va sovg'alar\n💬 Shahar chatida do'stlar bilan yoz\n🏰 Uyingni qasr yoki saroyga aylantir\n\n👇 «Start»ni bosing va shaharga kiring!`,
+  ru: `🏙 AI SHAHAR 2036 — 3D город роботов, где живут подписчики @${OWNER}!\n\n🤖 1 подписчик = 1 робот: у каждого свой робот и дом\n🎮 Управляй роботом, собирай кристаллы, гоняй и играй в футбол\n🎯 Каждый день новые задания и призы\n💬 Общайся в чате города\n🏰 Преврати дом в замок или дворец\n\n👇 Нажмите «Старт» и заходите в город!`,
+  en: `🏙 AI SHAHAR 2036 — a 3D robot city where the followers of @${OWNER} live!\n\n🤖 1 follower = 1 robot: everyone has their own robot and house\n🎮 Drive your robot, collect crystals, race and play football\n🎯 New daily quests and rewards\n💬 Chat with friends in the city chat\n🏰 Turn your house into a castle or palace\n\n👇 Tap “Start” and enter the city!`,
+};
+const SHORT = { uz: "🏙 3D robot shahar: 1 obunachi = 1 robot. Robotingni top, o'yna va uyingni bezat! 🤖", ru: '🏙 3D город роботов: 1 подписчик = 1 робот. Найди своего робота, играй и укрась дом! 🤖', en: '🏙 3D robot city: 1 follower = 1 robot. Find your robot, play and decorate your house! 🤖' };
+async function ensureMenu() { if (menuSet) return; menuSet = true; try {
+  await tg('setChatMenuButton', { menu_button: { type: 'web_app', text: '🏙 Shahar', web_app: { url: APP_URL } } });
+  for (const [lc, d] of Object.entries(DESC)) { await tg('setMyDescription', lc === 'uz' ? { description: d } : { description: d, language_code: lc }); await tg('setMyShortDescription', lc === 'uz' ? { short_description: SHORT[lc] } : { short_description: SHORT[lc], language_code: lc }); }
+  await tg('setMyName', { name: 'AI SHAHAR 2036 🏙' });
+  await tg('setMyCommands', { commands: [{ command: 'start', description: 'Shaharga kirish' }, { command: 'app', description: '🏙 Shaharni ochish' }, { command: 'notify', description: '🔔 Eslatmalarni yoqish' }, { command: 'stop', description: "🔕 Eslatmalarni o'chirish" }, { command: 'paysupport', description: "To'lov bo'yicha yordam" }, { command: 'terms', description: 'Shartlar' }] });
+} catch (e) { console.error('menu', e); } }
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(200).send('ok');
   if (!process.env.TELEGRAM_WEBHOOK_SECRET || req.headers['x-telegram-bot-api-secret-token'] !== process.env.TELEGRAM_WEBHOOK_SECRET) return res.status(401).send('unauthorized');
