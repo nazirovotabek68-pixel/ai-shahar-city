@@ -855,11 +855,12 @@ function robotPos(sp, t) { // CPU mirror of the GLSL path
 // ======================= nickname labels (pooled sprites) =======================
 const LABELS = MOBILE ? 50 : 130;
 const labelPool = [], labelTexCache = new Map();
+const CARDS = new Map(); const CAT_ICON = { design: '🎨', smm: '📱', dev: '💻', edu: '🎓', shop: '🛍', service: '🛠', blog: '🎥', ai: '🤖', student: '📚', other: '💼' };
 function labelTex(name, me) {
-  const key = name + (me ? '*' : '') + (UPG.get(name) || ''); if (labelTexCache.has(key)) return labelTexCache.get(key);
+  const bc = CARDS.get(name), key = name + (me ? '*' : '') + (UPG.get(name) || '') + (bc ? bc.card_cat : ''); if (labelTexCache.has(key)) return labelTexCache.get(key);
   const t = canvasTex(256, 56, (g, w, h) => { g.font = '700 26px "JetBrains Mono", monospace'; const tw = Math.min(w - 8, g.measureText('@' + name).width + 22);
     const vip = VIP.has(name), ti = TIER_INFO[UPG.get(name)]; g.fillStyle = me ? 'rgba(57,255,136,.95)' : ti ? ti.bg : vip ? 'rgba(255,196,0,.95)' : 'rgba(8,12,22,.78)'; const x = (w - tw) / 2; g.beginPath(); g.roundRect(x, 6, tw, 40, 12); g.fill();
-    g.fillStyle = me ? '#04140b' : ti ? ti.fg : vip ? '#04140b' : '#ffffff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText((ti ? ti.icon + ' ' : vip ? '👑 ' : '') + '@' + name, w / 2, 27, w - 16); });
+    g.fillStyle = me ? '#04140b' : ti ? ti.fg : vip ? '#04140b' : '#ffffff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText((ti ? ti.icon + ' ' : vip ? '👑 ' : bc ? (CAT_ICON[bc.card_cat] || '💼') + ' ' : '') + '@' + name, w / 2, 27, w - 16); });
   if (labelTexCache.size > 600) labelTexCache.clear();
   labelTexCache.set(key, t); return t;
 }
@@ -949,11 +950,11 @@ function renderCard() {
     const sp = st.sp, h = houseIdx[sp.i];
     c.innerHTML = `<button class="x" aria-label="×">×</button><div class="hdr"><div class="bot">${robotSVG(sp.name)}</div><div class="ttl"><h2>@${esc(sp.name)}</h2>
       <div class="code">${sp.code} · ${T('roles')[sp.role]}</div><div class="mini">🏠 ${T('homeV').replace('{b}', h.block).replace('{l}', h.lot)} · ${T('st')[sp.act] || ''}</div></div></div>
-      <button class="more" data-a="more">${T('more')} ▾</button><dl><dt>${T('type')}</dt><dd>${sp.traits.f ? T('girl') : T('boy')}</dd>
+      ${window.__bizBlock ? window.__bizBlock(sp.name) : ''}<button class="more" data-a="more">${T('more')} ▾</button><dl><dt>${T('type')}</dt><dd>${sp.traits.f ? T('girl') : T('boy')}</dd>
       <dt>${T('home')}</dt><dd>${T('homeV').replace('{b}', h.block).replace('{l}', h.lot)}</dd>
       <dt>${T('num')}</dt><dd>#${(sp.i + 1).toLocaleString('ru-RU')}</dd>
       <dt>${T('status')}</dt><dd>${T('st')[sp.act] || ''}</dd>${sp.traits.vip ? `<dt>👑</dt><dd>${T('vipBadge')} #${sp.traits.vip}</dd>` : ''}${UPG.get(sp.name) ? `<dt>${TIER_INFO[UPG.get(sp.name)].icon}</dt><dd>${T('tierNames')[UPG.get(sp.name)]}</dd>` : ''}</dl>
-      <div class="acts"><button class="pri" data-a="near">${T('near')}</button><button data-a="house">🏠 ${T('goHome')}</button>${GAME.me === sp.name ? `<button class="drive" data-a="drive">🎮 ${T('drive')}</button>` : ''}${GAME.me === sp.name ? `<button class="shopb" data-a="shop">${T('shop')}</button>` : !GAME.me ? `<button class="meb" data-a="me">${T('isMe')}</button>` : ''}${GAME.me !== sp.name ? `<button class="likeb${GAME.liked.has(sp.name) ? ' on' : ''}" data-a="like">❤️ ${LIKES.get(sp.name) || 0}</button>` : ''}<button data-a="guest">📖 ${T('guestBtn')}</button><button class="story" data-a="story">📲 ${T('story')}</button>${CFG.botUsername && (UPG.get(sp.name) || 0) < 3 ? `<a class="upg" href="https://t.me/${CFG.botUsername}?start=up_${sp.name.replace(/\./g, '-')}" target="_blank" rel="noopener">${T('upgrade')}</a>` : ''}</div>`;
+      <div class="acts"><button class="pri" data-a="near">${T('near')}</button><button data-a="house">🏠 ${T('goHome')}</button>${GAME.me === sp.name ? `<button class="drive" data-a="drive">🎮 ${T('drive')}</button>` : ''}${GAME.me === sp.name ? `<button class="bizb" data-a="bizedit">💼 ${T('bizMine')}</button><button class="shopb" data-a="shop">${T('shop')}</button>` : !GAME.me ? `<button class="meb" data-a="me">${T('isMe')}</button>` : ''}${GAME.me !== sp.name ? `<button class="likeb${GAME.liked.has(sp.name) ? ' on' : ''}" data-a="like">❤️ ${LIKES.get(sp.name) || 0}</button>` : ''}<button data-a="guest">📖 ${T('guestBtn')}</button><button class="story" data-a="story">📲 ${T('story')}</button>${CFG.botUsername && (UPG.get(sp.name) || 0) < 3 ? `<a class="upg" href="https://t.me/${CFG.botUsername}?start=up_${sp.name.replace(/\./g, '-')}" target="_blank" rel="noopener">${T('upgrade')}</a>` : ''}</div>`;
     if (st.fresh) { toast(T('toastNew')); st.fresh = false; }
   } else if (st.kind === 'new') {
     c.innerHTML = `<button class="x" aria-label="×">×</button><div class="bot">${robotSVG(st.name)}</div><div class="new"><h2>@${esc(st.name)}</h2><p>${T('newText')}</p><p>${T('followFirst').replace('{o}', esc(OWNER))}</p></div><div class="acts"><a class="ig" href="https://instagram.com/${OWNER}" target="_blank" rel="noopener">${T('follow')}</a></div>`;
@@ -1966,6 +1967,49 @@ window.__v7u = (t, dt) => { updateRace(); updateBall(dt); updateVisit(t); update
     if (t - amenT > 1) { amenT = t; for (const k of ['stadium', 'mall']) for (const b of amenityBlocks[k] || []) if ((b.cx - drive.x) ** 2 + (b.cz - drive.z) ** 2 < 28 * 28 && !store.get(qkey(k))) qBump(k); } } else lastX = null; };
 loadWeather(); setInterval(() => { loadWeather(); }, 15 * 60e3); setInterval(autoTheme, 60e3); loadFeed(); setInterval(loadFeed, 10 * 60e3);
 setTimeout(() => { updQuestBtn(); qCheck(); }, 4000); setInterval(updQuestBtn, 5000);
+}
+
+// ======================= v9: "my house = my business card" + professions directory =======================
+{
+const I9 = {
+  uz: { bizMine: 'Kartochkam', bizTitle: 'Uyim = biznes kartochkam', bizHint: "Nima bilan shug'ullanasiz? Uyingizga kartochka qo'ying: shaharga kirgan har bir odam ko'radi va sizga yoza oladi. Bepul reklama! 🚀", bizCat: "Yo'nalish", bizT: 'Kim siz? (masalan: SMM mutaxassis, logo dizayn)', bizBio: "Qisqacha: nima taklif qilasiz (160 belgi)", bizLink: "Havola: @instagram, t.me/... yoki https://...", bizSave: 'Saqlash', bizDel: "Kartochkani o'chirish", bizOk: "Kartochka saqlandi! Endi nikneymingiz yonida belgi chiqadi 💼", bizErr: { rude: "Odobsiz so'z bor", biolink: "Havolani pastdagi «Havola» maydoniga yozing", link: "Havola noto'g'ri: @nik, t.me/... yoki https://..." }, bizOpen: 'Bog\'lanish', dirTitle: 'Shahar katalogi', dirHint: "Obunachilar nima bilan shug'ullanadi — hamkor yoki usta toping!", dirAll: 'Hammasi', dirEmpty: "Bu yo'nalishda hali hech kim yo'q. Birinchi bo'ling!", dirSearch: 'Qidirish: dizayn, SMM, repetitor…', bizInvite: "💼 Uyingizga biznes kartochka qo'shing — bepul reklama!",
+    cats: { design: 'Dizayn', smm: 'SMM / Marketing', dev: 'Dasturlash', edu: "Ta'lim / Repetitor", shop: "Do'kon / Savdo", service: 'Xizmatlar', blog: 'Bloger / Kontent', ai: 'AI', student: 'Talaba', other: 'Boshqa' } },
+  ru: { bizMine: 'Визитка', bizTitle: 'Мой дом = моя визитка', bizHint: 'Чем вы занимаетесь? Повесьте визитку на дом: её увидит каждый в городе и сможет вам написать. Бесплатная реклама! 🚀', bizCat: 'Направление', bizT: 'Кто вы? (например: SMM-специалист, дизайн логотипов)', bizBio: 'Коротко: что предлагаете (160 символов)', bizLink: 'Ссылка: @instagram, t.me/... или https://...', bizSave: 'Сохранить', bizDel: 'Удалить визитку', bizOk: 'Визитка сохранена! Теперь рядом с ником значок 💼', bizErr: { rude: 'Есть грубое слово', biolink: 'Ссылку пишите в поле «Ссылка»', link: 'Неверная ссылка: @ник, t.me/... или https://...' }, bizOpen: 'Связаться', dirTitle: 'Каталог города', dirHint: 'Чем занимаются подписчики — найдите партнёра или мастера!', dirAll: 'Все', dirEmpty: 'В этом направлении пока никого. Будьте первым!', dirSearch: 'Поиск: дизайн, SMM, репетитор…', bizInvite: '💼 Добавьте визитку на свой дом — бесплатная реклама!',
+    cats: { design: 'Дизайн', smm: 'SMM / Маркетинг', dev: 'Программирование', edu: 'Обучение', shop: 'Магазин', service: 'Услуги', blog: 'Блогер', ai: 'AI', student: 'Студент', other: 'Другое' } },
+  en: { bizMine: 'My card', bizTitle: 'My house = my business card', bizHint: 'What do you do? Put a card on your house: everyone in the city sees it and can contact you. Free advertising! 🚀', bizCat: 'Field', bizT: 'Who are you? (e.g. SMM specialist, logo design)', bizBio: 'Short: what you offer (160 chars)', bizLink: 'Link: @instagram, t.me/... or https://...', bizSave: 'Save', bizDel: 'Delete card', bizOk: 'Card saved! Your name now shows a 💼 badge', bizErr: { rude: 'Contains a rude word', biolink: 'Put links in the “Link” field', link: 'Wrong link: @name, t.me/... or https://...' }, bizOpen: 'Contact', dirTitle: 'City directory', dirHint: 'What followers do — find a partner or a pro!', dirAll: 'All', dirEmpty: 'Nobody here yet. Be the first!', dirSearch: 'Search: design, SMM, tutor…', bizInvite: '💼 Add a business card to your house — free advertising!',
+    cats: { design: 'Design', smm: 'SMM / Marketing', dev: 'Development', edu: 'Education', shop: 'Shop', service: 'Services', blog: 'Blogger', ai: 'AI', student: 'Student', other: 'Other' } } };
+for (const l of Object.keys(I18N)) Object.assign(I18N[l], I9[l] || I9.en);
+const host = (u) => { try { const h = new URL(u).hostname.replace(/^www\./, ''); const p = new URL(u).pathname.replace(/\/$/, ''); return h === 'instagram.com' ? '@' + p.slice(1) : h === 't.me' ? 't.me' + p : h; } catch (e) { return u; } };
+async function loadCards() { try { const c = await sb(); if (!c) return; const { data } = await c.from('players').select('nick,card_title,card_cat,card_bio,card_link').not('card_title', 'is', null).limit(1000);
+  CARDS.clear(); for (const r of data || []) CARDS.set(clean(r.nick), r); labelTexCache.clear(); labelAssignT = -9; } catch (e) {} }
+window.__bizBlock = (n) => { const b = CARDS.get(n); if (!b) return GAME.me === n ? `<div class="bcard empty" data-a2="bizedit">${T('bizInvite')}</div>` : '';
+  return `<div class="bcard"><div class="bt">${CAT_ICON[b.card_cat] || '💼'} <b>${esc(b.card_title)}</b> <i>${esc(T('cats')[b.card_cat] || '')}</i></div>${b.card_bio ? `<p>${esc(b.card_bio)}</p>` : ''}${b.card_link ? `<a href="${esc(b.card_link)}" target="_blank" rel="noopener nofollow">🔗 ${T('bizOpen')}: ${esc(host(b.card_link))}</a>` : ''}</div>`; };
+const prevExt = window.__cardExt, prevAct = window.__cardAct;
+window.__cardExt = (c, st) => {
+  if (st.kind === 'bizedit') { const b = CARDS.get(GAME.me) || {}; const opts = Object.keys(CAT_ICON).map((k) => `<option value="${k}" ${b.card_cat === k ? 'selected' : ''}>${CAT_ICON[k]} ${T('cats')[k]}</option>`).join('');
+    c.innerHTML = `<button class="x" aria-label="×">×</button><h2>💼 ${T('bizTitle')}</h2><p class="vh">${T('bizHint')}</p>
+      <select id="bzC" class="cardin">${opts}</select><input id="bzT" class="cardin" maxlength="40" placeholder="${T('bizT')}" value="${esc(b.card_title || '')}">
+      <textarea id="bzB" class="cardin" maxlength="160" rows="3" placeholder="${T('bizBio')}">${esc(b.card_bio || '')}</textarea><input id="bzL" class="cardin" maxlength="200" placeholder="${T('bizLink')}" value="${esc(b.card_link || '')}">
+      <div class="acts"><button class="pri" data-a="bizsave">${T('bizSave')}</button>${b.card_title ? `<button data-a="bizdel">${T('bizDel')}</button>` : ''}</div>`; return true; }
+  if (st.kind === 'dir') { const cat = st.cat || '', q = (st.q || '').toLowerCase();
+    const rows = [...CARDS.values()].filter((b) => index.has(clean(b.nick)) && (!cat || b.card_cat === cat) && (!q || (b.nick + ' ' + b.card_title + ' ' + (b.card_bio || '') + ' ' + (T('cats')[b.card_cat] || '')).toLowerCase().includes(q)))
+      .map((b) => `<button class="vrow dirrow" data-a="pick" data-n="${esc(b.nick)}"><b>${CAT_ICON[b.card_cat] || '💼'}</b> @${esc(b.nick)} · ${esc(b.card_title)}</button>`).join('');
+    const counts = {}; for (const b of CARDS.values()) counts[b.card_cat] = (counts[b.card_cat] || 0) + 1;
+    c.innerHTML = `<button class="x" aria-label="×">×</button><h2>💼 ${T('dirTitle')}</h2><p class="vh">${T('dirHint')}</p><input id="dirQ" class="cardin" placeholder="🔎 ${T('dirSearch')}" value="${esc(st.q || '')}">
+      <div class="dcats"><button class="${!cat ? 'on' : ''}" data-a="dircat" data-c="">${T('dirAll')} ${CARDS.size}</button>${Object.keys(CAT_ICON).filter((k) => counts[k]).map((k) => `<button class="${cat === k ? 'on' : ''}" data-a="dircat" data-c="${k}">${CAT_ICON[k]} ${T('cats')[k]} ${counts[k]}</button>`).join('')}</div>
+      <div class="vlist">${rows || `<p class="vh">${T('dirEmpty')}</p>`}</div>${GAME.me && !CARDS.get(GAME.me) ? `<div class="acts"><button class="pri" data-a="bizedit">${T('bizInvite')}</button></div>` : ''}`;
+    const qi = c.querySelector('#dirQ'); qi.oninput = () => { cardState.q = qi.value; clearTimeout(qi.t); qi.t = setTimeout(() => { renderCard(); const n = $('#dirQ'); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }, 250); }; return true; }
+  return prevExt ? prevExt(c, st) : false; };
+window.__cardAct = (a, b) => {
+  if (a === 'bizedit') { cardState = { kind: 'bizedit' }; renderCard(); return true; }
+  if (a === 'dircat') { cardState = { kind: 'dir', cat: b.dataset.c, q: cardState.q }; renderCard(); return true; }
+  if (a === 'bizsave' || a === 'bizdel') { saveCard(a === 'bizdel'); return true; }
+  return prevAct ? prevAct(a, b) : false; };
+$('#card').addEventListener('click', (e) => { const el = e.target.closest('[data-a2="bizedit"]'); if (el) { cardState = { kind: 'bizedit' }; renderCard(); } });
+async function saveCard(del) { const body = del ? { action: 'card', nick: GAME.me, title: '' } : { action: 'card', nick: GAME.me, cat: $('#bzC').value, title: $('#bzT').value, bio: $('#bzB').value, link: $('#bzL').value };
+  const r = await api(body); if (!r.ok) return toast((T('bizErr')[r.error]) || T('chatErr'), 4500); await loadCards(); toast(del ? '✓' : T('bizOk'), 4500); if (index.has(GAME.me)) select(specs[index.get(GAME.me)]); }
+$('#btnDir').onclick = () => { selected = null; cardState = { kind: 'dir' }; renderCard(); };
+loadCards(); setInterval(loadCards, 120e3);
 }
 
 window.__city = { hitStatic, blocked, getDrive: () => drive, CGRID, reRobot, PLAYERS, CRYSTALS, startDrive, cars, recordReel, GOALS, goalSite, specs, B, RP, robotPos, UTIME, labelPool, scene, camera, controls, THREE, signs, carBody, carCab, carLamp, carTail, ownerGroup, stars, beam };

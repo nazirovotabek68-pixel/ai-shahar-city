@@ -36,6 +36,7 @@ export default async function handler(req, res) {
     }
     const nick = clean(b.nick); if (!nick || !(await isResident(nick))) return res.status(400).json({ ok: false, error: 'nick' });
     let p = await getPlayer(nick); const today = day();
+    if (action === 'cardclear') { if (!isAdmin(b.admin)) return res.status(403).json({ ok: false, error: 'owner' }); await patch(nick, { card_title: null, card_cat: null, card_bio: null, card_link: null }); return res.status(200).json({ ok: true }); }
     if (action === 'unlink') { if (!isAdmin(b.admin)) return res.status(403).json({ ok: false, error: 'owner' }); if (p) await patch(nick, { uid: 'unlinked', recovery: null }); return res.status(200).json({ ok: true }); }
     if (action === 'recover') {
       if (!p || !p.recovery || hashCode(nick, b.code) !== p.recovery) return res.status(403).json({ ok: false, error: 'code' });
@@ -82,6 +83,16 @@ export default async function handler(req, res) {
       { const last = await sb(`/guestbook?author=eq.${encodeURIComponent(nick)}&select=created_at&order=id.desc&limit=1`); if (last[0] && Date.now() - Date.parse(last[0].created_at) < 20000) return res.status(429).json({ ok: false, error: 'slow' }); }
       await sb('/guestbook', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ target, author: nick, text }) });
       p = await patch(nick, { guest_day: today }); return res.status(200).json({ ok: true, player: pub(p) });
+    }
+    if (action === 'card') { // "my house = my business card"
+      const CATS = ['design', 'smm', 'dev', 'edu', 'shop', 'service', 'blog', 'ai', 'student', 'other'];
+      const cat = CATS.includes(b.cat) ? b.cat : 'other', title = String(b.title || '').replace(/\s+/g, ' ').trim().slice(0, 40), bio = String(b.bio || '').replace(/\s+/g, ' ').trim().slice(0, 160);
+      let link = String(b.link || '').trim();
+      const RUDE = /\b(blya|сука|хуй|пизд|ебан|qotoq|jalab|dalbayob|onangni)\w*/i; if (RUDE.test(title + ' ' + bio)) return res.status(400).json({ ok: false, error: 'rude' });
+      if (/https?:\/\/|www\./i.test(bio)) return res.status(400).json({ ok: false, error: 'biolink' });
+      if (link) { if (/^@[a-z0-9._]{1,30}$/i.test(link)) link = 'https://instagram.com/' + link.slice(1); else if (/^t\.me\//i.test(link)) link = 'https://' + link; else if (!/^https:\/\/[^\s]{4,200}$/i.test(link)) return res.status(400).json({ ok: false, error: 'link' }); }
+      if (!title) { p = await patch(nick, { card_title: null, card_cat: null, card_bio: null, card_link: null, card_at: null }); return res.status(200).json({ ok: true, player: pub(p) }); }
+      p = await patch(nick, { card_title: title, card_cat: cat, card_bio: bio || null, card_link: link || null, card_at: new Date().toISOString() }); return res.status(200).json({ ok: true, player: pub(p) });
     }
     if (action === 'tglink') { const code = crypto.randomBytes(6).toString('hex'); await patch(nick, { tg_link: code }); return res.status(200).json({ ok: true, code }); }
     if (action === 'buy') {
