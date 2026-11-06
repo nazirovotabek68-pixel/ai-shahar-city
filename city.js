@@ -230,9 +230,18 @@ const houseEmi = canvasTex(128, 128, (g, w, h) => { g.fillStyle = '#000'; g.fill
 const M = new THREE.Matrix4(), Q = new THREE.Quaternion(), S = new THREE.Vector3(), P = new THREE.Vector3(), E = new THREE.Euler(), COL = new THREE.Color(), YAX = new THREE.Vector3(0, 1, 0);
 const up = (g) => g.translate(0, 0.5, 0);
 let HLOG = null; const houseParts = [], houseOfInst = [];
+// ---- static collision grid (houses, towers, fences, trees…) used when driving your robot ----
+const CCELL = 8, CGRID = new Map(); const ckey = (cx, cz) => cx * 100003 + cz;
+function addColl(c) { for (let cx = Math.floor(c.x0 / CCELL); cx <= Math.floor(c.x1 / CCELL); cx++) for (let cz = Math.floor(c.z0 / CCELL); cz <= Math.floor(c.z1 / CCELL); cz++) { const k = ckey(cx, cz); (CGRID.get(k) || CGRID.set(k, []).get(k)).push(c); } }
+function remColl(c) { if (c) c.dead = true; }
+function collBox(x, y, z, sx, sy, sz, ry, base) { const y0 = base ? y : y - sy / 2, y1 = y0 + sy; if (y0 > 1.5 || y1 < 0.55 || sx < 0.12 || sz < 0.12) return null;
+  const cs = Math.abs(Math.cos(ry)), sn = Math.abs(Math.sin(ry)), hx = (cs * sx + sn * sz) / 2, hz = (sn * sx + cs * sz) / 2; if (hx > 70 || hz > 70) return null;
+  const c = { x0: x - hx, x1: x + hx, z0: z - hz, z1: z + hz }; addColl(c); return c; }
+function hitStatic(x, z, r) { const k = ckey(Math.floor(x / CCELL), Math.floor(z / CCELL)); for (let dx = -1; dx <= 1; dx++) for (let dz = -1; dz <= 1; dz++) { const l = CGRID.get(k + dx * 100003 + dz); if (!l) continue;
+  for (const c of l) if (!c.dead && x + r > c.x0 && x - r < c.x1 && z + r > c.z0 && z - r < c.z1) return true; } return false; }
 class Batch {
   constructor(geo, mat, cap, { cast = true, recv = true } = {}) { this.mesh = new THREE.InstancedMesh(geo, mat, cap); this.cap = cap; this.n = 0; this.mesh.count = 0; this.mesh.castShadow = SHADOWS && cast; this.mesh.receiveShadow = SHADOWS && recv; scene.add(this.mesh); }
-  add(x, y, z, sx, sy, sz, color, ry = 0, rx = 0, rz = 0) { if (this.n >= this.cap) return -1; const i = this.n++; if (HLOG) HLOG.push([this, i]); E.set(rx, ry, rz); Q.setFromEuler(E); M.compose(P.set(x, y, z), Q, S.set(sx, sy, sz)); this.mesh.setMatrixAt(i, M); this.mesh.setColorAt(i, COL.set(color)); return i; }
+  add(x, y, z, sx, sy, sz, color, ry = 0, rx = 0, rz = 0) { if (this.n >= this.cap) return -1; const i = this.n++; if (HLOG) HLOG.push([this, i]); E.set(rx, ry, rz); Q.setFromEuler(E); M.compose(P.set(x, y, z), Q, S.set(sx, sy, sz)); this.mesh.setMatrixAt(i, M); this.mesh.setColorAt(i, COL.set(color)); if (this.solid) { (this.col ||= [])[i] = collBox(x, y, z, sx, sy, sz, ry, this.solid === 1); } return i; }
   done() { this.mesh.count = this.n; this.mesh.instanceMatrix.needsUpdate = true; if (this.mesh.instanceColor) this.mesh.instanceColor.needsUpdate = true; this.mesh.computeBoundingSphere(); this.mesh.computeBoundingBox && this.mesh.computeBoundingBox(); }
 }
 const matStd = (o = {}) => new THREE.MeshStandardMaterial(Object.assign({ roughness: 0.85, metalness: 0.05 }, o));
@@ -248,6 +257,7 @@ const B = {
   glow: new Batch(new THREE.SphereGeometry(0.5, 10, 8), new THREE.MeshBasicMaterial({ toneMapped: false }), 6000, { cast: false, recv: false }),
   water: new Batch(up(new THREE.BoxGeometry(1, 1, 1)), matStd({ color: 0xffffff, roughness: 0.1, metalness: 0.2, transparent: true, opacity: 0.85 }), 1500, { cast: false }),
 };
+for (const k of ['box', 'cyl', 'cone', 'house', 'tower']) B[k].solid = 1;
 const box = (...a) => B.box.add(...a);
 const glowBase = []; // remember glow colours for day/night dimming
 function glow(x, y, z, s, color, nightOnly = true) { const i = B.glow.add(x, y, z, s, s, s, color); glowBase[i] = { c: new THREE.Color(color), nightOnly }; return i; }
@@ -600,6 +610,8 @@ function updateCars(t, dt) {
       const st = lightState(c.axis, t);
       if (st !== 'g') { const next = (Math.floor((c.s * c.dir) / PITCH + 0.5) + 0.5) * PITCH; const stop = next - (ROAD / 2 + 3); const dist = stop - c.s * c.dir; if (dist > -0.5 && dist < 7) target = Math.max(0, (dist - 0.5) * 2); }
       if (n > 0) { const lead = list[n - 1]; const gap = (lead.s - c.s) * c.dir, need = (lead.m.b[2] + c.m.b[2]) / 2 + 1.6; if (gap > 0 && gap < need + 3) target = Math.min(target, Math.max(0, (gap - need) * 2)); }
+      if (drive) { const lx = c.axis === 0 ? 0 : 1, rs = lx ? drive.z : drive.x, rl = lx ? drive.x : drive.z, laneC = c.axis === 0 ? c.line + (c.dir > 0 ? 2.6 : -2.6) : c.line + (c.dir > 0 ? -2.6 : 2.6);
+        if (Math.abs(rl - laneC) < c.m.b[0] / 2 + 0.9) { const gap = (rs - c.s) * c.dir - c.m.b[2] / 2 - 0.6; if (gap > -0.5 && gap < 9) target = Math.min(target, Math.max(0, gap * 1.6)); } }
       c.v += (target - c.v) * Math.min(1, dt * 2.5); c.s += c.v * c.dir * dt;
       if (c.s > cityExtent + 10) c.s = -cityExtent - 10; if (c.s < -cityExtent - 10) c.s = cityExtent + 10;
     });
@@ -609,7 +621,7 @@ function updateCars(t, dt) {
     if (c.hw) { c.s += c.speed * dt; const [hx, hz, side] = hwyPos(c.s * c.dir, c.lane, c.dir); x = hx; z = hz; ry = [Math.PI / 2, 0, -Math.PI / 2, Math.PI][side] + (c.dir < 0 ? Math.PI : 0); }
     else if (c.axis === 0) { x = c.s; z = c.line + (c.dir > 0 ? 2.6 : -2.6); ry = c.dir > 0 ? Math.PI / 2 : -Math.PI / 2; }
     else { z = c.s; x = c.line + (c.dir > 0 ? -2.6 : 2.6); ry = c.dir > 0 ? 0 : Math.PI; }
-    c.x = x; c.z = z; const m = c.m, [W, H, L] = m.b, [cw, ch, cl, co] = m.c, wr = m.wr, y0 = wr * 0.75, [dx, dz] = dirOf(ry), sx = dz, sz = -dx;
+    c.x = x; c.z = z; c.ax = Math.abs(Math.cos(ry)) > 0.5; const m = c.m, [W, H, L] = m.b, [cw, ch, cl, co] = m.c, wr = m.wr, y0 = wr * 0.75, [dx, dz] = dirOf(ry), sx = dz, sz = -dx;
     Q.setFromAxisAngle(YAX, ry); M.compose(P.set(x, y0, z), Q, S.set(W, H, L)); carBody.setMatrixAt(i, M);
     if (m.bus) M.compose(P.set(x + dx * co, y0 + H * 0.45, z + dz * co), Q, S.set(cw, ch, cl)); else if (m.van) M.compose(P.set(x + dx * co, y0 + H * 0.5, z + dz * co), Q, S.set(cw, ch, cl));
     else M.compose(P.set(x + dx * co, y0 + H, z + dz * co), Q, S.set(cw, ch, cl)); carCab.setMatrixAt(i, M);
@@ -1342,7 +1354,7 @@ function updateDonations(t, dt) {
 }
 const ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
 function rebuildHouse(i) { // swap a resident's house in place (used when a donation arrives)
-  for (const [b, idx] of houseParts[i] || []) { b.mesh.setMatrixAt(idx, ZERO); b.mesh.instanceMatrix.needsUpdate = true; }
+  for (const [b, idx] of houseParts[i] || []) { if (b.col) remColl(b.col[idx]); b.mesh.setMatrixAt(idx, ZERO); b.mesh.instanceMatrix.needsUpdate = true; }
   addHouse(i, specs[i].name); for (const b of Object.values(B)) b.done();
 }
 function initDonations() {
@@ -1365,10 +1377,20 @@ function buildRobotGroup(t) {
   return { g, pivots };
 }
 function setRobotHidden(sp, hidden) { for (const [k, i, m] of sp.parts || []) { RP[k].setMatrixAt(i, hidden ? ZERO : m); RP[k].instanceMatrix.needsUpdate = true; } }
+let sceneColl = false; const CB3 = new THREE.Box3();
+function collectSceneColliders() { if (sceneColl) return; sceneColl = true; scene.updateMatrixWorld(true);
+  const walk = (o) => { if (o.userData.noColl) return; if (o.isMesh && !o.isInstancedMesh && o.material && !o.material.isMeshBasicMaterial && !o.material.transparent) { CB3.setFromObject(o);
+      if (isFinite(CB3.min.x) && CB3.min.y < 1.5 && CB3.max.y > 0.55 && CB3.max.x - CB3.min.x < 140 && CB3.max.z - CB3.min.z < 140 && (CB3.max.x - CB3.min.x > 0.12) && (CB3.max.z - CB3.min.z > 0.12)) addColl({ x0: CB3.min.x, x1: CB3.max.x, z0: CB3.min.z, z1: CB3.max.z }); }
+    for (const ch of o.children) walk(ch); };
+  for (const ch of scene.children) walk(ch); }
+const RR = 0.42; // robot radius
+function hitCar(x, z) { for (const c of cars) { const dx = x - c.x, dz = z - c.z; if (dx * dx + dz * dz > 64) continue; const [W, , L] = c.m.b; const along = c.ax ? Math.abs(dz) : Math.abs(dx), across = c.ax ? Math.abs(dx) : Math.abs(dz);
+    if (along < L / 2 + RR && across < W / 2 + RR) return true; } return false; }
+const blocked = (x, z) => hitStatic(x, z, RR) || hitCar(x, z);
 function startDrive(sp) {
   if (GAME.me !== sp.name) { toast(T('driveOwn'), 6000); return; }
   if (drive) stopDrive(); stopTour();
-  const [x, z] = robotPos(sp, UTIME.value), { g, pivots } = buildRobotGroup(sp.traits); g.position.set(x, 0, z); scene.add(g);
+  collectSceneColliders(); const [x, z] = robotPos(sp, UTIME.value), { g, pivots } = buildRobotGroup(sp.traits); g.position.set(x, 0, z); scene.add(g);
   setRobotHidden(sp, true); drive = { sp, g, pivots, x, z, yaw: 0, phase: 0, speed: 0 }; sp.drv = drive;
   controls.enablePan = false; controls.mouseButtons.LEFT = THREE.MOUSE.ROTATE; controls.touches.ONE = THREE.TOUCH.ROTATE; controls.minDistance = 4; controls.rotateSpeed = MOBILE ? 0.9 : 0.7;
   selected = sp; follow = true; lastSel = null; labelAssignT = -9; $('#card').classList.remove('on'); document.body.classList.remove('cardopen'); document.body.classList.add('driving');
@@ -1386,7 +1408,9 @@ function updateDrive(dt) {
   const mag = Math.min(1, Math.hypot(ix, iy)); camera.getWorldDirection(DF); DF.y = 0; DF.normalize(); DR.crossVectors(DF, YAX).normalize();
   DM.set(0, 0, 0).addScaledVector(DF, -iy).addScaledVector(DR, ix); const target = mag > 0.08 ? 7.5 * mag : 0; drive.speed += (target - drive.speed) * Math.min(1, dt * 6);
   if (DM.lengthSq() > 0.001 && mag > 0.08) { DM.normalize(); const want = Math.atan2(DM.x, DM.z); let d = want - drive.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); drive.yaw += d * Math.min(1, dt * 10);
-    const lim = HWY + 400; drive.x = THREE.MathUtils.clamp(drive.x + DM.x * drive.speed * dt, -lim, lim); drive.z = THREE.MathUtils.clamp(drive.z + DM.z * drive.speed * dt, -lim, lim); }
+    const lim = HWY + 400, nx = THREE.MathUtils.clamp(drive.x + DM.x * drive.speed * dt, -lim, lim), nz = THREE.MathUtils.clamp(drive.z + DM.z * drive.speed * dt, -lim, lim);
+    const stuck = blocked(drive.x, drive.z); // already inside something (e.g. start spot) → let it walk out
+    if (stuck || !blocked(nx, nz)) { drive.x = nx; drive.z = nz; } else if (!blocked(nx, drive.z)) drive.x = nx; else if (!blocked(drive.x, nz)) drive.z = nz; else drive.speed *= 0.3; }
   drive.phase += drive.speed * dt * 2.4 / Math.max(0.9, drive.sp.traits.u); const amp = Math.min(1, drive.speed / 3);
   for (const [pv, sw] of drive.pivots) pv.rotation.x = Math.sin(drive.phase) * sw * (0.4 + amp * 0.8) * (drive.speed > 0.2 ? 1 : 0);
   drive.g.position.set(drive.x, Math.abs(Math.cos(drive.phase)) * 0.05 * amp, drive.z); drive.g.rotation.y = drive.yaw;
@@ -1513,7 +1537,7 @@ function sparkle(x, z, big) { FWC.set(big ? '#ff4fd8' : '#7fe3ff'); for (let k =
 // ---- pets that follow their robot ----
 const PETS = new Map();
 function makePet(kind, color) {
-  const g = new THREE.Group(), m = (c, met = 0.6) => matStd({ color: c, metalness: met, roughness: 0.35 }), body = m(color), dark = m('#2b2f35', 0.3), glowM = new THREE.MeshBasicMaterial({ color: 0x39ff88, toneMapped: false });
+  const g = new THREE.Group(); g.userData.noColl = true; const m = (c, met = 0.6) => matStd({ color: c, metalness: met, roughness: 0.35 }), body = m(color), dark = m('#2b2f35', 0.3), glowM = new THREE.MeshBasicMaterial({ color: 0x39ff88, toneMapped: false });
   const add = (geo, mat, x, y, z) => { const o = new THREE.Mesh(geo, mat); o.position.set(x, y, z); o.castShadow = SHADOWS; g.add(o); return o; };
   const cat = kind === 'cat', s = cat ? 0.85 : 1;
   add(new THREE.BoxGeometry(0.55 * s, 0.42 * s, 0.95 * s), body, 0, 0.58 * s, 0); const head = add(new THREE.BoxGeometry(0.46 * s, 0.4 * s, 0.42 * s), body, 0, 0.92 * s, 0.55 * s);
@@ -1669,4 +1693,4 @@ setTimeout(() => { $('#loader').style.opacity = 0; setTimeout(() => $('#loader')
 const hashNick = clean(decodeURIComponent(location.hash.slice(1) || ''));
 if (hashNick) setTimeout(() => { if (hashNick === OWNER) showOwner(); else if (index.has(hashNick)) select(specs[index.get(hashNick)]); else showNew(hashNick); }, 3800);
 checkGoals(false); initExtrasUI(); initDonations(); initDriveUI(); initChat(); initGame();
-window.__city = { reRobot, PLAYERS, CRYSTALS, startDrive, cars, recordReel, GOALS, goalSite, specs, B, RP, robotPos, UTIME, labelPool, scene, camera, controls, THREE, signs, carBody, carCab, carLamp, carTail, ownerGroup, stars, beam };
+window.__city = { hitStatic, blocked, getDrive: () => drive, CGRID, reRobot, PLAYERS, CRYSTALS, startDrive, cars, recordReel, GOALS, goalSite, specs, B, RP, robotPos, UTIME, labelPool, scene, camera, controls, THREE, signs, carBody, carCab, carLamp, carTail, ownerGroup, stars, beam };
