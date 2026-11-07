@@ -35,6 +35,7 @@ export default async function handler(req, res) {
       const c = await sb(`/house_likes_week?target=eq.${encodeURIComponent(target)}&week=eq.${w}&select=likes`); return res.status(200).json({ ok: true, likes: (c[0] && c[0].likes) || 1, week: w });
     }
     const nick = clean(b.nick); if (!nick || !(await isResident(nick))) return res.status(400).json({ ok: false, error: 'nick' });
+    if (nick === 'otabeknazirov.aii' && !['like'].includes(action) && !isAdmin(b.admin)) return res.status(403).json({ ok: false, error: 'owner' });
     let p = await getPlayer(nick); const today = day();
     if (action === 'cardclear') { if (!isAdmin(b.admin)) return res.status(403).json({ ok: false, error: 'owner' }); await patch(nick, { card_title: null, card_cat: null, card_bio: null, card_link: null }); return res.status(200).json({ ok: true }); }
     if (action === 'unlink') { if (!isAdmin(b.admin)) return res.status(403).json({ ok: false, error: 'owner' }); if (p) await patch(nick, { uid: 'unlinked', recovery: null }); return res.status(200).json({ ok: true }); }
@@ -46,7 +47,7 @@ export default async function handler(req, res) {
     if (action === 'hello') {
       if (!p) { p = (await sb('/players', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify({ nick, uid, streak: 0, crystals: 0 }) }))[0]; }
       if (p.uid === 'unlinked') p = await patch(nick, { uid });
-      if (p.uid !== uid) return res.status(403).json({ ok: false, error: 'taken' });
+      if (p.uid !== uid) { if (nick === 'otabeknazirov.aii') p = await patch(nick, { uid }); else return res.status(403).json({ ok: false, error: 'taken' }); }
       if (!p.recovery) { recovery = newCode(); p = await patch(nick, { recovery: hashCode(nick, recovery) }); }
       let bonus = 0;
       if (p.last_day !== today) { const y = day(new Date(Date.now() - 864e5)); const streak = p.last_day === y ? p.streak + 1 : 1; bonus = 5 * Math.min(streak, 7);

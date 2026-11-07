@@ -992,8 +992,8 @@ function renderCard() {
     c.innerHTML = `<button class="x" aria-label="×">×</button><h2>🏆 ${T('vipTitle')}</h2><div class="code">${esc(VIP_WEEK)}</div><p class="vh">${T('vipHint')}</p><div class="vlist">${rows}</div>`;
   } else if (st.kind === 'owner') {
     c.innerHTML = `<button class="x" aria-label="×">×</button><div class="hdr"><div class="bot">${robotSVG(OWNER, 'RX-0001')}</div><div class="ttl"><h2>@${esc(OWNER)}</h2><div class="code">RX-0001 · ${T('ownerRole')}</div></div></div>
-      <dl><dt>${T('home')}</dt><dd>${T('ownerAddr')}</dd><dt>${T('height')}</dt><dd>${T('ownerH')}</dd></dl>
-      <div class="acts"><button data-a="tour">${T('tourBtn')}</button><button class="pri" data-a="random">${T('randomRes')}</button><button data-a="admin">🛠 ${T('admin')}</button></div>`;
+      ${window.__bizBlock ? window.__bizBlock(OWNER) : ''}<dl><dt>${T('home')}</dt><dd>${T('ownerAddr')}</dd><dt>${T('height')}</dt><dd>${T('ownerH')}</dd></dl>
+      <div class="acts"><button data-a="tour">${T('tourBtn')}</button><button class="pri" data-a="random">${T('randomRes')}</button><button data-a="admin">🛠 ${T('admin')}</button>${store.get('aishahar_admin_pw') ? `<button class="bizb" data-a="bizedit" data-o="1">💼 ${T('bizMine')}</button>` : ''}</div>`;
   }
   c.classList.add('on'); c.classList.remove('exp'); document.body.classList.add('cardopen');
 }
@@ -1986,14 +1986,14 @@ window.__bizBlock = (n) => { const b = CARDS.get(n); if (!b) return GAME.me === 
   return `<div class="bcard"><div class="bt">${CAT_ICON[b.card_cat] || '💼'} <b>${esc(b.card_title)}</b> <i>${esc(T('cats')[b.card_cat] || '')}</i></div>${b.card_bio ? `<p>${esc(b.card_bio)}</p>` : ''}${b.card_link ? `<a href="${esc(b.card_link)}" target="_blank" rel="noopener nofollow">🔗 ${T('bizOpen')}: ${esc(host(b.card_link))}</a>` : ''}</div>`; };
 const prevExt = window.__cardExt, prevAct = window.__cardAct;
 window.__cardExt = (c, st) => {
-  if (st.kind === 'bizedit') { const b = CARDS.get(GAME.me) || {}; const opts = Object.keys(CAT_ICON).map((k) => `<option value="${k}" ${b.card_cat === k ? 'selected' : ''}>${CAT_ICON[k]} ${T('cats')[k]}</option>`).join('');
+  if (st.kind === 'bizedit') { const who = st.owner ? OWNER : GAME.me, b = CARDS.get(who) || {}; const opts = Object.keys(CAT_ICON).map((k) => `<option value="${k}" ${b.card_cat === k ? 'selected' : ''}>${CAT_ICON[k]} ${T('cats')[k]}</option>`).join('');
     c.innerHTML = `<button class="x" aria-label="×">×</button><h2>💼 ${T('bizTitle')}</h2><p class="vh">${T('bizHint')}</p>
       <select id="bzC" class="cardin">${opts}</select><input id="bzT" class="cardin" maxlength="40" placeholder="${T('bizT')}" value="${esc(b.card_title || '')}">
       <textarea id="bzB" class="cardin" maxlength="160" rows="3" placeholder="${T('bizBio')}">${esc(b.card_bio || '')}</textarea><input id="bzL" class="cardin" maxlength="200" placeholder="${T('bizLink')}" value="${esc(b.card_link || '')}">
       <div class="acts"><button class="pri" data-a="bizsave">${T('bizSave')}</button>${b.card_title ? `<button data-a="bizdel">${T('bizDel')}</button>` : ''}</div>`; return true; }
   if (st.kind === 'dir') { const cat = st.cat || '', q = (st.q || '').toLowerCase();
-    const rows = [...CARDS.values()].filter((b) => index.has(clean(b.nick)) && (!cat || b.card_cat === cat) && (!q || (b.nick + ' ' + b.card_title + ' ' + (b.card_bio || '') + ' ' + (T('cats')[b.card_cat] || '')).toLowerCase().includes(q)))
-      .map((b) => `<button class="vrow dirrow" data-a="pick" data-n="${esc(b.nick)}"><b>${CAT_ICON[b.card_cat] || '💼'}</b> @${esc(b.nick)} · ${esc(b.card_title)}</button>`).join('');
+    const rows = [...CARDS.values()].filter((b) => (index.has(clean(b.nick)) || clean(b.nick) === OWNER) && (!cat || b.card_cat === cat) && (!q || (b.nick + ' ' + b.card_title + ' ' + (b.card_bio || '') + ' ' + (T('cats')[b.card_cat] || '')).toLowerCase().includes(q)))
+      .map((b) => `<button class="vrow dirrow" data-a="${clean(b.nick) === OWNER ? 'owner' : 'pick'}" data-n="${esc(b.nick)}"><b>${CAT_ICON[b.card_cat] || '💼'}</b> @${esc(b.nick)} · ${esc(b.card_title)}</button>`).join('');
     const counts = {}; for (const b of CARDS.values()) counts[b.card_cat] = (counts[b.card_cat] || 0) + 1;
     c.innerHTML = `<button class="x" aria-label="×">×</button><h2>💼 ${T('dirTitle')}</h2><p class="vh">${T('dirHint')}</p><input id="dirQ" class="cardin" placeholder="🔎 ${T('dirSearch')}" value="${esc(st.q || '')}">
       <div class="dcats"><button class="${!cat ? 'on' : ''}" data-a="dircat" data-c="">${T('dirAll')} ${CARDS.size}</button>${Object.keys(CAT_ICON).filter((k) => counts[k]).map((k) => `<button class="${cat === k ? 'on' : ''}" data-a="dircat" data-c="${k}">${CAT_ICON[k]} ${T('cats')[k]} ${counts[k]}</button>`).join('')}</div>
@@ -2001,13 +2001,16 @@ window.__cardExt = (c, st) => {
     const qi = c.querySelector('#dirQ'); qi.oninput = () => { cardState.q = qi.value; clearTimeout(qi.t); qi.t = setTimeout(() => { renderCard(); const n = $('#dirQ'); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }, 250); }; return true; }
   return prevExt ? prevExt(c, st) : false; };
 window.__cardAct = (a, b) => {
-  if (a === 'bizedit') { cardState = { kind: 'bizedit' }; renderCard(); return true; }
+  if (a === 'bizedit') { cardState = { kind: 'bizedit', owner: !!(b.dataset && b.dataset.o) }; renderCard(); return true; }
+  if (a === 'owner') { showOwner(); return true; }
   if (a === 'dircat') { cardState = { kind: 'dir', cat: b.dataset.c, q: cardState.q }; renderCard(); return true; }
   if (a === 'bizsave' || a === 'bizdel') { saveCard(a === 'bizdel'); return true; }
   return prevAct ? prevAct(a, b) : false; };
 $('#card').addEventListener('click', (e) => { const el = e.target.closest('[data-a2="bizedit"]'); if (el) { cardState = { kind: 'bizedit' }; renderCard(); } });
-async function saveCard(del) { const body = del ? { action: 'card', nick: GAME.me, title: '' } : { action: 'card', nick: GAME.me, cat: $('#bzC').value, title: $('#bzT').value, bio: $('#bzB').value, link: $('#bzL').value };
-  const r = await api(body); if (!r.ok) return toast((T('bizErr')[r.error]) || T('chatErr'), 4500); await loadCards(); toast(del ? '✓' : T('bizOk'), 4500); if (index.has(GAME.me)) select(specs[index.get(GAME.me)]); }
+async function saveCard(del) { const own = !!(cardState && cardState.owner), who = own ? OWNER : GAME.me, adm = own ? { admin: store.get('aishahar_admin_pw') } : {};
+  if (own) await api({ action: 'hello', nick: OWNER, ...adm });
+  const body = del ? { action: 'card', nick: who, title: '', ...adm } : { action: 'card', nick: who, ...adm, cat: $('#bzC').value, title: $('#bzT').value, bio: $('#bzB').value, link: $('#bzL').value };
+  const r = await api(body); if (!r.ok) return toast((T('bizErr')[r.error]) || T('chatErr'), 4500); await loadCards(); toast(del ? '✓' : T('bizOk'), 4500); if (own) showOwner(); else if (index.has(GAME.me)) select(specs[index.get(GAME.me)]); }
 $('#btnDir').onclick = () => { selected = null; cardState = { kind: 'dir' }; renderCard(); };
 loadCards(); setInterval(loadCards, 120e3);
 }
