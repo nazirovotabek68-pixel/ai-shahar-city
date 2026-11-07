@@ -1981,7 +1981,7 @@ const I9 = {
 for (const l of Object.keys(I18N)) Object.assign(I18N[l], I9[l] || I9.en);
 const host = (u) => { try { const h = new URL(u).hostname.replace(/^www\./, ''); const p = new URL(u).pathname.replace(/\/$/, ''); return h === 'instagram.com' ? '@' + p.slice(1) : h === 't.me' ? 't.me' + p : h; } catch (e) { return u; } };
 async function loadCards() { try { const c = await sb(); if (!c) return; const { data } = await c.from('players').select('nick,card_title,card_cat,card_bio,card_link').not('card_title', 'is', null).limit(1000);
-  CARDS.clear(); for (const r of data || []) CARDS.set(clean(r.nick), r); labelTexCache.clear(); labelAssignT = -9; } catch (e) {} }
+  CARDS.clear(); for (const r of data || []) CARDS.set(clean(r.nick), r); } catch (e) {} finally { if (!CARDS.has(OWNER) && CFG.ownerCard) CARDS.set(OWNER, { nick: OWNER, ...CFG.ownerCard }); labelTexCache.clear(); labelAssignT = -9; } }
 window.__bizBlock = (n) => { const b = CARDS.get(n); if (!b) return GAME.me === n ? `<div class="bcard empty" data-a2="bizedit">${T('bizInvite')}</div>` : '';
   return `<div class="bcard"><div class="bt">${CAT_ICON[b.card_cat] || '💼'} <b>${esc(b.card_title)}</b> <i>${esc(T('cats')[b.card_cat] || '')}</i></div>${b.card_bio ? `<p>${esc(b.card_bio)}</p>` : ''}${b.card_link ? `<a href="${esc(b.card_link)}" target="_blank" rel="noopener nofollow">🔗 ${T('bizOpen')}: ${esc(host(b.card_link))}</a>` : ''}</div>`; };
 const prevExt = window.__cardExt, prevAct = window.__cardAct;
