@@ -21,6 +21,8 @@ const ADMIN = (() => { try { if (QS.has('admin')) localStorage.setItem('aishahar
 const snowy = (c, k = 0.82) => SEASON === 'winter' ? '#' + new THREE.Color(c).lerp(new THREE.Color('#eef3f7'), k).getHexString() : c;
 const LITE = MOBILE || /[?&]lite/.test(location.search) || (() => { try { return localStorage.getItem('aishahar_lite') === '1'; } catch (e) { return false; } })();
 const OWNER = CFG.owner;
+// RX-0001: shahar asoschisining noyob ko'rinishi (oltin xrom + neon ko'zlar)
+const OWNER_LOOK = { f: false, g: 'm', u: 1, vip: 0, santa: false, eq: {}, cap: false, hairStyle: 'none', phones: false, glasses: false, backpack: false, bag: false, watch: true, tie: true, shorts: false, style: 'suit', top: '#0b1020', jacket: '#07080d', bottom: '#07080d', shoe: '#d4af37', eye: '#00e5ff', led: '#00e5ff', metal: '#e3b64b' };
 
 // ======================= i18n =======================
 const I18N = {
@@ -880,7 +882,7 @@ function updateLabels(t) {
 
 // ======================= robot avatar SVG =======================
 function robotSVG(name, codeOverride) {
-  const t = traits(name), id = 'g' + hash(name), m = t.metal, e = t.eye;
+  const isO = name === OWNER, t = isO ? Object.assign(traits(name), OWNER_LOOK) : traits(name), id = 'g' + hash(name), m = t.metal, e = t.eye;
   const code = codeOverride || ('RX-' + String(hash(name + 'rx') % 9000 + 1000));
   let s = `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="${id}" cx=".4" cy=".35"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="${m}"/><stop offset="1" stop-color="#5b6470"/></radialGradient></defs>`;
   s += `<rect x="40" y="112" width="80" height="48" rx="18" fill="${t.top}"/>`;
@@ -894,6 +896,7 @@ function robotSVG(name, codeOverride) {
   if (t.glasses) s += `<rect x="50" y="62" width="60" height="9" rx="4" fill="#000" opacity=".85"/>`;
   if (t.phones) s += `<path d="M40 64 Q40 22 80 22 Q120 22 120 64" stroke="#2b2f35" stroke-width="5" fill="none"/><rect x="34" y="58" width="12" height="20" rx="5" fill="#1c1f24"/><rect x="114" y="58" width="12" height="20" rx="5" fill="#1c1f24"/>`;
   if (t.f) s += `<circle cx="44" cy="80" r="3" fill="#ffd166"/><circle cx="116" cy="80" r="3" fill="#ffd166"/>`;
+  if (isO) s += `<ellipse cx="80" cy="14" rx="30" ry="6" fill="none" stroke="#ffd84d" stroke-width="3.5"/>` + [52, 66, 80, 94, 108].map((x, k) => `<path d="M${x - 6} 34 L${x} ${k === 2 ? 14 : 22} L${x + 6} 34Z" fill="#ffd84d"/>`).join('') + `<circle cx="80" cy="124" r="6" fill="#00e5ff"/><path d="M18 150 Q8 100 34 70 M142 150 Q152 100 126 70" stroke="#00e5ff" stroke-width="3" fill="none" opacity=".7"/>`;
   s += `<rect x="56" y="126" width="48" height="22" rx="7" fill="#0b1020"/><text x="80" y="141" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="${e}">${code}</text></svg>`;
   return s;
 }
@@ -1626,6 +1629,49 @@ if (!LITE) { composer = new EffectComposer(renderer); composer.addPass(new Rende
     fragmentShader: 'uniform sampler2D tDiffuse; varying vec2 vUv; void main(){ vec4 c = texture2D(tDiffuse, vUv); bvec4 n = isnan(c); bvec4 f = isinf(c); if (any(n) || any(f)) c = vec4(0.0, 0.0, 0.0, 1.0); gl_FragColor = clamp(c, 0.0, 32.0); }' }));
   bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.6, 0.4, 0.85); composer.addPass(bloom); composer.addPass(new OutputPass()); }
 const ownerGroup = new THREE.Group();
+
+// ---- RX-0001 maxsus effektlari: toj, halo, energiya qanotlari, AI yadro, orbitalar, osmon nuri ----
+const OFX = { spin: [], orbs: [], pulse: [], wings: [], beam: null, floor: null };
+function buildOwnerFX() {
+  const glow = (c, o = 1) => new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: o, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, toneMapped: false });
+  const gold = new THREE.MeshStandardMaterial({ color: '#ffd84d', metalness: 0.5, roughness: 0.25, emissive: '#ffb000', emissiveIntensity: 0.9 });
+  const G = ownerGroup;
+  // toj (crown)
+  for (let k = 0; k < 7; k++) { const a = k / 7 * Math.PI * 2, tall = k === 0 ? 0.34 : 0.22; const c = new THREE.Mesh(new THREE.ConeGeometry(0.06, tall, 6), gold); c.position.set(Math.sin(a) * 0.24, 3.28 + tall / 2, Math.cos(a) * 0.24); G.add(c); }
+  const band = new THREE.Mesh(new THREE.TorusGeometry(0.25, 0.035, 8, 32), gold); band.rotation.x = Math.PI / 2; band.position.y = 3.27; G.add(band);
+  const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.07), glow('#00e5ff')); gem.position.set(0, 3.33, 0.26); G.add(gem); OFX.pulse.push(gem);
+  // halo
+  const halo = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.03, 8, 48), glow('#fff1a8')); halo.rotation.x = Math.PI / 2; halo.position.y = 3.85; G.add(halo); OFX.spin.push([halo, 'z', 0.8]);
+  // AI yadro (ko'krakdagi reaktor)
+  const core = new THREE.Mesh(new THREE.SphereGeometry(0.11, 20, 14), glow('#00e5ff')); core.position.set(0, 1.62, 0.25); G.add(core); OFX.pulse.push(core);
+  const coreR = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.02, 6, 28), gold); coreR.position.copy(core.position); G.add(coreR);
+  // energiya qanotlari
+  for (const side of [-1, 1]) for (let k = 0; k < 5; k++) {
+    const len = 1.5 - k * 0.18, w = new THREE.Mesh(new THREE.BoxGeometry(0.07, len, 0.02).translate(0, len / 2, 0), glow(k % 2 ? '#ffd84d' : '#00e5ff', 0.75));
+    const piv = new THREE.Group(); piv.position.set(side * 0.18, 2.05, -0.3); piv.rotation.set(-0.25, side * 0.15, -side * (0.45 + k * 0.32)); piv.add(w); G.add(piv); OFX.wings.push([piv, side, k]);
+  }
+  // golografik orbitalar
+  [['#00e5ff', 1.25, 0.5, 0.6], ['#ffd84d', 1.45, -0.7, -0.45], ['#a78bff', 1.1, 1.2, 0.9]].forEach(([c, r, tilt, sp]) => {
+    const g = new THREE.Group(); g.position.y = 1.8; g.rotation.x = tilt; const ring = new THREE.Mesh(new THREE.TorusGeometry(r, 0.012, 6, 96), glow(c, 0.7)); ring.rotation.x = Math.PI / 2; g.add(ring);
+    const dot = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 8), glow(c)); dot.position.set(r, 0, 0); g.add(dot); G.add(g); OFX.spin.push([g, 'y', sp]); });
+  // uchib yuruvchi energiya sharlari
+  for (let k = 0; k < 10; k++) { const o = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 6), glow(k % 2 ? '#ffd84d' : '#39ff88')); G.add(o); OFX.orbs.push([o, k]); }
+  // osmonga ketuvchi oltin nur + poldagi aylanuvchi doira
+  OFX.beam = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 1.4, 260, 20, 1, true).translate(0, 130, 0), glow('#ffd84d', 0.1)); OFX.beam.position.set(0, 20, 0); scene.add(OFX.beam);
+  OFX.floor = new THREE.Group(); OFX.floor.position.set(0, 0.75, 0);
+  for (const [r0, r1, c] of [[5.3, 5.6, '#ffd84d'], [6.2, 6.35, '#00e5ff'], [3.6, 3.75, '#00e5ff']]) { const m = new THREE.Mesh(new THREE.RingGeometry(r0, r1, 72), glow(c, 0.8)); m.rotation.x = -Math.PI / 2; OFX.floor.add(m); }
+  for (let k = 0; k < 12; k++) { const a = k / 12 * Math.PI * 2, m = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.02, 0.18), glow('#ffd84d', 0.9)); m.position.set(Math.cos(a) * 4.6, 0.01, Math.sin(a) * 4.6); m.rotation.y = -a; OFX.floor.add(m); }
+  scene.add(OFX.floor);
+}
+function updateOwnerFX(t) {
+  ownerGroup.position.y = 1.6 + Math.sin(t * 1.1) * 0.5;
+  for (const [m, ax, sp] of OFX.spin) m.rotation[ax] += sp * 0.016;
+  for (const m of OFX.pulse) { const s = 1 + Math.sin(t * 4) * 0.25; m.scale.setScalar(s); }
+  for (const [o, k] of OFX.orbs) { const a = t * (0.5 + (k % 3) * 0.2) + k * 0.63, r = 1.7 + (k % 4) * 0.15; o.position.set(Math.cos(a) * r, 0.6 + ((k * 0.37 + t * 0.25) % 3), Math.sin(a) * r); }
+  for (const [p, side, k] of OFX.wings) p.rotation.z = -side * (0.45 + k * 0.32 + Math.sin(t * 2 + k * 0.4) * 0.07);
+  if (OFX.floor) OFX.floor.rotation.y = -t * 0.15;
+  if (OFX.beam) OFX.beam.material.opacity = 0.07 + Math.sin(t * 1.5) * 0.03;
+}
 function frame() {
   const dt = Math.min(clock.getDelta(), 0.05); UTIME.value += dt; const t = UTIME.value;
   if (Math.abs(themeTarget - themeK) > 0.001) { themeK += Math.sign(themeTarget - themeK) * Math.min(Math.abs(themeTarget - themeK), dt / 1.4); applyTheme(themeK); }
@@ -1643,6 +1689,7 @@ function frame() {
   if (SHADOWS) { sun.target.position.copy(controls.target); sun.position.copy(controls.target).addScaledVector(SUN_DIR, 400); const d = THREE.MathUtils.clamp(camera.position.distanceTo(controls.target) * 1.2, 60, 260); const c = sun.shadow.camera; if (Math.abs(c.right - d) > 5) { c.left = -d; c.right = d; c.top = d; c.bottom = -d; c.updateProjectionMatrix(); } }
   updateCars(t, dt); updateLights(t); updateLabels(t); drawMap(t); updateExtras(t, dt); updateDonations(t, dt); updateDrive(dt); updateChatBubbles(t); updateGame(t, dt); if (window.__v7u) window.__v7u(t, dt);
   ownerGroup.rotation.y = Math.sin(t * 0.2) * 0.5;
+  updateOwnerFX(t);
   if (beam.visible) { const cd = camera.position.distanceTo(controls.target); beam.material.opacity = (0.14 + Math.sin(t * 3) * 0.06) * THREE.MathUtils.clamp((cd - 25) / 60, 0, 1); const s = 1 + (t % 1.4) * 0.9; hring.scale.set(s, s, s); hring.material.opacity = 1 - (t % 1.4) / 1.4; }
   if (composer) composer.render(); else renderer.render(scene, camera);
   requestAnimationFrame(frame);
@@ -1687,10 +1734,11 @@ buildCrystals(); for (const sp of specs) syncPet(sp); placeWeekTrophy();
 { const firstFree = specs.length; const freeBlocks = new Set(); for (let i = firstFree; i < CAP_RES; i++) freeBlocks.add(Math.floor(i / HPB));
   let c = 0; for (const bi of freeBlocks) { if (c++ > 6) break; const b = resBlocks[bi]; const ry = faceToCentre(b.cx, b.cz); const [fx, fz] = dirOf(ry); addSign('free', b.cx + fx * 2, 2.2, b.cz + fz * 2, 7, ry, '#39ff88', '#04140b'); } }
 // owner: giant robot in the plaza
-{ const t = Object.assign(traits(OWNER), { f: false, g: 'm', u: 1, cap: false, hairStyle: 'short', phones: true, glasses: false, backpack: false, bag: false, style: 'suit', top: '#0b1020', jacket: '#111827', bottom: '#111827', eye: '#39ff88', led: '#39ff88', metal: '#e8ebef' });
+{ const t = Object.assign(traits(OWNER), OWNER_LOOK);
   const geos = {}; for (const [k, [g, m]] of Object.entries(RKINDS)) geos[k] = { g: g(), m: m() };
-  robotParts(t, (k, x, y, z, sx, sy, sz, c, piv, swing, ry, rz) => { const mat = geos[k].m.clone(); mat.color = new THREE.Color(c); const mesh = new THREE.Mesh(geos[k].g, mat); mesh.position.set(x, y, z); mesh.scale.set(sx, sy, sz); mesh.rotation.set(0, ry, rz); mesh.castShadow = SHADOWS; ownerGroup.add(mesh); });
+  robotParts(t, (k, x, y, z, sx, sy, sz, c, piv, swing, ry, rz) => { if (c === '#8e1b1b') c = '#ffd84d'; const mat = geos[k].m.clone(); mat.color = new THREE.Color(c); if (k[0] === 'm' && c === OWNER_LOOK.metal) { mat.metalness = 0.55; mat.roughness = 0.28; mat.emissive = new THREE.Color('#8a5a00'); mat.emissiveIntensity = 0.55; } const mesh = new THREE.Mesh(geos[k].g, mat); mesh.position.set(x, y, z); mesh.scale.set(sx, sy, sz); mesh.rotation.set(0, ry, rz); mesh.castShadow = SHADOWS; ownerGroup.add(mesh); });
   ownerGroup.scale.setScalar(5); ownerGroup.position.set(0, 1.1, 0); scene.add(ownerGroup);
+  buildOwnerFX();
   B.cyl.add(0, 0.3, 0, 9, 0.8, 9, '#30353d'); }
 for (const b of Object.values(B)) b.done();
 refreshRobots(); makeLabels(); drawMapStatic();
