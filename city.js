@@ -9,7 +9,7 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 
 // ======================= error overlay (shows the real reason if something breaks) =======================
 const __errs = [];
-function showErr(msg) { __errs.push(String(msg).slice(0, 400)); let el = document.getElementById('errbox'); if (!el) { el = document.createElement('pre'); el.id = 'errbox'; el.style.cssText = 'position:fixed;left:8px;right:8px;bottom:90px;z-index:99;max-height:40vh;overflow:auto;background:#300;color:#fdd;font:12px monospace;padding:10px;border-radius:8px;white-space:pre-wrap'; document.body.appendChild(el); } el.textContent = 'XATO / ERROR:\n' + __errs.join('\n---\n'); }
+function showErr(msg) { msg = String(msg); if (/Load failed|Failed to fetch|NetworkError|network error|aborted|AbortError|ResizeObserver|Script error\.?\s*@:0/i.test(msg)) { console.warn(msg); return; } if (window.__cityReady) { console.error(msg); return; } __errs.push(msg.slice(0, 400)); let el = document.getElementById('errbox'); if (!el) { el = document.createElement('pre'); el.id = 'errbox'; el.onclick = () => el.remove(); el.style.cssText = 'position:fixed;left:8px;right:8px;bottom:90px;z-index:99;max-height:40vh;overflow:auto;background:#300;color:#fdd;font:12px monospace;padding:10px;border-radius:8px;white-space:pre-wrap'; document.body.appendChild(el); } el.textContent = 'XATO / ERROR:\n' + __errs.join('\n---\n'); }
 addEventListener('error', (e) => showErr((e.message || '') + ' @' + (e.filename || '').split('/').pop() + ':' + e.lineno));
 addEventListener('unhandledrejection', (e) => showErr('promise: ' + (e.reason && (e.reason.stack || e.reason.message) || e.reason)));
 const CFG = Object.assign({ owner: 'otabeknazirov.aii', supabaseUrl: '', supabaseAnonKey: '', table: 'residents_claims', residentsTable: 'residents', overridesTable: 'robot_overrides', timezone: 'Asia/Tashkent', siteUrl: 'https://ai-shahar-city.vercel.app', botUsername: '' }, window.AISHAHAR_CONFIG || {});
@@ -2015,4 +2015,5 @@ $('#btnDir').onclick = () => { selected = null; cardState = { kind: 'dir' }; ren
 loadCards(); setInterval(loadCards, 120e3);
 }
 
+window.__cityReady = true; { const eb = document.getElementById('errbox'); if (eb) eb.remove(); }
 window.__city = { hitStatic, blocked, getDrive: () => drive, CGRID, reRobot, PLAYERS, CRYSTALS, startDrive, cars, recordReel, GOALS, goalSite, specs, B, RP, robotPos, UTIME, labelPool, scene, camera, controls, THREE, signs, carBody, carCab, carLamp, carTail, ownerGroup, stars, beam };
