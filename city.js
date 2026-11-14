@@ -1322,18 +1322,38 @@ function buildAirport(x, z) {
   const capm = new THREE.Mesh(new THREE.CylinderGeometry(4, 13, 4, 10), matStd({ color: 0xf2f4f7, flatShading: true })); capm.position.set(CT[0], 9 + 98, CT[1]); scene.add(capm);
   B.cyl.add(CT[0], 9 + 100, CT[1], 0.5, 12, 0.5, '#d0d4da'); glow(CT[0], 9 + 112.5, CT[1], 1.6, '#ff3b3b', false);
   const beacon = new THREE.Mesh(new THREE.SphereGeometry(1.3, 12, 8), new THREE.MeshBasicMaterial({ color: 0x39ff88, toneMapped: false })); beacon.position.set(CT[0], 9 + 101, CT[1]); scene.add(beacon);
-  // ---------- metro (elevated line into the terminal) ----------
-  const MZ = z + 205, MY = 16, MX0 = HWY + 10, MX1 = TX0 + 4;
-  box((MX0 + MX1) / 2, MY - 1.4, MZ, MX1 - MX0, 1.4, 9, '#9aa1a8'); for (let s = MX0 + 8; s < MX1; s += 24) B.cyl.add(s, 0, MZ, 1.8, MY - 1.4, 1.8, '#b3b9bf');
-  B.tower.add(TX0 - 2, MY - 1.4, MZ, 40, 9, 22, '#9cc3e0'); addSign(() => 'Ⓜ METRO', TX0 - 22.2, MY + 10, MZ, 14, -Math.PI / 2, '#ce1126', '#ffffff');
-  const train = new THREE.Group(); for (let i = 0; i < 4; i++) { const car = new THREE.Mesh(new THREE.BoxGeometry(13, 3.4, 3.2), matStd({ color: 0xeef1f4, metalness: 0.3 })); car.position.x = i * 13.6; train.add(car); const st = new THREE.Mesh(new THREE.BoxGeometry(13.05, 0.8, 3.25), new THREE.MeshBasicMaterial({ color: 0xce1126 })); st.position.set(i * 13.6, 0.4, 0); train.add(st); }
-  train.position.set(MX0, MY + 1.7, MZ); scene.add(train);
+  // ---------- Aeroport ekspressi: twin-track elevated rail from the city into its own station ----------
+  const MZ = z + 205, MY = 16, PX = HWY + 46, RX1 = PX + 76, SX0 = x + 62, SX1 = x + 134, SCX = (SX0 + SX1) / 2;
+  const railY = (px) => px < PX ? -6 : px < RX1 ? (px - PX) / (RX1 - PX) * MY : MY;
+  box(PX - 5, 0, MZ, 10, 8, 16, '#7d858e'); box(PX - 0.2, 0, MZ, 0.4, 6, 12, '#0a0c10'); box(PX - 5, 8, MZ, 12, 1.2, 18, '#5d646c');      // tunnel portal
+  for (const sz of [-8.4, 8.4]) box((PX + RX1) / 2, 0, MZ + sz, RX1 - PX, 0.01 + 0, 0.6, '#5d646c');
+  { const L = Math.hypot(RX1 - PX, MY), a = Math.atan2(MY, RX1 - PX); box((PX + RX1) / 2, MY / 2 - 1.3, MZ, L + 1, 1.3, 12, '#9aa1a8', 0, 0, a);
+    for (const sz of [-5.6, 5.6]) box((PX + RX1) / 2, MY / 2 - 0.1, MZ + sz, L + 1, 1, 0.4, '#d5dade', 0, 0, a);
+    for (const tz of [-2.6, 2.6]) for (const rz of [-0.75, 0.75]) B.paint.add((PX + RX1) / 2, MY / 2 - 0.05, MZ + tz + rz, L, 0.12, 0.22, '#4d535b', 0, 0, a); }
+  box((RX1 + SX0) / 2, MY - 1.3, MZ, SX0 - RX1, 1.3, 12, '#9aa1a8');
+  for (const sz of [-5.6, 5.6]) box((RX1 + SX0) / 2, MY, MZ + sz, SX0 - RX1, 1, 0.4, '#d5dade');
+  for (const tz of [-2.6, 2.6]) for (const rz of [-0.75, 0.75]) B.paint.add((RX1 + SX0) / 2 + 30, MY + 0.02, MZ + tz + rz, SX0 - RX1 + 60, 0.08, 0.22, '#4d535b');
+  for (let s = PX + 30; s < SX0; s += 22) { const h = railY(s) - 1.3; if (h < 2) continue; B.cyl.add(s, 0, MZ, 1.7, h - 1.2, 1.7, '#c3c8ce'); box(s, h - 1.2, MZ, 2.6, 1.2, 11, '#c3c8ce'); }
+  for (let s = PX + 10; s < SX0; s += 26) glow(s, railY(s) + 3.2, MZ + 5.6, 0.5, '#39ff88');
+  // station: glass concourse at ground, open platform deck under a green arched canopy, sky bridge to the terminal
+  B.tower.add(SCX, 0, MZ, SX1 - SX0, MY - 1.4, 46, '#9cc3e0'); box(SCX, MY - 1.4, MZ, SX1 - SX0, 1.4, 46, '#9aa1a8');
+  for (const sz of [-5.2, 5.2]) box(SCX, MY, MZ + sz, SX1 - SX0 - 4, 1.1, 3.4, '#e9edf2');                                    // platforms
+  for (let s = SX0 + 4; s <= SX1 - 4; s += 11) for (const sz of [-21, 21]) B.cyl.add(s, MY, MZ + sz, 0.9, 10, 0.9, '#e9edf2');
+  { const can = new THREE.Mesh(new THREE.CylinderGeometry(24, 24, SX1 - SX0 + 6, 28, 1, true, 0, Math.PI), matStd({ color: 0x2e9d6a, roughness: 0.3, metalness: 0.3, side: THREE.DoubleSide }));
+    can.rotation.z = Math.PI / 2; can.scale.set(0.42, 1, 1); can.position.set(SCX, MY + 10, MZ); can.castShadow = SHADOWS; scene.add(can); }
+  box(SCX, 6, (z + 162 + MZ - 23) / 2, 10, 4.5, MZ - 23 - z - 162, '#a9d1ec');                                                // sky bridge
+  addSign(LTXT('🚆 AEROPORT EKSPRESSI', ['🚆 АЭРОЭКСПРЕСС', '🚆 AIRPORT EXPRESS']), SX0 - 0.4, 9, MZ, 30, -Math.PI / 2, '#0b1020', '#39ff88');
+  addSign(LTXT('🚆 SHAHAR MARKAZI · 6 daqiqa', ['🚆 ЦЕНТР ГОРОДА · 6 мин', '🚆 CITY CENTRE · 6 min']), PX - 5, 11.5, MZ, 15, -Math.PI / 2, '#0b1020', '#ffffff');
+  const tMat = matStd({ color: 0xf2f4f7, roughness: 0.3, metalness: 0.35 }), tWin = new THREE.MeshBasicMaterial({ color: 0x1b2a3a }), tStr = new THREE.MeshBasicMaterial({ color: 0x39ff88, toneMapped: false });
+  const mkCar = () => { const g = new THREE.Group(); const b = new THREE.Mesh(new THREE.BoxGeometry(13, 3.4, 3.1), tMat); b.castShadow = SHADOWS; g.add(b);
+    const w = new THREE.Mesh(new THREE.BoxGeometry(12.2, 1.1, 3.16), tWin); w.position.y = 0.55; g.add(w); const st = new THREE.Mesh(new THREE.BoxGeometry(13.04, 0.35, 3.16), tStr); st.position.y = -0.75; g.add(st); scene.add(g); return g; };
+  const trains = [[], []]; for (let i = 0; i < 2; i++) for (let k = 0; k < 4; k++) trains[i].push(mkCar());
   // ---------- cargo, hangars, fire station, fuel farm, radar ----------
   box(x + 255, 0.1, z - 470, 120, 14, 50, '#a7b1ba'); addSign(() => 'AI CARGO', x + 255, 11, z - 444.6, 30, 0, '#0b1020', '#ffb300');
   fleet.push({ x: x + 215, z: z - 530, ry: 0, sc: 1.4, c: 0x2c2c2c }, { x: x + 290, z: z - 530, ry: 0, sc: 1.4, c: 0xffb300 });
   for (let i = 0; i < 3; i++) { const hx = x + 200 + i * 62, hz = z + 470;
-    box(hx, 0.1, hz, 56, 16, 54, '#b0bec5'); const roof = new THREE.Mesh(new THREE.CylinderGeometry(28, 28, 54, 24, 1, false, 0, Math.PI), matStd({ color: 0xcfd8dc, metalness: 0.5, roughness: 0.4 }));
-    roof.rotation.x = Math.PI / 2; roof.rotation.z = Math.PI / 2; roof.scale.set(1, 1, 0.3); roof.position.set(hx, 16, hz); roof.castShadow = SHADOWS; scene.add(roof);
+    box(hx, 0.1, hz, 56, 16, 54, '#b0bec5'); const roof = new THREE.Mesh(new THREE.CylinderGeometry(28, 28, 54, 24, 1, false, Math.PI / 2, Math.PI), matStd({ color: 0xcfd8dc, metalness: 0.5, roughness: 0.4 }));
+    roof.rotation.x = Math.PI / 2; roof.scale.set(1, 1, 0.3); roof.position.set(hx, 16, hz); roof.castShadow = SHADOWS; scene.add(roof);
     if (i === 1) { box(hx, 0.1, hz - 27.4, 50, 14, 0.6, '#1d242c'); fleet.push({ x: hx, z: hz - 6, ry: Math.PI, sc: 1.0, c: 0x39ff88 }); } else box(hx, 0.1, hz - 27.2, 50, 14, 0.5, '#78909c'); }
   addSign(() => 'MRO HANGAR', x + 262, 25, z + 442, 30, Math.PI, '#0b1020', '#ffffff');
   box(TB + 30, 0.1, z - 640, 36, 9, 24, '#c62828'); addSign(() => '🚒 ARFF', TB + 30, 10.5, z - 627.6, 12, 0, '#ffffff', '#c62828');
@@ -1341,7 +1361,74 @@ function buildAirport(x, z) {
   for (let i = 0; i < 6; i++) B.cyl.add(x + 60 + (i % 3) * 24, 0.1, z - 560 + Math.floor(i / 3) * 24, 18, 12, 18, '#eceff1');
   B.cyl.add(R3 + 80, 0, z - 200, 2, 24, 2, '#cfd6de'); const radar = new THREE.Mesh(new THREE.BoxGeometry(18, 5, 1.2), matStd({ color: 0xf2f4f7, metalness: 0.4 })); radar.position.set(R3 + 80, 26.5, z - 200); scene.add(radar);
   B.sph.add(R3 + 80, 2, z + 120, 14, 14, 14, '#f2f4f7'); B.cyl.add(R3 + 80, 0, z + 120, 6, 4, 6, '#cfd6de');   // weather radome
-  goalSign('airport', x - 10, z + 30, 26, 9);
+  // ================= SURROUNDINGS =================
+  const tr = rng(4242), GREENS = ['#2e7d32', '#388e3c', '#43a047'];
+  const road2 = (x0, x1, zz, w = 20) => { box((x0 + x1) / 2, 0.04, z + zz, x1 - x0, 0.1, w, '#33373e'); for (let s = x0 + 4; s < x1 - 4; s += 9) B.paint.add(s, 0.11, z + zz, 4.5, 0.04, 0.3, WH); };
+  const roadZ = (xx, z0, z1, w = 20) => { box(xx, 0.04, z + (z0 + z1) / 2, w, 0.1, z1 - z0, '#33373e'); for (let s = z0 + 4; s < z1 - 4; s += 9) B.paint.add(xx, 0.11, z + s, 0.3, 0.04, 4.5, WH); };
+  // airport boulevard: 2x2 lanes, tree median, lamps
+  const BX = HWY + 27;
+  for (const o of [-6, 6]) roadZ(BX + o, -900, 900, 9);
+  box(BX, 0.05, z, 3, 0.35, 1800, '#5c8a3e');
+  for (let s = -890; s <= 890; s += 18) { if (Math.abs(s) < 14 || Math.abs(Math.abs(s) - 255) < 14) continue; tree(BX, z + s, 0.9, tr); }
+  for (let s = -880; s <= 880; s += 36) for (const o of [-11.5, 11.5]) streetLamp(BX + o, z + s);
+  addSign(LTXT('✈ AEROPORT SHOSSESI', ['✈ АЭРОПОРТОВОЕ ШОССЕ', '✈ AIRPORT BOULEVARD']), BX, 9, z - 420, 20, Math.PI / 2, '#1f5fd6', '#ffffff');
+  B.cyl.add(BX - 10, 0, z - 420, 0.4, 7, 0.4, '#555'); B.cyl.add(BX + 10, 0, z - 420, 0.4, 7, 0.4, '#555');
+  // trees and lamps along the landside access roads
+  for (const zz of [0, -255, 255]) for (let s = HWY + 44; s < VX - 18; s += 14) { if (zz === 255 && s > HWY + 40 && s < HWY + 100) continue; for (const o of [-15, 15]) tree(s, z + zz + o, 0.8, tr); }
+  // gas station + EV chargers
+  { const gx = HWY + 70, gz = z + 305;
+    box(gx, 0.04, gz, 50, 0.1, 44, '#4a4f56'); box(gx, 6.2, gz, 30, 0.9, 16, '#f5f7f9'); B.paint.add(gx, 6.15, gz - 8.05, 30, 0.6, 0.1, '#39ff88');
+    for (const [px, pz] of [[-10, -4], [0, -4], [10, -4], [-10, 4], [0, 4], [10, 4]]) { B.cyl.add(gx + px, 0, gz + pz, 0.35, 6.2, 0.35, '#c7ccd2'); box(gx + px + 1.5, 0, gz + pz, 1, 1.8, 0.7, '#1f5fd6'); }
+    box(gx, 0, gz + 16, 22, 5, 9, '#e9edf2'); B.paint.add(gx, 3.8, gz + 11.45, 22, 1, 0.1, '#1f5fd6');
+    for (let i = 0; i < 4; i++) { box(gx - 21, 0, gz - 15 + i * 6, 0.8, 1.8, 0.8, '#2e7d32'); glow(gx - 21, 2, gz - 15 + i * 6, 0.4, '#39ff88', false); box(gx - 17, 0.1, gz - 15 + i * 6, 4.4, 1.4, 2, pick(tr, ['#f2f2f2', '#1c1c1c', '#1f3b73'])); }
+    B.cyl.add(gx + 22, 0, gz - 20, 0.4, 12, 0.4, '#555'); addSign(() => '⛽ AI ENERGY · ⚡ EV', gx + 22, 13, gz - 20, 10, -Math.PI / 2, '#0b1020', '#39ff88'); }
+  // car rental
+  { const gx = HWY + 68, gz = z - 335;
+    box(gx, 0.04, gz, 46, 0.1, 52, '#4a4f56'); for (let i = 0; i < 5; i++) for (let j = 0; j < 7; j++) box(gx - 18 + i * 8.5, 0.1, gz - 20 + j * 6.2, 2.1, 1.4, 4.4, pick(tr, ['#f2f2f2', '#c62828', '#1c1c1c', '#c0c4c8', '#ffb300']), Math.PI / 2);
+    box(gx, 0, gz + 30, 16, 4.5, 7, '#ffb300'); addSign(LTXT('🚗 AVTO IJARA · RENT A CAR', ['🚗 ПРОКАТ АВТО', '🚗 RENT A CAR']), gx, 7.5, gz + 33.6, 18, 0, '#ffb300', '#111111'); }
+  // bus station
+  { const gx = HWY + 68, gz = z - 205;
+    box(gx, 0.04, gz, 46, 0.1, 30, '#4a4f56'); box(gx, 5, gz + 9, 44, 0.6, 8, '#e9edf2'); for (let s = -20; s <= 20; s += 10) B.cyl.add(gx + s, 0, gz + 12, 0.3, 5, 0.3, '#9aa3ad');
+    for (let i = 0; i < 3; i++) { const bx = gx - 14 + i * 14, c = ['#1e88e5', '#2e9d4f', '#1e88e5'][i]; box(bx, 0.3, gz, 3, 3.4, 12, c, Math.PI / 2); box(bx, 1.9, gz, 3.06, 1.1, 11, '#1b2a3a', Math.PI / 2); }
+    addSign(LTXT('🚌 AVTOBUS BEKATI', ['🚌 АВТОВОКЗАЛ', '🚌 BUS STATION']), gx, 7.3, gz + 13.1, 16, 0, '#1e88e5', '#ffffff'); }
+  // airside perimeter fence
+  { const FX0 = x + 140, FX1 = R3 + 130, FZ0 = -690, FZ1 = 620;
+    const fence = (ax, az, bx, bz) => { const L = Math.hypot(bx - ax, bz - az), ry = Math.atan2(bx - ax, bz - az); box((ax + bx) / 2, 0, z + (az + bz) / 2, 0.15, 3.2, L, '#8d969f', ry); for (let k = 0; k <= L; k += 12) B.cyl.add(ax + (bx - ax) * k / L, 0, z + az + (bz - az) * k / L, 0.18, 3.6, 0.18, '#6b737b'); };
+    fence(FX0, FZ1, FX1, FZ1); fence(FX0, FZ0, FX1, FZ0); fence(FX1, FZ0, FX1, FZ1);
+    for (let s = FX0 + 10; s < FX1; s += 26) for (const zz of [FZ1 + 12, FZ0 - 12]) tree(s, z + zz, 1, tr);
+    for (let s = FZ0; s < FZ1; s += 24) tree(FX1 + 12, z + s, 1, tr); }
+  // airport city: business district south of the terminal
+  { const BZ = -760; road2(BX + 12, x + 280, BZ + 52, 18); roadZ(x + 100, BZ - 150, BZ + 52, 16);
+    box(x + 125, 0.04, z + BZ - 40, 300, 0.12, 160, '#b9bec6');
+    const T2 = [[x - 44, -10, 24, 58, '#7aa0bf'], [x - 10, -10, 22, 44, '#8fb3cf'], [x + 40, 0, 24, 36, '#a3c2da'], [x + 160, -10, 26, 52, '#6f97b8'], [x + 200, 10, 22, 30, '#9ab9d3'], [x + 245, -20, 26, 66, '#7aa0bf'],
+      [x - 40, -110, 30, 24, '#b5cde0'], [x + 160, -110, 28, 40, '#8fb3cf'], [x + 230, -110, 24, 28, '#a3c2da']];
+    for (const [tx, tz, w, h, c] of T2) { B.tower.add(tx, 0.1, z + BZ + tz, w, h, w, c); box(tx, h + 0.1, z + BZ + tz, w + 1, 1, w + 1, '#e3e7ec'); glow(tx, h + 2, z + BZ + tz, 0.8, '#ff3b3b'); }
+    for (const sx of [-1, 1]) B.tower.add(x + 100 + sx * 16, 0.1, z + BZ - 30, 18, 96, 18, '#4f7ea5');
+    box(x + 100, 70, z + BZ - 30, 14, 5, 8, '#cfe3f2'); B.cyl.add(x + 84, 96, z + BZ - 30, 0.4, 14, 0.4, '#ccc'); B.cyl.add(x + 116, 96, z + BZ - 30, 0.4, 14, 0.4, '#ccc');
+    addSign(LTXT('AI SHAHAR BIZNES MARKAZI', ['БИЗНЕС-ЦЕНТР AI SHAHAR', 'AI SHAHAR BUSINESS CENTRE']), x + 100, 86, z + BZ - 20.6, 30, 0, '#0b1020', '#39ff88');
+    { const cc = new THREE.Mesh(new THREE.CylinderGeometry(30, 30, 70, 24, 1, false, 0, Math.PI), matStd({ color: 0xdfe6ee, metalness: 0.4, roughness: 0.3 })); cc.rotation.z = Math.PI / 2; cc.scale.set(0.35, 1, 1); cc.position.set(x + 30, 6, z + BZ - 110); scene.add(cc); box(x + 30, 0.1, z + BZ - 110, 70, 6, 60, '#c9d6e2');
+      addSign(LTXT('EXPO MARKAZ', ['ЭКСПО-ЦЕНТР', 'EXPO CENTRE']), x + 30, 14, z + BZ - 79.4, 20, 0, '#0b1020', '#ffffff'); }
+    for (let i = 0; i < 26; i++) tree(x - 60 + i * 13, z + BZ + 38, 0.9, tr);
+    for (let i = 0; i < 6; i++) for (let j = 0; j < 3; j++) { box(x + 95 + i * 7, 0.15, z + BZ - 100 + j * 18, 4, 0.3, 4, '#7cb342'); B.sph.add(x + 95 + i * 7, 1.2, z + BZ - 100 + j * 18, 2.2, 1.6, 2.2, pick(tr, ['#e91e63', '#ffb300', '#ab47bc', '#ff7043'])); }
+    for (let s = BX + 20; s < x + 280; s += 30) streetLamp(s, z + BZ + 63); }
+  // logistics zone north of the airfield
+  { const LZ = 760; road2(BX + 12, x + 470, LZ - 70, 18);
+    box(x + 220, 0.04, z + LZ + 20, 500, 0.12, 160, '#9fa6ad');
+    for (let i = 0; i < 4; i++) { const wx = x + 20 + i * 120;
+      box(wx, 0.1, z + LZ + 30, 96, 13, 48, i % 2 ? '#eceff1' : '#dfe4e8'); B.paint.add(wx, 10, z + LZ + 5.9, 96, 1.6, 0.2, ['#39ff88', '#1f5fd6', '#ffb300', '#c62828'][i]);
+      for (let d = -40; d <= 40; d += 10) { box(wx + d, 0.1, z + LZ + 5.8, 6, 5, 0.3, '#5d646c'); if (tr() < 0.6) { box(wx + d, 0.4, z + LZ - 4, 2.6, 3.8, 13, '#e3e7ec'); box(wx + d, 0.4, z + LZ - 13, 2.6, 3.4, 3.6, pick(tr, ['#c62828', '#1f5fd6', '#f5f7f9', '#2e7d32'])); } } }
+    addSign(() => 'AI LOGISTIKA · CARGO CITY', x + 80, 18, z + LZ + 5.4, 34, Math.PI, '#0b1020', '#ffb300');
+    for (let i = 0; i < 8; i++) for (let j = 0; j < 4; j++) { const h = 1 + Math.floor(tr() * 3); for (let k = 0; k < h; k++) box(x + 20 + i * 8, k * 2.7, z + LZ + 72 + j * 7, 2.6, 2.6, 6.2, pick(tr, ['#c62828', '#1f5fd6', '#2e7d32', '#ffb300', '#6d4c41', '#00897b'])); }
+    for (let i = 0; i < 2; i++) { B.cyl.add(x + 120 + i * 40, 0, z + LZ + 85, 0.8, 22, 0.8, '#f2c94c'); box(x + 120 + i * 40, 22, z + LZ + 85, 3, 1.6, 30, '#f2c94c'); }
+    for (let s = BX + 20; s < x + 470; s += 30) streetLamp(s, z + LZ - 81); }
+  // solar farm beyond the third runway
+  { const SX0s = R3 + 160, ROWS = 26;
+    for (let i = 0; i < ROWS; i++) for (let j = -3; j < 3; j++) B.paint.add(SX0s + i * 9, 1.2, z + j * 150 + 75, 5.2, 0.2, 140, '#1f3d73', 0, 0, 0.42);
+    for (let i = 0; i < ROWS; i += 5) box(SX0s + i * 9 + 4, 0.1, z - 470, 3, 2.5, 4, '#cfd6de');
+    for (let s = 0; s < 6; s++) { const wx = SX0s + 280, wz = z - 400 + s * 160; B.cyl.add(wx, 0, wz, 1.6, 60, 1.6, '#f2f4f7'); const rot = new THREE.Group(); rot.position.set(wx, 60, wz - 1.6);
+      for (let b = 0; b < 3; b++) { const bl = new THREE.Mesh(new THREE.BoxGeometry(1.6, 26, 0.4), matStd({ color: 0xf7f9fb })); bl.geometry.translate(0, 13, 0); bl.rotation.z = b * Math.PI * 2 / 3; rot.add(bl); } scene.add(rot); anims.push((t) => { rot.rotation.z = t * 0.8 + s; }); }
+    addSign(LTXT('☀ AI SOLAR · 50 MVt', ['☀ AI SOLAR · 50 МВт', '☀ AI SOLAR · 50 MW']), SX0s - 10, 8, z, 26, -Math.PI / 2, '#0b1020', '#ffd23f'); B.cyl.add(SX0s - 10, 0, z, 0.4, 5, 0.4, '#555'); }
+  goalSign('airport', HWY + 60, z + 30, 26, 9);
   // ---------- parked fleet (3 draw calls for every parked jet) ----------
   PLANE.fleet(fleet);
   // ---------- live traffic ----------
@@ -1368,7 +1455,8 @@ function buildAirport(x, z) {
     taxis.forEach((o, i) => { const [px, pz, h] = loop(TAXI, t / 150 + i * 0.5); FLY(o, px, 0, pz, 0, h); });
     { const c = (t % 40) / 40, back = c < 0.25 ? c / 0.25 : c < 0.6 ? 1 : c < 0.85 ? 1 - (c - 0.6) / 0.25 : 0; FLY(push, pX, 0, pPier + PUSH.s * (30 + back * 34), 0, Math.PI); tug.position.set(pX, 0.8, push.position.z - PUSH.s * 22); }
     bag.forEach((g, i) => { const [px, pz, h] = loop(BAGP[i], t / 60 + i * 0.3); g.position.set(px, 0.8, pz); g.rotation.y = h; });
-    { const c = (t % 36) / 36, k = c < 0.35 ? c / 0.35 : c < 0.5 ? 1 : c < 0.85 ? 1 - (c - 0.5) / 0.35 : 0, e = k * k * (3 - 2 * k); train.position.x = MX0 + (MX1 - 50 - MX0) * e; }
+    trains.forEach((cars, i) => { const c = ((t + i * 18) % 36) / 36, k = c < 0.35 ? c / 0.35 : c < 0.5 ? 1 : c < 0.85 ? 1 - (c - 0.5) / 0.35 : 0, e = k * k * (3 - 2 * k), head = PX - 70 + (SX1 - 10 - (PX - 70)) * e;
+      cars.forEach((car, j) => { const cx = head - j * 13.4, y = railY(cx); car.position.set(cx, y + 1.9 + (cx > RX1 ? 0 : -0.6), MZ + (i ? 2.6 : -2.6)); car.rotation.z = cx > PX && cx < RX1 ? Math.atan2(MY, RX1 - PX) : 0; car.visible = cx > PX + 3; }); });
     for (let i = 0; i < 16; i++) { const lane = i % 2, d = ((t * (lane ? 14 : 11) + i * 41) % (2 * VZ + 160)) - VZ - 80, yy = Math.abs(d) < VZ ? VH + 0.1 : Math.max(0.1, VH - (Math.abs(d) - VZ) * VH / 80);
       cq.setFromAxisAngle(THREE.Object3D.DEFAULT_UP, 0); cm.compose(cp.set(VX + (lane ? 3.5 : -3.5), yy + 0.7, z + d), cq, cs); carIM.setMatrixAt(i, cm); } carIM.instanceMatrix.needsUpdate = true;
     radar.rotation.y = t * 1.6; beacon.visible = Math.floor(t * 1.5) % 2 === 0; flags.forEach((f, i) => { f.rotation.y = Math.sin(t * 2 + i) * 0.25; });
@@ -1389,9 +1477,9 @@ function buildMetro() {
 function palm(x, z, r) { const h = 7 + r() * 4; for (let k = 0; k < 6; k++) B.cyl.add(x + k * 0.15, k * h / 6, z, 0.6 - k * 0.05, h / 6 + 0.2, 0.6 - k * 0.05, '#8d6e4f'); for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2; box(x + 0.9 + Math.cos(a) * 2.2, h, z + Math.sin(a) * 2.2, 5, 0.25, 1.4, '#3f8f3a', -a, 0, 0.35); } }
 function buildBeach(z0) {
   box(0, 0, z0 + 45, 640, 0.18, 90, '#ecd9a0');
-  const sea = new THREE.Mesh(new THREE.PlaneGeometry(2600, 1200), new THREE.MeshStandardMaterial({ color: 0x1f8fd0, roughness: 0.15, metalness: 0.3, transparent: true, opacity: 0.92 }));
-  sea.rotation.x = -Math.PI / 2; sea.position.set(0, 0.12, z0 + 90 + 600); sea.receiveShadow = SHADOWS; scene.add(sea);
-  const foam = new THREE.Mesh(new THREE.PlaneGeometry(2600, 3), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 })); foam.rotation.x = -Math.PI / 2; foam.position.set(0, 0.2, z0 + 90); scene.add(foam);
+  const seaX1 = HWY + 80, sea = new THREE.Mesh(new THREE.PlaneGeometry(1300 + seaX1, 1200), new THREE.MeshStandardMaterial({ color: 0x1f8fd0, roughness: 0.15, metalness: 0.3, transparent: true, opacity: 0.92 }));
+  sea.rotation.x = -Math.PI / 2; sea.position.set((seaX1 - 1300) / 2, 0.12, z0 + 90 + 600); sea.receiveShadow = SHADOWS; scene.add(sea);
+  const foam = new THREE.Mesh(new THREE.PlaneGeometry(1300 + seaX1, 3), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 })); foam.rotation.x = -Math.PI / 2; foam.position.set((seaX1 - 1300) / 2, 0.2, z0 + 90); scene.add(foam);
   anims.push((t) => { foam.position.z = z0 + 90 + Math.sin(t * 0.8) * 1.5; foam.material.opacity = 0.45 + Math.sin(t * 0.8) * 0.25; });
   const r = rng(99);
   for (let i = 0; i < 26; i++) { const x = -290 + i * 23 + r() * 6, z = z0 + 40 + r() * 30; B.cyl.add(x, 0, z, 0.15, 3.4, 0.15, '#999'); B.cone.add(x, 3.2, z, 4.4, 1.2, 4.4, pick(r, ['#ff6b6b', '#ffd166', '#4dd0e1', '#ffffff', '#ff4fd8'])); box(x + 2, 0.18, z + 1, 1.3, 0.4, 2.6, '#ffffff'); }
