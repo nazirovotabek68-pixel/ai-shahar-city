@@ -982,9 +982,9 @@ function renderCard() {
   } else if (st.kind === 'board') {
     const tab = st.tab || 'c'; let rows = '';
     if (tab === 'l') rows = [...LIKES.entries()].sort((a, b) => b[1] - a[1]).slice(0, 15).map(([n, v], k) => `<button class="vrow" data-a="pick" data-n="${esc(n)}"><b>${k + 1}.</b> @${esc(n)} · ❤️ ${v}</button>`).join('');
-    else if (tab === 'r') rows = (GAME.board.r || []).map((r, k) => `<button class="vrow" data-a="pick" data-n="${esc(r.nick)}"><b>${k === 0 ? '🥇' : k === 1 ? '🥈' : k === 2 ? '🥉' : k + 1 + '.'}</b> @${esc(r.nick)} · ⏱ ${Number(r.race_best).toFixed(2)} s</button>`).join('');
+    else if (tab === 'r' || tab === 'sp' || tab === 'pl') { const col = { r: 'race_best', sp: 'sprint_best', pl: 'pilot_best' }[tab]; rows = (GAME.board[tab] || []).map((r, k) => `<button class="vrow" data-a="pick" data-n="${esc(r.nick)}"><b>${k === 0 ? '🥇' : k === 1 ? '🥈' : k === 2 ? '🥉' : k + 1 + '.'}</b> @${esc(r.nick)} · ⏱ ${Number(r[col]).toFixed(2)} s</button>`).join(''); }
     else rows = (GAME.board[tab] || []).map((r, k) => `<button class="vrow" data-a="pick" data-n="${esc(r.nick)}"><b>${k === 0 ? '🥇' : k === 1 ? '🥈' : k === 2 ? '🥉' : k + 1 + '.'}</b> @${esc(r.nick)} · ${tab === 'c' ? '💎 ' + r.crystals : '🔥 ' + r.streak}</button>`).join('');
-    c.innerHTML = `<button class="x" aria-label="×">×</button><h2>📊 ${T('board')}</h2><div class="tabs"><button class="${tab === 'c' ? 'on' : ''}" data-a="tab" data-t="c">${T('boardC')}</button><button class="${tab === 's' ? 'on' : ''}" data-a="tab" data-t="s">${T('boardS')}</button><button class="${tab === 'l' ? 'on' : ''}" data-a="tab" data-t="l">${T('boardL')}</button><button class="${tab === 'r' ? 'on' : ''}" data-a="tab" data-t="r">${T('boardR')}</button></div><div class="vlist">${rows || '<p class="vh">—</p>'}</div>`;
+    c.innerHTML = `<button class="x" aria-label="×">×</button><h2>📊 ${T('board')}</h2><div class="tabs"><button class="${tab === 'c' ? 'on' : ''}" data-a="tab" data-t="c">${T('boardC')}</button><button class="${tab === 's' ? 'on' : ''}" data-a="tab" data-t="s">${T('boardS')}</button><button class="${tab === 'l' ? 'on' : ''}" data-a="tab" data-t="l">${T('boardL')}</button><button class="${tab === 'r' ? 'on' : ''}" data-a="tab" data-t="r">${T('boardR')}</button><button class="${tab === 'sp' ? 'on' : ''}" data-a="tab" data-t="sp">${T('boardSp')}</button><button class="${tab === 'pl' ? 'on' : ''}" data-a="tab" data-t="pl">${T('boardPl')}</button></div><div class="vlist">${rows || '<p class="vh">—</p>'}</div>`;
     if (tab !== 'l' && !GAME.board[tab]) loadBoard(tab);
   } else if (st.kind === 'sponsors') {
     const best = new Map(); for (const r of UPG_ROWS) { const n = clean(r.nickname); const b = best.get(n) || { tier: 0, stars: 0 }; best.set(n, { tier: Math.max(b.tier, r.tier), stars: b.stars + (r.stars || 0) }); }
@@ -1447,7 +1447,7 @@ function buildAirport(x, z) {
   anims.push((t) => {
     // departures roll north on R1 / R2 and climb out
     for (const [o, rx, per, off] of [[dep, R1, 34, 0], [dep2, R2, 34, 17]]) { const p = ((t + off) % per) / per, zz = LEN / 2 - 30 - 1900 * Math.pow(p, 1.9), y = Math.max(0, (LEN / 2 - 250 - zz) * 0.2);
-      FLY(o, rx, y, z + zz, y > 0 ? -0.17 : 0, Math.PI); o.visible = p < 0.97; }
+      FLY(o, rx, y, z + zz, y > 0 ? -0.17 : 0, Math.PI); o.visible = p < 0.97 && !(o === dep && window.__AIR && window.__AIR.sprint); }
     { const q = ((t + 8) % 30) / 30, zz = 1400 - 1800 * q, y = Math.max(0, (zz - (LEN / 2 - 150)) * 0.18), stop = Math.max(-LEN / 2 + 160, zz);
       FLY(arr, R3, y, z + stop, y > 0 ? -0.06 : 0, Math.PI); arr.visible = q < 0.93; }
     // holding pattern
@@ -1461,6 +1461,7 @@ function buildAirport(x, z) {
       cq.setFromAxisAngle(THREE.Object3D.DEFAULT_UP, 0); cm.compose(cp.set(VX + (lane ? 3.5 : -3.5), yy + 0.7, z + d), cq, cs); carIM.setMatrixAt(i, cm); } carIM.instanceMatrix.needsUpdate = true;
     radar.rotation.y = t * 1.6; beacon.visible = Math.floor(t * 1.5) % 2 === 0; flags.forEach((f, i) => { f.rotation.y = Math.sin(t * 2 + i) * 0.25; });
   });
+  window.__AIR = { x, z, R1, R2, R3, TA, TB, LEN, TX0, TX1, SCX, MZ, PIERS, PX0, PX1, VX, sprint: false, movers: [dep, dep2, arr, hold, hold2, ...taxis, push, trains[0][0], trains[1][0]] };
 }
 function rectPos(s, R) { const L = 2 * R, per = 4 * L; s = ((s % per) + per) % per; const side = Math.floor(s / L), u = s % L - R;
   return side === 0 ? [u, -R, Math.PI / 2] : side === 1 ? [R, u, 0] : side === 2 ? [-u, R, -Math.PI / 2] : [-R, -u, Math.PI]; }
@@ -1694,7 +1695,7 @@ function updateDrive(dt) {
   const mag = Math.min(1, Math.hypot(ix, iy)); camera.getWorldDirection(DF); DF.y = 0; DF.normalize(); DR.crossVectors(DF, YAX).normalize();
   DM.set(0, 0, 0).addScaledVector(DF, -iy).addScaledVector(DR, ix); const target = drive.freeze && performance.now() < drive.freeze ? 0 : mag > 0.08 ? 7.5 * mag * (drive.turbo || 1) : 0; drive.speed += (target - drive.speed) * Math.min(1, dt * 6);
   if (DM.lengthSq() > 0.001 && mag > 0.08) { DM.normalize(); const want = Math.atan2(DM.x, DM.z); let d = want - drive.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); drive.yaw += d * Math.min(1, dt * 10);
-    const lim = HWY + 400, nx = THREE.MathUtils.clamp(drive.x + DM.x * drive.speed * dt, -lim, lim), nz = THREE.MathUtils.clamp(drive.z + DM.z * drive.speed * dt, -lim, lim);
+    const lim = HWY + 1300, nx = THREE.MathUtils.clamp(drive.x + DM.x * drive.speed * dt, -lim, lim), nz = THREE.MathUtils.clamp(drive.z + DM.z * drive.speed * dt, -lim, lim);
     const stuck = blocked(drive.x, drive.z); // already inside something (e.g. start spot) → let it walk out
     if (stuck || !blocked(nx, nz)) { drive.x = nx; drive.z = nz; } else if (!blocked(nx, drive.z)) drive.x = nx; else if (!blocked(drive.x, nz)) drive.z = nz; else drive.speed *= 0.3; }
   drive.phase += drive.speed * dt * 2.4 / Math.max(0.9, drive.sp.traits.u); const amp = Math.min(1, drive.speed / 3);
@@ -1778,7 +1779,7 @@ function isoWeek(d = new Date()) { const t = new Date(tkDay(d) + 'T00:00:00Z'); 
 try { const L = JSON.parse(store.get('aishahar_liked') || '{}'); if (L.w === isoWeek()) for (const n of L.n || []) GAME.liked.add(n); } catch (e) {}
 async function loadPlayers() { if (!shared.on) return; try { for (const r of await fetchAll('players', 'nick,crystals,streak,equipped')) PLAYERS.set(clean(r.nick), r); } catch (e) {} }
 async function loadLikes() { if (!shared.on) return; try { const c = await sb(); const { data } = await c.from('house_likes_week').select('target,likes').eq('week', isoWeek()); for (const r of data || []) LIKES.set(clean(r.target), r.likes); } catch (e) {} }
-async function loadBoard(tab) { try { const c = await sb(); if (tab === 'r') { const { data } = await c.from('players').select('nick,race_best').eq('race_week', isoWeek()).not('race_best', 'is', null).order('race_best', { ascending: true }).limit(15); GAME.board.r = data || []; if (cardState && cardState.kind === 'board') renderCard(); return; } const col = tab === 'c' ? 'crystals' : 'streak'; const { data } = await c.from('players').select('nick,crystals,streak').order(col, { ascending: false }).limit(15); GAME.board[tab] = data || []; if (cardState && cardState.kind === 'board') renderCard(); } catch (e) {} }
+async function loadBoard(tab) { try { const c = await sb(); if (tab === 'r' || tab === 'sp' || tab === 'pl') { const pre = { r: 'race', sp: 'sprint', pl: 'pilot' }[tab]; const { data } = await c.from('players').select('nick,' + pre + '_best').eq(pre + '_week', isoWeek()).not(pre + '_best', 'is', null).order(pre + '_best', { ascending: true }).limit(15); GAME.board[tab] = data || []; if (cardState && cardState.kind === 'board') renderCard(); return; } const col = tab === 'c' ? 'crystals' : 'streak'; const { data } = await c.from('players').select('nick,crystals,streak').order(col, { ascending: false }).limit(15); GAME.board[tab] = data || []; if (cardState && cardState.kind === 'board') renderCard(); } catch (e) {} }
 async function api(body) { const r = await fetch('/api/game', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ uid: CHAT.myId, ...body }) }); const j = await r.json().catch(() => ({})); return { ok: r.ok && j.ok, ...j }; }
 function setPlayer(p) { GAME.player = p; PLAYERS.set(p.nick, { ...(PLAYERS.get(p.nick) || {}), crystals: p.crystals, streak: p.streak, equipped: p.equipped }); for (const c of CRYSTALS) c.got = !!(p.col_mask & (1 << c.id)); updHud(); }
 function updHud() { const el = $('#gameHud'); if (!el) return; if (!GAME.me || !GAME.player) { el.style.display = 'none'; return; } const left = CRYSTALS.filter((c) => !c.got).length;
@@ -1974,11 +1975,11 @@ addEventListener('keydown', (e) => { if (e.target && /INPUT|TEXTAREA/.test(e.tar
 addEventListener('keyup', (e) => KEYS.delete(e.code)); addEventListener('blur', () => KEYS.clear());
 const KV = new THREE.Vector3(), KF = new THREE.Vector3(), KR = new THREE.Vector3();
 function moveKeys(dt) {
-  if (KEYS.size && !tour && !drive) { const sp = Math.max(20, camera.position.distanceTo(controls.target) * 1.1) * dt; camera.getWorldDirection(KF); KF.y = 0; KF.normalize(); KR.crossVectors(KF, YAX).normalize(); KV.set(0, 0, 0);
+  if (KEYS.size && !tour && !drive && !window.__flyMode) { const sp = Math.max(20, camera.position.distanceTo(controls.target) * 1.1) * dt; camera.getWorldDirection(KF); KF.y = 0; KF.normalize(); KR.crossVectors(KF, YAX).normalize(); KV.set(0, 0, 0);
     if (KEYS.has('KeyW') || KEYS.has('ArrowUp')) KV.add(KF); if (KEYS.has('KeyS') || KEYS.has('ArrowDown')) KV.sub(KF); if (KEYS.has('KeyD') || KEYS.has('ArrowRight')) KV.add(KR); if (KEYS.has('KeyA') || KEYS.has('ArrowLeft')) KV.sub(KR);
     if (KV.lengthSq()) { KV.normalize().multiplyScalar(sp); camera.position.add(KV); controls.target.add(KV); }
     const rot = (KEYS.has('KeyQ') ? 1 : 0) - (KEYS.has('KeyE') ? 1 : 0); if (rot) { const off = camera.position.clone().sub(controls.target).applyAxisAngle(YAX, rot * dt * 1.2); camera.position.copy(controls.target).add(off); } }
-  const lim = HWY + 420, tx = THREE.MathUtils.clamp(controls.target.x, -lim, lim) - controls.target.x, tz = THREE.MathUtils.clamp(controls.target.z, -lim, lim) - controls.target.z;
+  const lim = window.__flyMode ? 1e9 : HWY + 1300, tx = THREE.MathUtils.clamp(controls.target.x, -lim, lim) - controls.target.x, tz = THREE.MathUtils.clamp(controls.target.z, -lim, lim) - controls.target.z;
   if (tx || tz) { controls.target.x += tx; controls.target.z += tz; camera.position.x += tx; camera.position.z += tz; }
 }
 
@@ -2286,6 +2287,192 @@ window.__v7u = (t, dt) => { updateRace(); updateBall(dt); updateVisit(t); update
     if (t - amenT > 1) { amenT = t; for (const k of ['stadium', 'mall']) for (const b of amenityBlocks[k] || []) if ((b.cx - drive.x) ** 2 + (b.cz - drive.z) ** 2 < 28 * 28 && !store.get(qkey(k))) qBump(k); } } else lastX = null; };
 loadWeather(); setInterval(() => { loadWeather(); }, 15 * 60e3); setInterval(autoTheme, 60e3); loadFeed(); setInterval(loadFeed, 10 * 60e3);
 setTimeout(() => { updQuestBtn(); qCheck(); }, 4000); setInterval(updQuestBtn, 5000);
+// ======================= v10: airport life — flights, departures board, pilot game, runway sprint, banner plane, jet sound, holidays, searchlights & clouds =======================
+{
+const I10 = {
+  uz: { airT: 'AI SHAHAR xalqaro aeroporti', airHint: 'Har bir yangi obunachi — yangi reys! Tablodan ismingizni toping 👇', fidsT: "JO'NAB KETISH", fidsSt: { b: 'BORTGA CHIQISH', f: 'SO‘NGGI CHAQIRIQ', o: "O'Z VAQTIDA", d: 'KECHIKMOQDA' },
+    flyMe: '✈ Robotim bilan uchish', flyWatch: '✈ Parvozni tomosha qilish', pilot: '🎮 Uchuvchi o‘yini', sprint: "🏁 Uchish yo'lagida poyga", goAir: '📍 Aeroportni ko‘rish', rating: '📊 Reyting',
+    fltBoard: '✈ @{n} samolyotga chiqdi → {d}', fltLand: '🛬 Xush kelibsiz! @{n} parvozi tugadi', cam: '📷 Kamera', exit: '✕ Chiqish', alt: 'balandlik', spd: 'km/s',
+    pilHint: "Halqalardan uchib o'ting! Joystik yoki W/A/S/D", pilDone: '🎮 {r}/{n} halqa · {t} s', pilGain: '+{v} 💎 kristall!', pilBest: '🏆 Haftaning eng yaxshi vaqti: {t} s', pilOnce: "Bugungi kristall mukofoti olingan, ertaga yana!",
+    spNeed: "Avval o'z robotingizni toping (✨ tugmasi) — poygada robotingiz qatnashadi", spOff: "Yo'lakdan chiqib ketdingiz! Qaytadan urinib ko‘ring", spDone: "🏁 Yo'lak rekordi: {t} s", spBest: '🏆 Haftaning eng yaxshi natijasi!',
+    newFlight: '🛫 Yangi reys: {f} · @{n} → {d}', boardSp: "🏁 Yo'lak", boardPl: '🎮 Uchuvchi', bannerDef: "📣 REKLAMANGIZ SHU YERDA · @{b}", shoutPlane: ' ✈ Xabaringiz shahar ustida uchadigan reklama samolyoti bannerida ham ko‘rinadi!',
+    fest: { newyear: '🎄 Yangi yil muborak! Shahar bayramona bezandi 🎆', navruz: "🌷 Navro'z muborak! 🎆", mar8: '💐 8-mart muborak, aziz ayollar! 🎆', mustaqillik: '🇺🇿 Mustaqillik kuni muborak! 🎆', konst: '🇺🇿 Konstitutsiya kuni muborak! 🎆', xotira: '🌹 Xotira va qadrlash kuni', teacher: "📚 O'qituvchi va murabbiylar kuni muborak! 🎆" } },
+  ru: { airT: 'Международный аэропорт AI SHAHAR', airHint: 'Каждый новый подписчик — новый рейс! Найдите себя на табло 👇', fidsT: 'ВЫЛЕТ', fidsSt: { b: 'ПОСАДКА', f: 'ПОСЛЕДНИЙ ВЫЗОВ', o: 'ПО РАСПИСАНИЮ', d: 'ЗАДЕРЖИВАЕТСЯ' },
+    flyMe: '✈ Полететь со своим роботом', flyWatch: '✈ Смотреть полёт', pilot: '🎮 Игра «Пилот»', sprint: '🏁 Гонка по ВПП', goAir: '📍 Показать аэропорт', rating: '📊 Рейтинг',
+    fltBoard: '✈ @{n} на борту → {d}', fltLand: '🛬 Добро пожаловать! Полёт @{n} завершён', cam: '📷 Камера', exit: '✕ Выход', alt: 'высота', spd: 'км/ч',
+    pilHint: 'Пролетайте через кольца! Джойстик или W/A/S/D', pilDone: '🎮 {r}/{n} колец · {t} с', pilGain: '+{v} 💎 кристаллов!', pilBest: '🏆 Лучшее время недели: {t} с', pilOnce: 'Награда за сегодня уже получена, завтра снова!',
+    spNeed: 'Сначала найдите своего робота (кнопка ✨) — в гонке едет ваш робот', spOff: 'Вы съехали с полосы! Попробуйте ещё раз', spDone: '🏁 Рекорд ВПП: {t} с', spBest: '🏆 Лучший результат недели!',
+    newFlight: '🛫 Новый рейс: {f} · @{n} → {d}', boardSp: '🏁 ВПП', boardPl: '🎮 Пилот', bannerDef: '📣 ВАША РЕКЛАМА ЗДЕСЬ · @{b}', shoutPlane: ' ✈ Ваше сообщение также полетит на баннере самолёта над городом!',
+    fest: { newyear: '🎄 С Новым годом! 🎆', navruz: '🌷 С праздником Навруз! 🎆', mar8: '💐 С 8 Марта! 🎆', mustaqillik: '🇺🇿 С Днём независимости! 🎆', konst: '🇺🇿 С Днём Конституции! 🎆', xotira: '🌹 День памяти и почестей', teacher: '📚 С Днём учителя! 🎆' } },
+  en: { airT: 'AI SHAHAR International Airport', airHint: 'Every new follower = a new flight! Find yourself on the board 👇', fidsT: 'DEPARTURES', fidsSt: { b: 'BOARDING', f: 'FINAL CALL', o: 'ON TIME', d: 'DELAYED' },
+    flyMe: '✈ Fly with my robot', flyWatch: '✈ Watch a flight', pilot: '🎮 Pilot game', sprint: '🏁 Runway sprint', goAir: '📍 Show the airport', rating: '📊 Leaderboard',
+    fltBoard: '✈ @{n} is on board → {d}', fltLand: '🛬 Welcome! @{n} has landed', cam: '📷 Camera', exit: '✕ Exit', alt: 'altitude', spd: 'km/h',
+    pilHint: 'Fly through the rings! Joystick or W/A/S/D', pilDone: '🎮 {r}/{n} rings · {t} s', pilGain: '+{v} 💎 crystals!', pilBest: '🏆 Best time this week: {t} s', pilOnce: "Today's crystal reward already claimed — come back tomorrow!",
+    spNeed: 'Find your own robot first (✨ button) — your robot runs the race', spOff: 'You left the runway! Try again', spDone: '🏁 Runway record: {t} s', spBest: '🏆 Best this week!',
+    newFlight: '🛫 New flight: {f} · @{n} → {d}', boardSp: '🏁 Runway', boardPl: '🎮 Pilot', bannerDef: '📣 YOUR AD HERE · @{b}', shoutPlane: ' ✈ It also flies on the banner plane over the city!',
+    fest: { newyear: '🎄 Happy New Year! 🎆', navruz: '🌷 Happy Navruz! 🎆', mar8: "💐 Happy Women's Day! 🎆", mustaqillik: '🇺🇿 Happy Independence Day! 🎆', konst: '🇺🇿 Happy Constitution Day! 🎆', xotira: '🌹 Day of Remembrance', teacher: "📚 Happy Teachers' Day! 🎆" } } };
+for (const l of Object.keys(I18N)) { Object.assign(I18N[l], I10[l] || I10.en); if (I18N[l].shoutHint && !I18N[l].shoutHint.includes('✈')) I18N[l].shoutHint += (I10[l] || I10.en).shoutPlane; }
+const st10 = document.createElement('style'); st10.textContent = `
+  body.piloting #joy{display:block} body.flying .card,body.flying .search,body.flying .map,body.flying .ticker,body.flying .goal,body.flying .tbtns,body.flying #chatBtn,body.flying .brand{display:none!important}
+  #fltHud{position:fixed;top:12px;left:50%;transform:translateX(-50%);display:none;z-index:30;background:rgba(8,12,22,.86);border:1px solid rgba(57,255,136,.55);border-radius:14px;padding:8px 12px;color:#e9f1ff;font:600 13px 'Space Grotesk',system-ui,sans-serif;text-align:center;max-width:94vw;backdrop-filter:blur(6px)}
+  #fltHud b{color:#39ff88} #fltHud .row{display:flex;gap:8px;justify-content:center;margin-top:6px} #fltHud button{background:#1a2333;color:#fff;border:1px solid #33415a;border-radius:10px;padding:6px 12px;font:700 13px 'Space Grotesk',system-ui,sans-serif;cursor:pointer}
+  body.flying #fltHud{display:block} .fids{background:#05070b;border-radius:12px;padding:8px;margin:8px 0;font:600 12px 'JetBrains Mono',monospace;color:#ffd23f;overflow:hidden}
+  .fids .fr{width:100%;background:none;border:0;border-bottom:1px solid #141a24;color:inherit;font:inherit;text-align:left;display:grid;grid-template-columns:42px 56px 1fr;gap:2px 6px;padding:4px 2px;border-bottom:1px solid #141a24;align-items:center;cursor:pointer} .fids .fr:hover{background:#0e1520}
+  .fids .fr span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .fids .n{color:#fff} .fids .dst{grid-column:1/3;color:#9fb0c4;font-size:11px} .fids .s-b{color:#39ff88;animation:fb 1s steps(2) infinite} .fids .s-f{color:#ffb300} .fids .s-d{color:#ff5a5a} .fids .s-o{color:#cfd8e3}
+  @keyframes fb{50%{opacity:.25}} .airacts{display:grid;grid-template-columns:1fr 1fr;gap:8px} .airacts button{padding:10px 8px}`;
+document.head.appendChild(st10);
+const hud = document.createElement('div'); hud.id = 'fltHud'; hud.innerHTML = '<div id="fltTx"></div><div class="row"><button id="fltCam"></button><button id="fltX"></button></div>'; document.body.appendChild(hud);
+const A = () => window.__AIR;
+const DEST = [['Istanbul', 'IST'], ['Dubay', 'DXB'], ['Seul', 'ICN'], ['Tokio', 'HND'], ['Parij', 'CDG'], ['London', 'LHR'], ['Nyu-York', 'JFK'], ['Moskva', 'SVO'], ['Samarqand', 'SKD'], ['Buxoro', 'BHK'], ['Olmaota', 'ALA'], ['Pekin', 'PEK'], ['Singapur', 'SIN'], ['Rim', 'FCO'], ['Barselona', 'BCN'], ['Kuala-Lumpur', 'KUL'], ['Antaliya', 'AYT'], ['Berlin', 'BER'], ['San-Fransisko', 'SFO'], ['Marrakesh', 'RAK'], ['Bali', 'DPS'], ['Maldiv', 'MLE']];
+const tkTime = (ms) => new Date(ms).toLocaleTimeString('en-GB', { timeZone: 'Asia/Tashkent', hour: '2-digit', minute: '2-digit' });
+function flights() { const names = recent.length ? recent.slice(0, 12) : specs.slice(-12).map((s) => s.name).reverse(); const base = Math.ceil(Date.now() / 300000) * 300000;
+  return names.map((n, i) => { const h = hash(n); return { n, f: 'AI ' + (100 + h % 900), d: DEST[h % DEST.length], g: 'ABCDE'[h % 5] + (1 + (h >> 3) % 6), t: tkTime(base + i * 8 * 60000), s: i === 0 ? 'b' : i === 1 ? 'f' : (h >> 5) % 7 === 0 ? 'd' : 'o' }; }); }
+// ---------- 3D departures board on the terminal ----------
+const fc = document.createElement('canvas'); fc.width = 1024; fc.height = 640; const ftex = new THREE.CanvasTexture(fc); ftex.colorSpace = THREE.SRGBColorSpace; ftex.anisotropy = 4;
+let fidsMesh = null, blink = 0;
+function drawFids() { const g = fc.getContext('2d'); g.fillStyle = '#05070b'; g.fillRect(0, 0, 1024, 640); g.fillStyle = '#ffd23f'; g.fillRect(0, 0, 1024, 70);
+  g.fillStyle = '#05070b'; g.font = '800 40px "Space Grotesk", system-ui, sans-serif'; g.textBaseline = 'middle'; g.fillText('✈ ' + T('fidsT') + ' · DEPARTURES', 22, 37); g.textAlign = 'right'; g.fillText(tkTime(Date.now()), 1002, 37); g.textAlign = 'left';
+  g.font = '700 28px "JetBrains Mono", monospace'; flights().slice(0, 11).forEach((f, i) => { const y = 102 + i * 49; g.fillStyle = i % 2 ? '#0b0f16' : '#070a10'; g.fillRect(0, y - 24, 1024, 49);
+    g.fillStyle = '#ffd23f'; g.fillText(f.t, 18, y); g.fillText(f.f, 120, y); g.fillStyle = '#ffffff'; g.fillText(('@' + f.n).slice(0, 17), 262, y); g.fillStyle = '#ffd23f'; g.fillText(f.d[0].toUpperCase().slice(0, 11), 600, y); g.fillText(f.g, 812, y);
+    const sc = { b: '#39ff88', f: '#ffb300', d: '#ff5a5a', o: '#cfd8e3' }[f.s]; if (!(f.s === 'b' && blink % 2)) { g.fillStyle = sc; g.font = '700 20px "JetBrains Mono", monospace'; g.fillText(T('fidsSt')[f.s].slice(0, 15), 870, y); g.font = '700 28px "JetBrains Mono", monospace'; } });
+  ftex.needsUpdate = true; }
+let lastTop = null;
+function initAirLife() { const a = A(); if (!a || fidsMesh) return;
+  fidsMesh = new THREE.Group(); for (const [x, ry] of [[a.TX0 - 0.6, -Math.PI / 2], [a.SCX - 36.6, -Math.PI / 2]]) { const m = new THREE.Mesh(new THREE.PlaneGeometry(32, 20), new THREE.MeshBasicMaterial({ map: ftex, toneMapped: false })); m.position.set(x, x === a.TX0 - 0.6 ? 11 : 26, x === a.TX0 - 0.6 ? a.z - 40 : a.MZ); m.rotation.y = ry; fidsMesh.add(m); const fr = new THREE.Mesh(new THREE.BoxGeometry(0.4, 21.4, 33.4), matStd({ color: 0x1b222c })); fr.position.copy(m.position); fr.position.x += 0.25; fidsMesh.add(fr); }
+  scene.add(fidsMesh); drawFids(); lastTop = recent[0];
+  setInterval(() => { blink++; drawFids(); if (recent[0] && recent[0] !== lastTop) { lastTop = recent[0]; const f = flights()[0]; if (f) toast(T('newFlight').replace('{f}', f.f).replace('{n}', f.n).replace('{d}', f.d[0]), 5000); } }, 1500);
+  buildBanner(); buildSky(); airChip(); }
+// ---------- hub card ----------
+function airChip() { if (document.getElementById('btnAir')) return; const b = document.createElement('button'); b.className = 'chip'; b.id = 'btnAir'; b.textContent = '✈'; b.setAttribute('aria-label', 'Airport'); const ref = document.getElementById('btnDir'); ref.parentNode.insertBefore(b, ref); b.onclick = () => { selected = null; cardState = { kind: 'air' }; renderCard(); }; }
+const pE = window.__cardExt, pA = window.__cardAct;
+window.__cardExt = (c, st) => { if (st.kind !== 'air') return pE ? pE(c, st) : false;
+  const rows = flights().map((f) => `<button class="fr" data-a="fltrow" data-n="${esc(f.n)}"><span>${f.t}</span><span>${f.f}</span><span class="n">@${esc(f.n)}</span><span class="dst">→ ${esc(f.d[0])} · ${f.g}</span><span class="s-${f.s}">${T('fidsSt')[f.s]}</span></button>`).join('');
+  c.innerHTML = `<button class="x" aria-label="×">×</button><h2>✈ ${T('airT')}</h2><p class="vh">${T('airHint')}</p><div class="fids">${rows}</div>
+    <div class="airacts"><button class="pri" data-a="fltme">${GAME.me ? T('flyMe') : T('flyWatch')}</button><button data-a="pilot">${T('pilot')}</button><button data-a="sprint">${T('sprint')}</button><button data-a="goair">${T('goAir')}</button><button data-a="airrank">${T('rating')}</button></div>`; return true; };
+window.__cardAct = (a, b) => {
+  if (a === 'fltrow') { startFlight(b.dataset.n); return true; }
+  if (a === 'fltme') { startFlight(GAME.me || (recent[0] || specs[specs.length - 1].name)); return true; }
+  if (a === 'pilot') { startPilot(); return true; }
+  if (a === 'sprint') { startSprint(); return true; }
+  if (a === 'goair') { $('#card').classList.remove('on'); document.body.classList.remove('cardopen'); cardState = null; flyToGoal('airport'); return true; }
+  if (a === 'airrank') { cardState = { kind: 'board', tab: 'pl' }; renderCard(); return true; }
+  return pA ? pA(a, b) : false; };
+// ---------- common: flying camera + HUD ----------
+const V1 = new THREE.Vector3(), V2 = new THREE.Vector3(), FWD = new THREE.Vector3(), UPV = new THREE.Vector3(0, 1, 0), RGT = new THREE.Vector3(); let camMode = 0;
+function enterFly() { stopTour(); selected = null; cardState = null; $('#card').classList.remove('on'); document.body.classList.remove('cardopen'); document.body.classList.add('flying'); controls.enabled = false; fly = null; follow = false; window.__flyMode = true;
+  $('#fltCam').textContent = T('cam'); $('#fltX').textContent = T('exit'); }
+function leaveFly() { document.body.classList.remove('flying', 'piloting'); controls.enabled = true; window.__flyMode = false; JOY.x = JOY.y = 0; }
+$('#fltCam').onclick = () => { camMode = (camMode + 1) % 3; };
+$('#fltX').onclick = () => { if (FLT) endFlight(true); if (PIL) endPilot(true); };
+addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (FLT) endFlight(true); if (PIL) endPilot(true); } if (e.key === 'c' && (FLT || PIL)) camMode = (camMode + 1) % 3; });
+function chase(pos, yaw, pitch, dt, k = 1, snap = false) { FWD.set(Math.sin(yaw) * Math.cos(pitch), -Math.sin(pitch), Math.cos(yaw) * Math.cos(pitch)); RGT.set(Math.cos(yaw), 0, -Math.sin(yaw));
+  if (camMode === 0) { V1.copy(pos).addScaledVector(FWD, -48 * k).addScaledVector(UPV, 13 * k); V2.copy(pos).addScaledVector(FWD, 40); }
+  else if (camMode === 1) { V1.copy(pos).addScaledVector(FWD, 20 * k).addScaledVector(UPV, 4.6 * k); V2.copy(pos).addScaledVector(FWD, 120).addScaledVector(UPV, -4); }
+  else { V1.copy(pos).addScaledVector(RGT, 70 * k).addScaledVector(UPV, 18 * k).addScaledVector(FWD, -20); V2.copy(pos); }
+  const s = camMode === 1 || snap ? 1 : 1 - Math.exp(-dt * 5); camera.position.lerp(V1, s); controls.target.lerp(V2, s); camera.lookAt(controls.target); }
+function nameTag(text) { const cv = document.createElement('canvas'); cv.width = 512; cv.height = 96; const g = cv.getContext('2d'); g.fillStyle = 'rgba(8,12,22,.85)'; g.beginPath(); g.roundRect(4, 4, 504, 88, 40); g.fill(); g.strokeStyle = '#39ff88'; g.lineWidth = 4; g.stroke();
+  g.fillStyle = '#fff'; g.font = '800 46px "Space Grotesk", system-ui, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text.slice(0, 20), 256, 50); const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace;
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false, toneMapped: false })); s.scale.set(26, 4.9, 1); s.renderOrder = 998; return s; }
+// ---------- 1) fly with a robot: board → take-off → loop over the city → land ----------
+let FLT = null;
+function startFlight(name) { const a = A(); if (!a || FLT || PIL || drive) return; enterFly(); camMode = 0;
+  const h = hash(name), dest = DEST[h % DEST.length], plane = planeGroup([0x39ff88, 0xd81e2c, 0x1e88e5, 0xffb300, 0x6a1b9a][h % 5], 1.3); const tag = nameTag('✈ @' + name); tag.position.set(0, 13, 0); tag.scale.multiplyScalar(1 / 1.3); plane.add(tag);
+  const z = a.z, L2 = a.LEN / 2, R = cityExtent * 0.85, pts = [[a.R1, 0, z + L2 - 30], [a.R1, 0, z + 150], [a.R1, 0, z - 100], [a.R1, 18, z - 330], [a.R1 - 80, 80, z - 700], [a.R1 - 450, 140, z - 900], [HWY + 150, 160, -R * 1.1]];
+  for (let k = 0; k <= 8; k++) { const ang = -Math.PI / 2 - (k / 8) * Math.PI * 1.6; pts.push([Math.cos(ang) * R, 150 + Math.sin(k) * 15, Math.sin(ang) * R]); }
+  pts.push([HWY + 250, 140, z + 750], [a.R2 - 150, 120, z + 1500], [a.R2, 95, z + 1650], [a.R2, 45, z + 1150], [a.R2, 6, z + L2 - 60], [a.R2, 0, z + L2 - 260], [a.R2, 0, z - 80], [a.R2, 0, z - 180]);
+  const curve = new THREE.CatmullRomCurve3(pts.map(([x, y, zz]) => new THREE.Vector3(x, y, zz)), false, 'centripetal'), len = curve.getLength();
+  FLT = { name, dest, plane, curve, len, d: 0, yaw: Math.PI, bank: 0, done: false, snap: 3 }; toast(T('fltBoard').replace('{n}', name).replace('{d}', dest[0]), 4500); }
+function endFlight(early) { if (!FLT) return; const f = FLT; FLT = null; scene.remove(f.plane); leaveFly(); if (!early) toast(T('fltLand').replace('{n}', f.name), 5000); flyToGoal('airport'); }
+const PT = new THREE.Vector3(), TG = new THREE.Vector3();
+function updateFlight(dt) { const f = FLT; if (!f) return; const L = f.len, d = f.d;
+  const v = d < 650 ? 6 + Math.sqrt(2 * 4.2 * d) : L - d < 520 ? 4 + Math.sqrt(2 * 5.2 * (L - d)) : 115; f.d = Math.min(L, d + v * dt); const u = f.d / L;
+  f.curve.getPointAt(u, PT); PT.y = Math.max(0, PT.y); f.curve.getTangentAt(u, TG); const yaw = Math.atan2(TG.x, TG.z), pitch = -Math.asin(THREE.MathUtils.clamp(TG.y, -1, 1));
+  let dy = yaw - f.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); f.yaw = yaw; f.bank += (THREE.MathUtils.clamp(-dy / Math.max(dt, 1e-3) * 0.9, -0.7, 0.7) - f.bank) * Math.min(1, dt * 2.5);
+  f.plane.position.copy(PT); f.plane.rotation.set(pitch, yaw, PT.y > 3 ? f.bank : 0, 'YXZ'); chase(PT, yaw, pitch * 0.4, dt, 1.3, f.snap-- > 0);
+  $('#fltTx').innerHTML = `✈ <b>${flights().find((x) => x.n === f.name)?.f || 'AI ' + (100 + hash(f.name) % 900)}</b> · @${esc(f.name)} → ${esc(f.dest[0])}<br>${T('alt')} ${Math.round(PT.y * 3)} m · ${Math.round(v * 3.6 * 1.6)} ${T('spd')}`;
+  if (f.d >= L) endFlight(false); }
+// ---------- 2) pilot game: fly through 12 rings ----------
+const RN = 12; let PIL = null;
+const ringMat = new THREE.MeshBasicMaterial({ color: 0x39ff88, transparent: true, opacity: 0.9, toneMapped: false }), ringDim = new THREE.MeshBasicMaterial({ color: 0x7fe3ff, transparent: true, opacity: 0.35, toneMapped: false });
+const rings = []; for (let i = 0; i < RN; i++) { const r = new THREE.Mesh(new THREE.TorusGeometry(16, 1.3, 10, 40), ringDim); r.visible = false; scene.add(r); rings.push(r); }
+function ringPos(i) { const a = A(), cx = (HWY + a.R2) / 2, ang = Math.PI / 2 + (i / RN) * Math.PI * 2, rx = (a.R2 - HWY) / 2 + 180, rz = 620;
+  return [cx + Math.cos(ang) * rx, 60 + 45 * Math.sin(i * 1.7) + (i % 3) * 18, a.z + Math.sin(ang) * rz, ang]; }
+function startPilot() { const a = A(); if (!a || FLT || PIL || drive) return; enterFly(); camMode = 0;
+  for (let i = 0; i < RN; i++) { const [x, y, zz, ang] = ringPos(i); rings[i].position.set(x, y, zz); rings[i].rotation.set(0, Math.atan2(-Math.sin(ang), Math.cos(ang)) + Math.PI / 2, 0); rings[i].visible = true; rings[i].material = i === 0 ? ringMat : ringDim; }
+  const [x0, y0, z0] = ringPos(RN - 1), [x1, , z1] = ringPos(0); const plane = planeGroup(0x39ff88, 1);
+  document.body.classList.add('piloting'); PIL = { plane, x: x0, y: y0, z: z0, yaw: Math.atan2(x1 - x0, z1 - z0), pitch: 0, bank: 0, i: 0, t0: performance.now() + 2500, sp: 0, snap: 3 }; toast(T('pilHint'), 4500); }
+async function endPilot(early) { if (!PIL) return; const p = PIL; PIL = null; scene.remove(p.plane); for (const r of rings) r.visible = false; leaveFly(); flyToGoal('airport'); if (early && !p.i) return;
+  const tm = Math.max(0, (performance.now() - p.t0) / 1000); toast(T('pilDone').replace('{r}', p.i).replace('{n}', RN).replace('{t}', tm.toFixed(1)), 5000); sparkle(p.x, p.z, p.i === RN);
+  if (!GAME.me) return; const r = await api({ action: 'pilot', nick: GAME.me, rings: p.i, time: tm }); if (r.ok) { setPlayer(r.player); GAME.board.pl = null; setTimeout(() => toast(r.value ? T('pilGain').replace('{v}', r.value) : T('pilOnce'), 4500), 2500); if (r.best) setTimeout(() => toast(T('pilBest').replace('{t}', tm.toFixed(1)), 5000), 5500); } }
+function updatePilot(dt) { const p = PIL; if (!p) return; const now = performance.now(); let ix = JOY.x, iy = JOY.y;
+  if (KEYS.has('KeyW') || KEYS.has('ArrowUp')) iy -= 1; if (KEYS.has('KeyS') || KEYS.has('ArrowDown')) iy += 1; if (KEYS.has('KeyA') || KEYS.has('ArrowLeft')) ix -= 1; if (KEYS.has('KeyD') || KEYS.has('ArrowRight')) ix += 1;
+  ix = THREE.MathUtils.clamp(ix, -1, 1); iy = THREE.MathUtils.clamp(iy, -1, 1); const go = now > p.t0; p.sp += ((go ? 62 : 0) - p.sp) * Math.min(1, dt * 1.5);
+  p.yaw -= ix * 0.85 * dt; p.bank += (ix * 0.75 - p.bank) * Math.min(1, dt * 3); p.pitch += (iy * 0.5 - p.pitch) * Math.min(1, dt * 3);
+  p.x += Math.sin(p.yaw) * Math.cos(p.pitch) * p.sp * dt; p.z += Math.cos(p.yaw) * Math.cos(p.pitch) * p.sp * dt; p.y = THREE.MathUtils.clamp(p.y - Math.sin(p.pitch) * p.sp * dt, 14, 420);
+  const a = A(), cx = (HWY + a.R2) / 2; if (Math.hypot(p.x - cx, p.z - a.z) > 2200) { const want = Math.atan2(cx - p.x, a.z - p.z); let d = want - p.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); p.yaw += d * dt; }
+  p.plane.position.set(p.x, p.y, p.z); p.plane.rotation.set(p.pitch, p.yaw, p.bank, 'YXZ'); PT.set(p.x, p.y, p.z); chase(PT, p.yaw, p.pitch * 0.5, dt, 1, p.snap-- > 0);
+  const r = rings[p.i]; r.rotation.z += dt; if (r.position.distanceTo(PT) < 17) { sparkle(r.position.x, r.position.z, false); r.visible = false; p.i++; if (p.i >= RN) return endPilot(false); rings[p.i].material = ringMat; }
+  const el = go ? (now - p.t0) / 1000 : 0; $('#fltTx').innerHTML = go ? `🎯 <b>${p.i}/${RN}</b> · ⏱ ${el.toFixed(1)} s · ${T('alt')} ${Math.round(p.y * 3)} m` : `🎮 ${Math.ceil((p.t0 - now) / 1000)} · ${T('pilHint')}`;
+  if (el > 240) endPilot(false); }
+// ---------- 3) runway sprint (own robot, turbo) ----------
+let SPR = null; const finish = new THREE.Mesh(new THREE.TorusGeometry(26, 0.8, 10, 48, Math.PI), ringMat); finish.visible = false; scene.add(finish);
+function startSprint() { const a = A(); if (!a) return; if (!GAME.me || !index.has(GAME.me)) return toast(T('spNeed'), 6000); if (FLT || PIL) return;
+  if (!drive) startDrive(specs[index.get(GAME.me)]); if (!drive) return; endRace();
+  drive.x = a.R1; drive.z = a.z + a.LEN / 2 - 40; drive.yaw = Math.PI; drive.speed = 0; drive.turbo = 4; drive.freeze = performance.now() + 3000; a.sprint = true;
+  SPR = { t0: performance.now() + 3000, fz: a.z - a.LEN / 2 + 60 }; finish.position.set(a.R1, 0, SPR.fz); finish.visible = true; raceHud.classList.add('on');
+  fly = null; flyTo(new THREE.Vector3(drive.x + 10, 12, drive.z + 22), new THREE.Vector3(drive.x, 2, drive.z), 0.8); }
+function stopSprint(msg) { SPR = null; finish.visible = false; raceHud.classList.remove('on'); if (A()) A().sprint = false; if (drive) { drive.turbo = 0; drive.freeze = 0; } if (msg) toast(msg, 5000); }
+async function updateSprint() { if (!SPR) return; if (!drive) return stopSprint(); const a = A(), now = performance.now();
+  if (now < SPR.t0) { raceHud.textContent = '🏁 ' + Math.ceil((SPR.t0 - now) / 1000); return; } const el = (now - SPR.t0) / 1000; raceHud.textContent = `🏁 ${Math.max(0, Math.round(drive.z - SPR.fz))} m · ${el.toFixed(1)} s`;
+  if (Math.abs(drive.x - a.R1) > 30 || drive.z > a.z + a.LEN / 2 + 20) return stopSprint(T('spOff'));
+  if (drive.z <= SPR.fz) { stopSprint(); toast(T('spDone').replace('{t}', el.toFixed(2)), 6000); sparkle(drive.x, drive.z, true); const r = await api({ action: 'sprint', nick: GAME.me, time: el }); if (r.ok) { setPlayer(r.player); GAME.board.sp = null; if (r.best) setTimeout(() => toast(T('spBest'), 5000), 2500); } } }
+// ---------- 4) banner plane over the city (paid shouts / ads) ----------
+let banner = null; const bcv = document.createElement('canvas'); bcv.width = 1024; bcv.height = 160; const btex = new THREE.CanvasTexture(bcv); btex.colorSpace = THREE.SRGBColorSpace; let bIdx = -1;
+function drawBanner() { const its = bbItems().filter((x) => x.k === 'shout' || x.k === 'ad'); bIdx++; const it = its.length ? its[bIdx % its.length] : null; const g = bcv.getContext('2d');
+  g.fillStyle = it && it.k === 'ad' ? '#ffc94a' : it ? '#ff4fd8' : '#39ff88'; g.fillRect(0, 0, 1024, 160); g.fillStyle = '#0b1020'; g.textBaseline = 'middle'; g.textAlign = 'center';
+  let txt = it ? (it.k === 'ad' ? '★ ' + (it.title || it.text) : '📣 @' + it.nick + ': ' + it.text) : T('bannerDef').replace('{b}', CFG.botUsername || OWNER); txt = txt.replace(/\s+/g, ' ').slice(0, 70);
+  let s = 84; g.font = `800 ${s}px "Space Grotesk", system-ui, sans-serif`; while (g.measureText(txt).width > 990 && s > 30) { s -= 4; g.font = `800 ${s}px "Space Grotesk", system-ui, sans-serif`; } g.fillText(txt, 512, 84); btex.needsUpdate = true; }
+function buildBanner() { const grp = new THREE.Group(); const pl = planeGroup(0xff4fd8, 0.75); grp.add(pl); const mat = new THREE.MeshBasicMaterial({ map: btex, side: THREE.FrontSide, toneMapped: false });
+  for (const s of [1, -1]) { const m = new THREE.Mesh(new THREE.PlaneGeometry(64, 10), mat); m.position.set(0, 2.4, -52); m.rotation.y = s > 0 ? -Math.PI / 2 : Math.PI / 2; grp.add(m); }
+  const rope = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 20), new THREE.MeshBasicMaterial({ color: 0x222222 })); rope.position.set(0, 2.4, -20); grp.add(rope); scene.add(grp); banner = grp; drawBanner(); setInterval(drawBanner, 18000); }
+// ---------- 5) sky: searchlights at night, drifting clouds by day ----------
+const beams = [], clouds = []; let cloudIM = null; const CM = new THREE.Matrix4(), CQ = new THREE.Quaternion(), CP = new THREE.Vector3(), CS = new THREE.Vector3();
+function buildSky() { const a = A(); const bm = new THREE.MeshBasicMaterial({ color: 0xcfe6ff, transparent: true, opacity: 0.06, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, toneMapped: false });
+  for (const [x, zz, ph] of [[a.TX0 - 34, a.z - 120, 0], [a.TX0 - 34, a.z + 120, 2], [a.SCX, a.MZ + 40, 4], [a.TX0 + 100, a.z - 420, 1], [0, 0, 3], [0, 0, 5]]) { const g = new THREE.Group(); g.position.set(x, 0, zz);
+    const c = new THREE.Mesh(new THREE.ConeGeometry(26, 700, 24, 1, true).translate(0, -350, 0).rotateX(Math.PI), bm.clone()); g.add(c); scene.add(g); beams.push([g, ph]); }
+  const sph = new THREE.SphereGeometry(1, 10, 8); cloudIM = new THREE.InstancedMesh(sph, new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0.85, depthWrite: false }), 26 * 5); cloudIM.frustumCulled = false; const r = rng(31);
+  for (let i = 0; i < 26; i++) { const c = { x: (r() - 0.5) * 4200, y: 380 + r() * 90, z: (r() - 0.5) * 3600, p: [] }; for (let k = 0; k < 5; k++) c.p.push([(r() - 0.5) * 70, (r() - 0.3) * 14, (r() - 0.5) * 34, 22 + r() * 22]); clouds.push(c); }
+  scene.add(cloudIM); }
+function updateSky(t, dt) { const night = THREE.MathUtils.clamp(1 - themeK, 0, 1);
+  for (const [g, ph] of beams) { g.visible = night > 0.05; g.rotation.set(0.32 + Math.sin(t * 0.21 + ph) * 0.12, t * 0.25 + ph, 0, 'YXZ'); g.children[0].material.opacity = 0.055 * night * (FEST ? 1.6 : 1); if (FEST) g.children[0].material.color.setHSL((t * 0.05 + ph * 0.17) % 1, 0.8, 0.7); }
+  if (!cloudIM) return; const op = (0.25 + 0.6 * themeK) * (0.7 + (WX.cloud || 0)); cloudIM.material.opacity = Math.min(0.95, op); let n = 0;
+  for (const c of clouds) { c.x += dt * 6; if (c.x > 2100) c.x = -2100; for (const [dx, dy, dz, s] of c.p) { CM.compose(CP.set(c.x + dx, c.y + dy, c.z + dz), CQ, CS.set(s, s * 0.55, s)); cloudIM.setMatrixAt(n++, CM); } } cloudIM.instanceMatrix.needsUpdate = true; }
+// ---------- 6) holidays: fireworks + greeting ----------
+const FEST = (() => { const q = new URLSearchParams(location.search).get('fest'); if (q) return q; const [m, d] = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Tashkent' }).slice(5).split('-').map(Number), md = m * 100 + d;
+  if (md >= 1225 || md <= 103) return 'newyear'; if (md >= 319 && md <= 323) return 'navruz'; if (md >= 307 && md <= 308) return 'mar8'; if (md === 509) return 'xotira'; if (md >= 830 && md <= 902) return 'mustaqillik'; if (md === 1001) return 'teacher'; if (md === 1208) return 'konst'; return null; })();
+let festNext = 0; function burst(cx, cy, cz, hue) { FWC.setHSL(hue, 1, 0.6); for (let k = 0; k < 130; k++) { const i = fwI++ % FW_N, th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1), sp = 16 + Math.random() * 8;
+  fwPos[i * 3] = cx; fwPos[i * 3 + 1] = cy; fwPos[i * 3 + 2] = cz; fwVel[i * 3] = Math.sin(ph) * Math.cos(th) * sp; fwVel[i * 3 + 1] = Math.cos(ph) * sp; fwVel[i * 3 + 2] = Math.sin(ph) * Math.sin(th) * sp; fwLife[i] = 1.6; fwCol[i * 3] = FWC.r; fwCol[i * 3 + 1] = FWC.g; fwCol[i * 3 + 2] = FWC.b; } }
+function updateFest(t) { if (!FEST || FEST === 'xotira' || t < festNext) return; festNext = t + (themeK < 0.5 ? 0.7 : 1.6) + Math.random();
+  const hue = FEST === 'mustaqillik' || FEST === 'konst' ? [0.53, 0.33, 0, 0.53][Math.floor(Math.random() * 4)] : Math.random(); const a = Math.random() * 6.283, r = Math.random() * cityExtent * 0.7; burst(Math.cos(a) * r, 70 + Math.random() * 60, Math.sin(a) * r, hue); }
+if (FEST) setTimeout(() => toast(T('fest')[FEST] || '🎆', 7000), 4000);
+fireworks.material.size = 1.6;
+// ---------- 7) jet sound: louder when a plane passes the camera ----------
+let jet = null;
+function updateJetSound() { if (!SND.on || !SND.ctx) { if (jet) jet.g.gain.setTargetAtTime(0, SND.ctx.currentTime, 0.2); return; } const ctx = SND.ctx;
+  if (!jet) { const len = ctx.sampleRate * 3, buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0); let b = 0; for (let i = 0; i < len; i++) { b = (b + 0.04 * (Math.random() * 2 - 1)) / 1.04; d[i] = b * 6 + (Math.random() * 2 - 1) * 0.08; }
+    const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true; const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 700; const hs = ctx.createBiquadFilter(); hs.type = 'peaking'; hs.frequency.value = 2400; hs.gain.value = 6; const g = ctx.createGain(); g.gain.value = 0;
+    src.connect(lp).connect(hs).connect(g).connect(SND.master); src.start(); jet = { g, lp }; }
+  const a = A(); let loud = 0; const movers = [...(a ? a.movers : []), banner, FLT && FLT.plane, PIL && PIL.plane].filter((o) => o && o.visible !== false);
+  for (const o of movers) { const dd = o.position.distanceTo(camera.position); loud += 1 / (1 + (dd / 90) ** 2); }
+  if (FLT || PIL) loud = Math.max(loud, 0.35); jet.g.gain.setTargetAtTime(Math.min(0.5, loud * 0.45), ctx.currentTime, 0.25); jet.lp.frequency.setTargetAtTime(500 + Math.min(1, loud) * 1400, ctx.currentTime, 0.3); }
+// ---------- per-frame ----------
+const prevU = window.__v7u;
+window.__v7u = (t, dt) => { if (prevU) prevU(t, dt); if (!A()) return; if (!fidsMesh) initAirLife();
+  updateFlight(dt); updatePilot(dt); updateSprint(); updateSky(t, dt); updateFest(t); updateJetSound();
+  if (banner) { const R = cityExtent * 0.78, w = 0.045, ang = t * w; banner.position.set(Math.cos(ang) * R, 95 + Math.sin(t * 0.3) * 6, Math.sin(ang) * R); banner.rotation.set(0, -ang, 0.18, 'YXZ'); } };
+window.__air10 = { startFlight, startPilot, startSprint, flights, FEST, st: () => ({ FLT, PIL }) };
+}
+
 }
 
 // ======================= v9: "my house = my business card" + professions directory =======================

@@ -21,7 +21,7 @@ let resCache = { at: 0, set: null };
 async function isResident(n) { if (n === 'otabeknazirov.aii') return true; if (!resCache.set || Date.now() - resCache.at > 120000) { try { const j = await fetch(SITE + '/residents.json', { cache: 'no-store' }).then((r) => r.json()); resCache = { at: Date.now(), set: new Set((Array.isArray(j) ? j : j.residents || []).map(clean)) }; } catch (e) { return true; } } return resCache.set.has(n); }
 const hashCode = (nick, code) => crypto.createHash('sha256').update(nick + '|' + String(code).toUpperCase().replace(/[^A-Z0-9]/g, '')).digest('hex');
 const newCode = () => { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c = ''; for (let i = 0; i < 8; i++) c += A[crypto.randomInt(A.length)]; return c.slice(0, 4) + '-' + c.slice(4); };
-const pub = (p) => ({ nick: p.nick, crystals: p.crystals, total: p.total, streak: p.streak, best_streak: p.best_streak, items: p.items || [], equipped: p.equipped || {}, col_mask: p.col_day === day() ? p.col_mask : 0, day: day(), q_mask: p.q_day === day() ? p.q_mask : 0, race_best: p.race_week === week() ? p.race_best : null, tg: !!p.tg_chat });
+const pub = (p) => ({ nick: p.nick, crystals: p.crystals, total: p.total, streak: p.streak, best_streak: p.best_streak, items: p.items || [], equipped: p.equipped || {}, col_mask: p.col_day === day() ? p.col_mask : 0, day: day(), q_mask: p.q_day === day() ? p.q_mask : 0, race_best: p.race_week === week() ? p.race_best : null, sprint_best: p.sprint_week === week() ? p.sprint_best : null, pilot_best: p.pilot_week === week() ? p.pilot_best : null, tg: !!p.tg_chat });
 async function getPlayer(nick) { const r = await sb(`/players?nick=eq.${encodeURIComponent(nick)}&select=*`); return r[0] || null; }
 async function patch(nick, body) { const r = await sb(`/players?nick=eq.${encodeURIComponent(nick)}`, { method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify(body) }); return r[0]; }
 export default async function handler(req, res) {
@@ -76,6 +76,18 @@ export default async function handler(req, res) {
       const tm = Number(b.time); if (!(tm >= 28 && tm < 900)) return res.status(400).json({ ok: false, error: 'time' });
       const w = week(), cur = p.race_week === w ? p.race_best : null, best = cur == null || tm < cur;
       p = await patch(nick, { race_day: today, ...(best ? { race_best: Math.round(tm * 100) / 100, race_week: w } : {}) }); return res.status(200).json({ ok: true, best, player: pub(p) });
+    }
+    if (action === 'sprint') { // runway sprint, ~1050 m at turbo 4 (max ~30 m/s)
+      const tm = Number(b.time); if (!(tm >= 30 && tm < 900)) return res.status(400).json({ ok: false, error: 'time' });
+      const w = week(), cur = p.sprint_week === w ? p.sprint_best : null, best = cur == null || tm < cur;
+      p = await patch(nick, best ? { sprint_best: Math.round(tm * 100) / 100, sprint_week: w } : { sprint_week: p.sprint_week }); return res.status(200).json({ ok: true, best, player: pub(p) });
+    }
+    if (action === 'pilot') { // 12-ring flight course; crystals once a day = rings passed, best full-course time per week
+      const rings = Math.floor(Number(b.rings)), tm = Number(b.time); if (!(rings >= 0 && rings <= 12) || !(tm >= 0 && tm < 1000)) return res.status(400).json({ ok: false, error: 'bad' });
+      if (rings === 12 && tm < 40) return res.status(400).json({ ok: false, error: 'time' });
+      const up = {}; let value = 0; if (p.pilot_day !== today && rings > 0) { value = rings; up.pilot_day = today; up.crystals = p.crystals + value; up.total = p.total + value; }
+      const w = week(), cur = p.pilot_week === w ? p.pilot_best : null, best = rings === 12 && (cur == null || tm < cur); if (best) { up.pilot_best = Math.round(tm * 100) / 100; up.pilot_week = w; }
+      if (Object.keys(up).length) p = await patch(nick, up); return res.status(200).json({ ok: true, value, best, player: pub(p) });
     }
     if (action === 'guest') {
       const target = clean(b.target), text = String(b.text || '').replace(/\s+/g, ' ').trim().slice(0, 200);
