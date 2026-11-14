@@ -1172,106 +1172,206 @@ function construction(key, x, z) {
   box(x + 12, 0, z - 6, 1.8, 46, 1.8, '#f2b705'); box(x + 2, 46, z - 6, 34, 1.5, 1.5, '#f2b705'); box(x + 16, 40, z - 6, 0.25, 6, 0.25, '#333'); box(x + 16, 38, z - 6, 2.4, 1.6, 2.4, '#888'); glow(x + 12, 48, z - 6, 1.2, '#ff3b3b', false);
   const ry = towardCity(x, z), [fx, fz] = dirOf(ry); goalSign(key, x + fx * 34, z + fz * 34, 44, 7);
 }
-function planeGroup(color, sc = 1, tailColor = null) {
-  const g = new THREE.Group(), body = matStd({ color, roughness: 0.35, metalness: 0.4 }), white = matStd({ color: 0xf2f4f7, roughness: 0.35, metalness: 0.2 }),
-    tail = matStd({ color: tailColor ?? color, roughness: 0.35, metalness: 0.4 }), grey = matStd({ color: 0x9aa3ad, roughness: 0.4, metalness: 0.6 }),
-    win = new THREE.MeshBasicMaterial({ color: 0x20303f, toneMapped: false }), lightR = new THREE.MeshBasicMaterial({ color: 0xff3b3b, toneMapped: false }), lightG = new THREE.MeshBasicMaterial({ color: 0x39ff88, toneMapped: false });
-  const add = (geo, m, x, y, z, rx = 0, ry = 0, rz = 0) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.rotation.set(rx, ry, rz); o.castShadow = SHADOWS; g.add(o); return o; };
-  add(new THREE.CylinderGeometry(1.8, 1.8, 26, 16), white, 0, 2.8, 0, Math.PI / 2);                    // fuselage
-  add(new THREE.SphereGeometry(1.8, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2), white, 0, 2.8, 13, Math.PI / 2); // nose
-  add(new THREE.ConeGeometry(1.8, 6, 16), white, 0, 3.2, -16, -Math.PI / 2);                         // tail cone
-  add(new THREE.BoxGeometry(3.62, 0.5, 22), body, 0, 2.2, -0.5);                                      // belly livery stripe
-  add(new THREE.BoxGeometry(3.66, 0.35, 20), win, 0, 3.55, 0.5);                                      // window band
-  add(new THREE.BoxGeometry(1.2, 0.6, 0.4), win, 0, 3.7, 13.4);                                       // cockpit glass
-  for (const sx of [-1, 1]) {                                                                          // swept wings + engines + winglets
-    add(new THREE.BoxGeometry(14, 0.45, 4.6), white, sx * 8, 2.1, -0.5, 0, sx * 0.32, sx * -0.05);
-    add(new THREE.BoxGeometry(0.3, 2.2, 1.6), tail, sx * 15, 3.0, -3.6, 0, 0, sx * 0.25);
-    add(new THREE.CylinderGeometry(1.0, 0.9, 4.2, 14), grey, sx * 6.2, 1.2, 2.2, Math.PI / 2);
-    add(new THREE.BoxGeometry(5.2, 0.3, 2.2), white, sx * 3.2, 3.4, -14.2, 0, sx * 0.3);             // tailplane
-    add(new THREE.SphereGeometry(0.22, 8, 6), sx < 0 ? lightR : lightG, sx * 15.1, 2.2, -3.7);
+// ===== AIRPORT (Istanbul-style mega hub) =====
+const PLANE = (() => {
+  const M4 = new THREE.Matrix4(), EU = new THREE.Euler();
+  const part = (geo, x, y, z, rx = 0, ry = 0, rz = 0) => { EU.set(rx, ry, rz); M4.makeRotationFromEuler(EU).setPosition(x, y, z); const g = (geo.index ? geo.toNonIndexed() : geo); g.applyMatrix4(M4); return g; };
+  const merge = (list) => { let n = 0; for (const g of list) n += g.attributes.position.count; const pos = new Float32Array(n * 3), nor = new Float32Array(n * 3); let o = 0;
+    for (const g of list) { pos.set(g.attributes.position.array, o * 3); nor.set(g.attributes.normal.array, o * 3); o += g.attributes.position.count; }
+    const out = new THREE.BufferGeometry(); out.setAttribute('position', new THREE.BufferAttribute(pos, 3)); out.setAttribute('normal', new THREE.BufferAttribute(nor, 3)); out.computeBoundingSphere(); return out; };
+  const Y = 3.2, white = [], dark = [], liv = [];
+  white.push(part(new THREE.CylinderGeometry(1.9, 1.9, 28, 18), 0, Y, 0, Math.PI / 2));
+  white.push(part(new THREE.SphereGeometry(1.9, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), 0, Y, 14, Math.PI / 2));
+  white.push(part(new THREE.ConeGeometry(1.9, 7, 18), 0, Y + 0.35, -17.5, -Math.PI / 2));
+  for (const sx of [-1, 1]) {
+    white.push(part(new THREE.BoxGeometry(15, 0.5, 4.8), sx * 8.6, Y - 1.0, -2.4, 0, sx * 0.32, sx * -0.06));
+    white.push(part(new THREE.BoxGeometry(5.6, 0.32, 2.4), sx * 3.2, Y + 0.6, -16.4, 0, sx * 0.32));
+    liv.push(part(new THREE.BoxGeometry(0.3, 2.4, 1.7), sx * 16.1, Y - 0.1, -6.6, 0, 0, sx * 0.22));
+    liv.push(part(new THREE.CylinderGeometry(1.15, 1.05, 4.6, 16), sx * 6.4, Y - 2.1, 1.4, Math.PI / 2));
+    dark.push(part(new THREE.CylinderGeometry(0.85, 0.85, 0.1, 14), sx * 6.4, Y - 2.1, 3.72, Math.PI / 2));
+    for (let w = -11; w <= 10.5; w += 1.05) dark.push(part(new THREE.BoxGeometry(0.1, 0.42, 0.4), sx * 1.84, Y + 0.55, w));
+    dark.push(part(new THREE.BoxGeometry(0.1, 1.4, 0.8), sx * 1.86, Y + 0.1, 11.4));
   }
-  add(new THREE.BoxGeometry(0.45, 6.5, 4.6), tail, 0, 6.6, -14.4, -0.35);                            // fin in airline colour
-  for (const [x, z] of [[0, 10], [-2.2, -1.5], [2.2, -1.5]]) add(new THREE.CylinderGeometry(0.35, 0.35, 1.6, 8), grey, x, 0.8, z);   // landing gear
-  g.scale.setScalar(sc); scene.add(g); return g;
+  dark.push(part(new THREE.BoxGeometry(2.2, 0.55, 1.0), 0, Y + 0.95, 14.6, -0.5));
+  for (const [x, z] of [[0, 10.5], [-2.4, -2.5], [2.4, -2.5]]) dark.push(part(new THREE.CylinderGeometry(0.42, 0.42, 1.8, 10), x, 0.9, z));
+  liv.push(part(new THREE.BoxGeometry(0.5, 7.2, 5.2), 0, Y + 4.6, -16.8, -0.38));
+  liv.push(part(new THREE.BoxGeometry(3.9, 0.32, 24), 0, Y - 0.35, -1));
+  const gW = merge(white), gD = merge(dark), gL = merge(liv);
+  const mW = matStd({ color: 0xf4f6f9, roughness: 0.32, metalness: 0.25 }), mD = matStd({ color: 0x1b2430, roughness: 0.4, metalness: 0.5 });
+  const livMats = new Map(); const livMat = (c) => livMats.get(c) || livMats.set(c, matStd({ color: c, roughness: 0.35, metalness: 0.35 })).get(c);
+  function make(color, sc = 1) { const g = new THREE.Group(); for (const [geo, m] of [[gW, mW], [gD, mD], [gL, livMat(color)]]) { const o = new THREE.Mesh(geo, m); o.castShadow = SHADOWS; g.add(o); } g.scale.setScalar(sc); scene.add(g); return g; }
+  function fleet(list) { // [{x,z,ry,sc,c}] -> 3 instanced meshes
+    const n = list.length, ims = [new THREE.InstancedMesh(gW, mW, n), new THREE.InstancedMesh(gD, mD, n), new THREE.InstancedMesh(gL, matStd({ color: 0xffffff, roughness: 0.35, metalness: 0.35 }), n)];
+    const m = new THREE.Matrix4(), q = new THREE.Quaternion(), p = new THREE.Vector3(), s = new THREE.Vector3(), c = new THREE.Color(), e = new THREE.Euler();
+    list.forEach((a, i) => { q.setFromEuler(e.set(0, a.ry, 0)); m.compose(p.set(a.x, 0, a.z), q, s.setScalar(a.sc || 1)); for (const im of ims) im.setMatrixAt(i, m); ims[2].setColorAt(i, c.set(a.c)); });
+    for (const im of ims) { im.castShadow = SHADOWS; im.receiveShadow = false; im.computeBoundingSphere(); scene.add(im); } return ims; }
+  return { make, fleet };
+})();
+function planeGroup(color, sc = 1) { return PLANE.make(color, sc); }
+function flatText(text, x, y, z, w, h, ry, color = '#ffffff', font = '900 {S}px Arial', bg = null) {
+  const cv = document.createElement('canvas'); cv.width = 1024; cv.height = Math.max(64, Math.round(1024 * h / w)); const cx = cv.getContext('2d');
+  if (bg) { cx.fillStyle = bg; cx.fillRect(0, 0, cv.width, cv.height); }
+  let S = cv.height * 0.8; cx.font = font.replace('{S}', S); while (cx.measureText(text).width > cv.width * 0.94 && S > 8) { S -= 4; cx.font = font.replace('{S}', S); }
+  cx.fillStyle = color; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(text, cv.width / 2, cv.height / 2 + S * 0.04);
+  const tx = new THREE.CanvasTexture(cv); tx.colorSpace = THREE.SRGBColorSpace; tx.anisotropy = 4;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: tx, transparent: true, roughness: 0.7, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 }));
+  m.rotation.set(-Math.PI / 2, 0, ry); m.position.set(x, y, z); m.receiveShadow = SHADOWS; scene.add(m); return m;
 }
+function uzFlagTex() { const cv = document.createElement('canvas'); cv.width = 300; cv.height = 150; const c = cv.getContext('2d');
+  c.fillStyle = '#0099b5'; c.fillRect(0, 0, 300, 50); c.fillStyle = '#ffffff'; c.fillRect(0, 50, 300, 50); c.fillStyle = '#1eb53a'; c.fillRect(0, 100, 300, 50);
+  c.fillStyle = '#ce1126'; c.fillRect(0, 47, 300, 3); c.fillRect(0, 100, 300, 3);
+  c.fillStyle = '#fff'; c.beginPath(); c.arc(30, 25, 16, 0, 7); c.fill(); c.fillStyle = '#0099b5'; c.beginPath(); c.arc(36, 25, 14, 0, 7); c.fill();
+  c.fillStyle = '#fff'; const st = [[3, 0], [4, 1], [5, 2]]; for (const [cnt, row] of st) for (let i = 0; i < cnt; i++) { c.beginPath(); c.arc(105 - row * 0 + (5 - cnt) * 7 + i * 14, 9 + row * 14, 2.8, 0, 7); c.fill(); }
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t; }
 function buildAirport(x, z) {
-  // x = west edge of the airport site; everything runs north–south along z
-  const C = '#c9ccd1', TX = '#7c8590', RW = '#2a2d33', YEL = '#ffd23f', WH = '#f4f6f8';
-  const T0 = x + 40, AP = x + 95, TW = x + 165, R1 = x + 225, R2 = x + 330, L1 = 900, L2 = 760;
-  // ---- ground: grass field, apron, taxiways ----
-  box(x + 200, -0.01, z, 420, 0.08, 1000, '#5f8c45');
-  box(AP, 0.04, z, 90, 0.1, 360, C);                                                                  // apron
-  box(TW, 0.05, z, 22, 0.1, L1 - 40, TX);                                                            // parallel taxiway
-  for (let s = -(L1 / 2) + 30; s < L1 / 2 - 30; s += 6) B.paint.add(TW, 0.12, z + s, 0.35, 0.04, 3.2, YEL);
-  for (const dz of [-400, -200, 0, 200, 400]) { box((TW + R1) / 2, 0.05, z + dz, R1 - TW, 0.1, 18, TX); B.paint.add((TW + R1) / 2, 0.12, z + dz, R1 - TW - 6, 0.04, 0.35, YEL); }
-  for (const dz of [-150, 150]) { box((AP + TW) / 2 + 10, 0.05, z + dz, TW - AP - 20, 0.1, 18, TX); B.paint.add((AP + TW) / 2 + 10, 0.12, z + dz, TW - AP - 26, 0.04, 0.35, YEL); }
-  for (const dz of [-330, 330]) { box((R1 + R2) / 2, 0.05, z + dz, R2 - R1, 0.1, 16, TX); B.paint.add((R1 + R2) / 2, 0.12, z + dz, R2 - R1 - 6, 0.04, 0.35, YEL); }
-  // ---- two runways with real markings ----
-  const runway = (rx, len) => {
-    box(rx, 0.06, z, 46, 0.1, len, RW);
-    for (let s = -len / 2 + 60; s < len / 2 - 60; s += 30) B.paint.add(rx, 0.13, z + s, 0.9, 0.04, 18, WH);        // centreline
-    for (const e of [-1, 1]) {
-      for (let k = -4; k <= 4; k++) if (k) B.paint.add(rx + k * 4.6, 0.13, z + e * (len / 2 - 14), 1.8, 0.04, 22, WH); // threshold piano keys
-      B.paint.add(rx, 0.13, z + e * (len / 2 - 3), 44, 0.04, 1.2, WH);
-      for (const sx of [-1, 1]) { B.paint.add(rx + sx * 9, 0.13, z + e * (len / 2 - 150), 4, 0.04, 40, WH);           // aiming points
-        for (const t of [70, 100, 200]) B.paint.add(rx + sx * 9, 0.13, z + e * (len / 2 - t), 3, 0.04, 16, WH); }       // touchdown zone
-      for (let k = 1; k <= 8; k++) glow(rx, 0.7, z + e * (len / 2 + k * 9), 0.9, '#ffffff', false);                     // approach lights
-      for (let k = -4; k <= 4; k++) glow(rx + k * 4.6, 0.6, z + e * (len / 2 + 1), 0.6, e > 0 ? '#39ff88' : '#ff3b3b', false);
+  // x = west edge of the site; runways run along z. Layout west→east: car parks & hotel, viaduct, terminal, spine concourse, 5 piers, taxiways, 3 runways
+  const C = '#c3c7cc', AP = '#b4b9bf', TX = '#6d7680', RW = '#25282d', YEL = '#ffd23f', WH = '#f4f6f8', r = rng(77);
+  const LTXT = (t, fb) => () => (LANG === 'ru' ? fb[0] : LANG === 'en' ? fb[1] : t);
+  // ---------- airside ground ----------
+  box(x + 300, 0.03, z, 300, 0.08, 760, AP);                                          // apron
+  const PIERS = [-300, -150, 0, 150, 300], PX0 = x + 170, PX1 = x + 320, TA = x + 370, TB = x + 405, R1 = x + 470, TC = x + 525, R2 = x + 580, TD = x + 640, R3 = x + 700;
+  const LEN = 1150;
+  const twy = (tx, len) => { box(tx, 0.05, z, 24, 0.1, len, TX); for (let s = -len / 2 + 8; s < len / 2 - 8; s += 7) B.paint.add(tx, 0.12, z + s, 0.4, 0.04, 3.6, YEL);
+    for (const sx of [-1, 1]) { B.paint.add(tx + sx * 11.5, 0.12, z, 0.3, 0.04, len - 4, YEL); for (let s = -len / 2; s <= len / 2; s += 30) glow(tx + sx * 13, 0.4, z + s, 0.45, '#3d7bff', false); } };
+  twy(TA, LEN - 40); twy(TB, LEN - 40); twy(TC, LEN - 80); twy(TD, 940);
+  const link = (x0, x1, zz, hold = 0) => { box((x0 + x1) / 2, 0.06, z + zz, x1 - x0, 0.1, 22, TX); B.paint.add((x0 + x1) / 2, 0.13, z + zz, x1 - x0 - 4, 0.04, 0.4, YEL);
+    for (const hx of hold ? [x1 - 34] : []) for (const d of [-0.8, 0, 0.8, 1.6]) B.paint.add(hx + d, 0.13, z + zz, 0.3, 0.04, 20, YEL); };
+  for (const zz of [-525, -375, -225, -75, 75, 225, 375, 525]) link(PX1 - 5, TB, zz);
+  for (const zz of [-560, -300, 0, 300, 560]) { link(TB, R1 - 25, zz, 1); link(R1 + 25, R2 - 25, zz); }
+  for (const zz of [-450, -150, 150, 450]) link(R2 + 25, R3 - 25, zz, 1);
+  for (const [zz, sgn] of [[-180, 1], [200, -1], [-420, 1], [430, -1]]) { const o = box((TB + R1) / 2 + 6, 0.07, z + zz, 22, 0.1, 110, TX, sgn * 0.55); B.paint.add((TB + R1) / 2 + 6, 0.14, z + zz, 0.4, 0.04, 104, YEL, sgn * 0.55); }
+  // ---------- runways ----------
+  const runway = (rx, len, n1, n2) => {
+    box(rx, 0.06, z, 50, 0.1, len, RW); box(rx, 0.05, z, 64, 0.08, len + 40, '#4a4f56');
+    for (let s = -len / 2 + 70; s < len / 2 - 70; s += 32) B.paint.add(rx, 0.13, z + s, 1, 0.04, 20, WH);
+    for (const sx of [-1, 1]) B.paint.add(rx + sx * 24, 0.13, z, 0.7, 0.04, len - 6, WH);
+    for (const e of [-1, 1]) { const ez = z + e * len / 2;
+      for (let k = -5; k <= 5; k++) if (k) B.paint.add(rx + k * 4.2, 0.13, ez - e * 16, 1.8, 0.04, 24, WH);
+      B.paint.add(rx, 0.13, ez - e * 2, 48, 0.04, 1.4, WH);
+      for (const sx of [-1, 1]) { B.paint.add(rx + sx * 10, 0.13, ez - e * 170, 5, 0.04, 46, WH); for (const t of [100, 130, 230, 290]) for (const q of [0, 2.4]) B.paint.add(rx + sx * (8 + q), 0.13, ez - e * t, 1.4, 0.04, 18, WH); }
+      for (let k = 1; k <= 14; k++) { glow(rx, 0.8, ez + e * (k * 10), 0.9, '#ffffff', false); if (k % 4 === 0) for (let j = -3; j <= 3; j++) if (j) glow(rx + j * 3.5, 0.8, ez + e * (k * 10), 0.6, '#ffffff', false); }
+      for (let k = -6; k <= 6; k++) glow(rx + k * 4, 0.6, ez + e * 1, 0.6, '#39ff88', false), glow(rx + k * 4, 0.6, ez - e * 1, 0.6, '#ff3b3b', false);
+      for (let k = 0; k < 4; k++) glow(rx - 34 - k * 3, 1.2, ez - e * 160, 0.8, k < 2 ? '#ff3b3b' : '#ffffff', false);   // PAPI
+      box(rx, 0.1, ez + e * 175, 30, 1.6, 1.6, '#ff8a00'); for (let k = -6; k <= 6; k++) box(rx + k * 2.3, 1.6, ez + e * 175, 0.6, 1.6, 0.6, '#d9dde2');  // localizer array
+      flatText(e < 0 ? n1 : n2, rx, 0.14, ez - e * 55, 26, 26, e < 0 ? Math.PI : 0, WH);
     }
-    for (const sx of [-1, 1]) B.paint.add(rx + sx * 22, 0.13, z, 0.5, 0.04, len - 10, WH);                             // side stripes
-    for (const sx of [-1, 1]) for (let s = -len / 2; s <= len / 2; s += 30) glow(rx + sx * 24, 0.5, z + s, 0.6, '#fff3c4', false);
+    for (const sx of [-1, 1]) for (let s = -len / 2; s <= len / 2; s += 32) glow(rx + sx * 26, 0.5, z + s, 0.6, '#fff3c4', false);
+    for (let s = -len / 2 + 90; s < len / 2 - 90; s += 64) glow(rx, 0.16, z + s, 0.35, '#ffffff', false);
   };
-  runway(R1, L1); runway(R2, L2);
-  for (let s = -(L1 / 2) + 30; s < L1 / 2; s += 30) for (const sx of [-1, 1]) glow(TW + sx * 11, 0.4, z + s, 0.45, '#3d7bff', false);   // blue taxiway lights
-  // ---- terminal: long glass building with a wavy roof, jet bridges and gates ----
-  const TL = 300;
-  B.tower.add(T0, 0.1, z, 34, 16, TL, '#bcd3e6');                                                    // glass facade
-  box(T0, 16.1, z, 42, 1.6, TL + 10, '#e9edf2');                                                      // roof slab
-  for (let s = -TL / 2; s <= TL / 2; s += 20) B.sph.add(T0, 17.2, z + s, 30, 5, 22, '#f2f4f7');        // wavy roof domes
-  for (let s = -TL / 2 + 10; s < TL / 2; s += 30) B.cyl.add(T0 - 21, 0.1, z + s, 1.2, 16, 1.2, '#dfe3e8');  // landside columns
-  box(T0 - 24, 7, z, 8, 0.6, TL, '#dfe3e8');                                                          // departures canopy
-  addSign(() => '✈ AI SHAHAR XALQARO AEROPORTI', T0 - 17.6, 20.5, z, 70, -Math.PI / 2, '#0b1020', '#39ff88');
-  addSign(() => '✈ AI SHAHAR INTERNATIONAL', T0 + 17.6, 20.5, z, 60, Math.PI / 2, '#0b1020', '#ffffff');
-  const PLC = [[0x1e88e5, 0x0d47a1], [0xd62828, 0x7a1f1f], [0x2e9d4f, 0x1b5e20], [0xffb300, 0xe65100], [0x6a1b9a, 0x4a148c], [0x00897b, 0x004d40], [0x39ff88, 0x0b1020]];
-  const GATES = [-120, -80, -40, 0, 40, 80, 120];
-  GATES.forEach((dz, k) => {
-    box(T0 + 26, 4.2, z + dz, 18, 3, 3.2, '#d8dde3'); B.cyl.add(T0 + 35, 0.1, z + dz, 1.6, 4.2, 1.6, '#9aa3ad');  // jet bridge
-    B.paint.add(T0 + 45, 0.12, z + dz, 26, 0.04, 0.4, YEL);                                                        // stand line
-    const [c, tc] = PLC[k % PLC.length]; const p = planeGroup(c, 1.25, tc); p.position.set(T0 + 52, 0, z + dz); p.rotation.y = -Math.PI / 2;
-    box(T0 + 66, 0.6, z + dz + 10, 4, 1.2, 2.2, '#f2c94c'); box(T0 + 60, 0.6, z + dz - 12, 2.4, 1.4, 5, '#e0e0e0');    // ground vehicles
+  runway(R1, LEN, '34R', '16L'); runway(R2, LEN, '34L', '16R'); runway(R3, 1000, '35', '17');
+  for (const [wx, wz] of [[R1 - 40, -LEN / 2 + 120], [R3 + 40, 380]]) { B.cyl.add(wx, 0, z + wz, 0.25, 7, 0.25, '#d0d4da'); const ws = new THREE.Mesh(new THREE.ConeGeometry(0.9, 4.5, 10, 1, true), matStd({ color: 0xff6a00, side: THREE.DoubleSide })); ws.rotation.z = Math.PI / 2; ws.position.set(wx + 2.2, 6.6, z + wz); scene.add(ws); }
+  // taxiway signs
+  for (const [sx, sz, t] of [[TB + 16, -560, 'A2 ◀ 34R'], [TB + 16, 0, 'B5 ◀ 34R'], [TB + 16, 300, 'C3 ◀ 16L'], [R2 + 40, -150, 'D ◀ 35']]) { box(sx, 0, z + sz + 14, 6, 0.6, 0.6, '#222'); addSign(() => t, sx, 1.7, z + sz + 14, 6.5, Math.PI / 2, '#111', '#ffd23f'); }
+  // ---------- terminal (huge glass hall, grid-skylight roof) ----------
+  const TX0 = x + 60, TX1 = x + 132, TL = 300, TCX = (TX0 + TX1) / 2;
+  B.tower.add(TCX, 0.1, z, TX1 - TX0, 22, TL, '#a9c6de');
+  box(TCX - 6, 22, z, 96, 2.2, TL + 24, '#eef1f4');                                     // roof slab, overhanging the curb
+  for (let i = 0; i < 7; i++) for (let j = 0; j < 22; j++) { const sx = TCX - 44 + i * 13, sz = z - TL / 2 + 6 + j * 14; B.paint.add(sx, 24.25, sz, 8, 0.12, 8, '#8ec9f2'); }
+  for (let j = 0; j < 22; j++) B.paint.add(TCX - 6, 24.26, z - TL / 2 + 6 + j * 14, 92, 0.1, 0.6, '#d5dbe2');
+  for (let s = -TL / 2 + 10; s < TL / 2; s += 30) { B.cyl.add(TX0 - 20, 0.1, z + s, 1.6, 22, 1.6, '#e4e8ed'); B.cone.add(TX0 - 20, 16, z + s, 7, 6, 7, '#e4e8ed'); }   // tree columns
+  flatText('AI SHAHAR', TCX - 6, 24.4, z, 240, 48, -Math.PI / 2, '#ff2e43');
+  addSign(LTXT('✈ AI SHAHAR XALQARO AEROPORTI', ['✈ МЕЖДУНАРОДНЫЙ АЭРОПОРТ AI SHAHAR', '✈ AI SHAHAR INTERNATIONAL AIRPORT']), TX0 - 30.5, 29, z, 110, -Math.PI / 2, '#0b1020', '#ffffff');
+  // landside: elevated departures viaduct + arrivals curb + roads
+  const VX = x + 42, VZ = 165, VH = 8;
+  box(VX, VH - 1, z, 18, 1.2, VZ * 2, '#8d949c'); for (const sx of [-1, 1]) box(VX + sx * 8.8, VH + 0.2, z, 0.4, 1.1, VZ * 2, '#c7ccd2');
+  for (let s = -VZ + 10; s < VZ; s += 26) B.cyl.add(VX, 0, z + s, 2.4, VH - 1, 2.4, '#a3a9b0');
+  for (const e of [-1, 1]) { const len = 80, a = Math.atan2(VH, len) * e; box(VX, VH / 2 - 0.6, z + e * (VZ + len / 2), 18, 1.2, len + 1, '#8d949c', 0, a); }
+  for (let s = -VZ; s < VZ; s += 9) B.paint.add(VX, VH - 0.35, z + s, 0.3, 0.04, 4.5, WH);
+  box(VX + 3, 0.04, z, 30, 0.1, 2 * VZ + 180, '#33373e');                                  // arrivals road under it
+  const road = (zz) => { box((HWY + 14 + VX) / 2, 0.04, z + zz, VX - HWY - 14, 0.1, 24, '#33373e'); for (let s = HWY + 18; s < VX - 16; s += 9) B.paint.add(s, 0.11, z + zz, 4.5, 0.04, 0.3, WH); };
+  road(0); road(-(VZ + 90)); road(VZ + 90);
+  addSign(LTXT('✈ JO‘NAB KETISH · DEPARTURES', ['✈ ВЫЛЕТ · DEPARTURES', '✈ DEPARTURES']), VX, VH + 6.5, z - VZ - 2, 22, 0, '#0b3a8f', '#ffffff');
+  addSign(LTXT('🛬 KELISH · ARRIVALS', ['🛬 ПРИЛЁТ · ARRIVALS', '🛬 ARRIVALS']), VX + 3, 5.5, z + VZ + 60, 18, Math.PI, '#ffd23f', '#111111');
+  // multi-storey car parks + hotel
+  for (const e of [-1, 1]) { const gz = z + e * 100, gx = x + 8;
+    for (let f = 0; f < 4; f++) { box(gx, f * 4, gz, 36, 0.8, 120, '#9aa1a8'); if (f) for (let s = -54; s <= 54; s += 18) for (const sx of [-16, 16]) B.cyl.add(gx + sx, (f - 1) * 4 + 0.8, gz + s, 0.8, 3.2, 0.8, '#b8bec4'); }
+    box(gx, 12.8, gz, 36.2, 0.9, 120.2, '#7c848c');
+    for (let i = 0; i < 5; i++) for (let j = 0; j < 22; j++) if (r() < 0.7) box(gx - 14 + i * 7, 13.7, gz - 52 + j * 5, 2.1, 1.4, 4.2, pick(r, ['#f2f2f2', '#1c1c1c', '#c0c4c8', '#8a1c1c', '#1f3b73', '#2c3e50']));
+    addSign(() => 'P', gx, 18, gz - e * 61, 6, e < 0 ? 0 : Math.PI, '#1f5fd6', '#ffffff'); }
+  B.tower.add(x + 10, 0, z - 300, 32, 64, 26, '#7aa0bf'); addSign(() => 'AIRPORT HOTEL ★★★★★', x + 10, 60, z - 286.6, 30, 0, '#0b1020', '#ffd27a');
+  // Uzbekistan flags at the entrance
+  const ft = uzFlagTex(), fm = new THREE.MeshStandardMaterial({ map: ft, side: THREE.DoubleSide, roughness: 0.8 }), flags = [];
+  for (let i = 0; i < 6; i++) { const fx = x + 38 - i * 6, fz = z + (i % 2 ? 16 : -16); B.cyl.add(fx, 0, fz, 0.3, 16, 0.3, '#e6e9ed'); const f = new THREE.Mesh(new THREE.PlaneGeometry(6, 3, 8, 1), fm); f.geometry.translate(3, 0, 0); f.position.set(fx, 14.4, fz); scene.add(f); flags.push(f); }
+  // ---------- airside: spine concourse + 5 piers + gates ----------
+  const SX = x + 160; B.tower.add(SX, 0.1, z, 20, 13, 720, '#b5cde0'); box(SX, 13, z, 24, 1.2, 724, '#eef1f4');
+  B.tower.add((TX1 + SX - 10) / 2, 0.1, z, SX - 10 - TX1 + 2, 14, 90, '#b5cde0');
+  addSign(() => 'AI SHAHAR ✈ 2036', SX + 10.4, 18.5, z, 60, Math.PI / 2, '#0b1020', '#39ff88');
+  const LIV = [0xd81e2c, 0xd81e2c, 0xd81e2c, 0x0b3a8f, 0x1e88e5, 0x2e9d4f, 0xffb300, 0x39ff88, 0x6a1b9a, 0x00897b, 0x222831, 0xe65100];
+  const fleet = [], PIER_L = ['A', 'B', 'C', 'D', 'E'], PUSH = { p: 2, s: 1, k: 1 };
+  PIERS.forEach((pz, pi) => {
+    B.tower.add((PX0 + PX1) / 2, 0.1, z + pz, PX1 - PX0, 10, 18, '#b5cde0'); box((PX0 + PX1) / 2, 10, z + pz, PX1 - PX0 + 4, 1, 22, '#eef1f4');
+    B.cyl.add(PX1 + 2, 0.1, z + pz, 26, 10, 26, '#b5cde0'); B.cyl.add(PX1 + 2, 10, z + pz, 28, 1, 28, '#eef1f4');            // round pier head
+    addSign(() => PIER_L[pi], PX1 + 2, 16, z + pz, 8, Math.PI / 2, '#ffd23f', '#111111');
+    for (const s of [-1, 1]) for (let k = 0; k < 3; k++) {
+      const gx = PX0 + 30 + k * 44, side = z + pz + s * 9;
+      B.cyl.add(gx - 6, 0.1, side + s * 1.5, 2.2, 6, 2.2, '#9aa3ad'); box(gx - 4, 3.6, side + s * 7, 3.2, 3, 10, '#d8dde3'); B.cyl.add(gx - 4, 0, side + s * 10, 0.5, 3.6, 0.5, '#555');  // jet bridge
+      B.paint.add(gx, 0.12, side + s * 40, 0.45, 0.04, 70, YEL); B.paint.add(gx, 0.12, side + s * 12, 6, 0.04, 0.5, '#ff3b3b');
+      flatText(PIER_L[pi] + (s < 0 ? k + 1 : k + 4), gx + 9, 0.13, side + s * 16, 8, 4, s < 0 ? 0 : Math.PI, YEL);
+      const isPush = pi === PUSH.p && s === PUSH.s && k === PUSH.k;
+      if (!isPush) fleet.push({ x: gx, z: side + s * 30, ry: s > 0 ? Math.PI : 0, sc: 1.2, c: LIV[(pi * 6 + k * 2 + (s > 0)) % LIV.length] });
+      box(gx + 8, 0.1, side + s * 14, 2.4, 2.2, 5, '#f2c94c'); box(gx - 9, 0.1, side + s * 46, 2.6, 3.4, 7, '#eceff1'); box(gx + 12, 0.1, side + s * 34, 2.4, 2.6, 8, '#cfd8dc');  // GSE
+    }
   });
-  // ---- control tower ----
-  const CT = [AP + 10, z - 230];
-  B.cyl.add(CT[0], 0, CT[1], 6, 58, 6, '#e9edf2'); B.cyl.add(CT[0], 58, CT[1], 14, 2, 14, '#cfd6de');
-  B.tower.add(CT[0], 60, CT[1], 13, 7, 13, '#7fb3d5'); B.cyl.add(CT[0], 67, CT[1], 15, 1.5, 15, '#3a5068');
-  B.cyl.add(CT[0], 68.5, CT[1], 0.4, 8, 0.4, '#d0d4da'); glow(CT[0], 77, CT[1], 1.4, '#ff3b3b', false);
-  const beacon = new THREE.Mesh(new THREE.SphereGeometry(1.2, 12, 8), new THREE.MeshBasicMaterial({ color: 0x39ff88, toneMapped: false })); beacon.position.set(CT[0], 70, CT[1]); scene.add(beacon);
-  // ---- hangars, fuel farm, radar ----
-  for (const [hz, c] of [[240, '#b0bec5'], [320, '#90a4ae']]) {
-    box(AP + 5, 0.1, z + hz, 70, 14, 60, c); const roof = new THREE.Mesh(new THREE.CylinderGeometry(30, 30, 70, 24, 1, false, 0, Math.PI), matStd({ color: 0xcfd8dc, metalness: 0.5, roughness: 0.4 }));
-    roof.rotation.z = Math.PI / 2; roof.rotation.y = Math.PI / 2; roof.scale.set(1, 1, 0.35); roof.position.set(AP + 5, 14, z + hz); roof.castShadow = SHADOWS; scene.add(roof);
-    box(AP + 40.2, 0.1, z + hz, 0.4, 12, 50, '#37474f'); }
-  const hp = planeGroup(0xffffff, 1.2, 0x39ff88); hp.position.set(AP + 55, 0, z + 240); hp.rotation.y = Math.PI / 2;
-  for (let i = 0; i < 4; i++) B.cyl.add(x + 30 + (i % 2) * 22, 0.1, z - 330 + Math.floor(i / 2) * 22, 16, 10, 16, '#eceff1');
-  B.cyl.add(R2 + 70, 0, z - 120, 1.6, 22, 1.6, '#cfd6de');
-  const radar = new THREE.Mesh(new THREE.BoxGeometry(14, 4, 1), matStd({ color: 0xf2f4f7, metalness: 0.4 })); radar.position.set(R2 + 70, 24, z - 120); scene.add(radar);
-  // ---- landside: access road from the highway, car park ----
-  const road0 = HWY + 14; box((road0 + T0 - 30) / 2, 0.03, z, T0 - 30 - road0, 0.1, 22, '#33373e');
-  for (let s = road0 + 4; s < T0 - 34; s += 8) B.paint.add(s, 0.1, z, 4, 0.04, 0.3, WH);
-  box(x - 2, 0.03, z - 100, 44, 0.1, 140, '#3a3f47'); box(x - 2, 0.03, z + 100, 44, 0.1, 140, '#3a3f47');
-  const pr = rng(9);
-  for (const zz of [-100, 100]) for (let i = 0; i < 6; i++) for (let j = 0; j < 14; j++) if (pr() < 0.75)
-    box(x - 18 + i * 6.6, 0.1, z + zz - 62 + j * 9.4, 2, 1.4, 4.4, pick(pr, ['#f2f2f2', '#1c1c1c', '#c0c4c8', '#8a1c1c', '#1f3b73', '#2c3e50']));
-  goalSign('airport', x + 2, z + 26, 24, 8);
-  // ---- traffic: take-offs, landings and a taxiing jet ----
-  const up = planeGroup(0x39ff88, 1.35, 0x0b1020), dn = planeGroup(0x1e88e5, 1.35, 0x0d47a1), tx = planeGroup(0xd62828, 1.25, 0x7a1f1f);
+  for (const pz of [-225, -75, 75, 225]) for (const mx of [PX0 + 20, PX1 - 10]) { B.cyl.add(mx, 0, z + pz, 0.7, 28, 0.7, '#9aa3ad'); for (const d of [-1.5, 0, 1.5]) glow(mx + d, 28.5, z + pz, 1.1, '#fff1cf'); }
+  // ---------- control tower (tulip) ----------
+  const CT = [x + 150, z - 430];
+  box(CT[0], 0, CT[1], 44, 9, 44, '#dfe4ea');
+  const tul = [[9, 0], [8.2, 12], [5.6, 38], [4.6, 58], [5.2, 66], [8, 76], [12.5, 86], [13.5, 88]].map(([a, b]) => new THREE.Vector2(a, b));
+  const tw = new THREE.Mesh(new THREE.LatheGeometry(tul, 10), matStd({ color: 0xf2f4f7, roughness: 0.35, metalness: 0.25, flatShading: true })); tw.position.set(CT[0], 9, CT[1]); tw.castShadow = SHADOWS; scene.add(tw);
+  const cab = new THREE.Mesh(new THREE.CylinderGeometry(11.5, 10.5, 8, 10), matStd({ color: 0x2b4a66, roughness: 0.1, metalness: 0.8, emissive: new THREE.Color(0x0c2a40) })); cab.position.set(CT[0], 9 + 92, CT[1]); scene.add(cab);
+  const capm = new THREE.Mesh(new THREE.CylinderGeometry(4, 13, 4, 10), matStd({ color: 0xf2f4f7, flatShading: true })); capm.position.set(CT[0], 9 + 98, CT[1]); scene.add(capm);
+  B.cyl.add(CT[0], 9 + 100, CT[1], 0.5, 12, 0.5, '#d0d4da'); glow(CT[0], 9 + 112.5, CT[1], 1.6, '#ff3b3b', false);
+  const beacon = new THREE.Mesh(new THREE.SphereGeometry(1.3, 12, 8), new THREE.MeshBasicMaterial({ color: 0x39ff88, toneMapped: false })); beacon.position.set(CT[0], 9 + 101, CT[1]); scene.add(beacon);
+  // ---------- metro (elevated line into the terminal) ----------
+  const MZ = z + 205, MY = 16, MX0 = HWY + 10, MX1 = TX0 + 4;
+  box((MX0 + MX1) / 2, MY - 1.4, MZ, MX1 - MX0, 1.4, 9, '#9aa1a8'); for (let s = MX0 + 8; s < MX1; s += 24) B.cyl.add(s, 0, MZ, 1.8, MY - 1.4, 1.8, '#b3b9bf');
+  B.tower.add(TX0 - 2, MY - 1.4, MZ, 40, 9, 22, '#9cc3e0'); addSign(() => 'Ⓜ METRO', TX0 - 22.2, MY + 10, MZ, 14, -Math.PI / 2, '#ce1126', '#ffffff');
+  const train = new THREE.Group(); for (let i = 0; i < 4; i++) { const car = new THREE.Mesh(new THREE.BoxGeometry(13, 3.4, 3.2), matStd({ color: 0xeef1f4, metalness: 0.3 })); car.position.x = i * 13.6; train.add(car); const st = new THREE.Mesh(new THREE.BoxGeometry(13.05, 0.8, 3.25), new THREE.MeshBasicMaterial({ color: 0xce1126 })); st.position.set(i * 13.6, 0.4, 0); train.add(st); }
+  train.position.set(MX0, MY + 1.7, MZ); scene.add(train);
+  // ---------- cargo, hangars, fire station, fuel farm, radar ----------
+  box(x + 255, 0.1, z - 470, 120, 14, 50, '#a7b1ba'); addSign(() => 'AI CARGO', x + 255, 11, z - 444.6, 30, 0, '#0b1020', '#ffb300');
+  fleet.push({ x: x + 215, z: z - 530, ry: 0, sc: 1.4, c: 0x2c2c2c }, { x: x + 290, z: z - 530, ry: 0, sc: 1.4, c: 0xffb300 });
+  for (let i = 0; i < 3; i++) { const hx = x + 200 + i * 62, hz = z + 470;
+    box(hx, 0.1, hz, 56, 16, 54, '#b0bec5'); const roof = new THREE.Mesh(new THREE.CylinderGeometry(28, 28, 54, 24, 1, false, 0, Math.PI), matStd({ color: 0xcfd8dc, metalness: 0.5, roughness: 0.4 }));
+    roof.rotation.x = Math.PI / 2; roof.rotation.z = Math.PI / 2; roof.scale.set(1, 1, 0.3); roof.position.set(hx, 16, hz); roof.castShadow = SHADOWS; scene.add(roof);
+    if (i === 1) { box(hx, 0.1, hz - 27.4, 50, 14, 0.6, '#1d242c'); fleet.push({ x: hx, z: hz - 6, ry: Math.PI, sc: 1.0, c: 0x39ff88 }); } else box(hx, 0.1, hz - 27.2, 50, 14, 0.5, '#78909c'); }
+  addSign(() => 'MRO HANGAR', x + 262, 25, z + 442, 30, Math.PI, '#0b1020', '#ffffff');
+  box(TB + 30, 0.1, z - 640, 36, 9, 24, '#c62828'); addSign(() => '🚒 ARFF', TB + 30, 10.5, z - 627.6, 12, 0, '#ffffff', '#c62828');
+  for (let i = 0; i < 3; i++) box(TB + 18 + i * 12, 0.1, z - 618, 3.4, 3.6, 9, '#e53935');
+  for (let i = 0; i < 6; i++) B.cyl.add(x + 60 + (i % 3) * 24, 0.1, z - 560 + Math.floor(i / 3) * 24, 18, 12, 18, '#eceff1');
+  B.cyl.add(R3 + 80, 0, z - 200, 2, 24, 2, '#cfd6de'); const radar = new THREE.Mesh(new THREE.BoxGeometry(18, 5, 1.2), matStd({ color: 0xf2f4f7, metalness: 0.4 })); radar.position.set(R3 + 80, 26.5, z - 200); scene.add(radar);
+  B.sph.add(R3 + 80, 2, z + 120, 14, 14, 14, '#f2f4f7'); B.cyl.add(R3 + 80, 0, z + 120, 6, 4, 6, '#cfd6de');   // weather radome
+  goalSign('airport', x - 10, z + 30, 26, 9);
+  // ---------- parked fleet (3 draw calls for every parked jet) ----------
+  PLANE.fleet(fleet);
+  // ---------- live traffic ----------
+  const dep = PLANE.make(0xd81e2c, 1.4), dep2 = PLANE.make(0x0b3a8f, 1.4), arr = PLANE.make(0x39ff88, 1.4), hold = PLANE.make(0xffb300, 1.3), hold2 = PLANE.make(0xd81e2c, 1.3);
+  const taxis = [PLANE.make(0xd81e2c, 1.2), PLANE.make(0x1e88e5, 1.2)], push = PLANE.make(0x6a1b9a, 1.2);
+  const pPier = z + PIERS[PUSH.p] + PUSH.s * 9, pX = PX0 + 30 + PUSH.k * 44;
+  const tug = new THREE.Mesh(new THREE.BoxGeometry(3, 1.6, 5), matStd({ color: 0xf2c94c })); scene.add(tug);
+  const bag = []; for (let t = 0; t < 3; t++) { const g = new THREE.Group(); const head = new THREE.Mesh(new THREE.BoxGeometry(2, 1.6, 3), matStd({ color: 0xffffff })); g.add(head); for (let k = 1; k <= 4; k++) { const cart = new THREE.Mesh(new THREE.BoxGeometry(2, 1.3, 2.6), matStd({ color: k % 2 ? 0x37474f : 0x546e7a })); cart.position.z = -k * 3.2; g.add(cart); } scene.add(g); bag.push(g); }
+  const carIM = new THREE.InstancedMesh(new THREE.BoxGeometry(2, 1.4, 4.4), matStd({ roughness: 0.4, metalness: 0.4 }), 16); const cm = new THREE.Matrix4(), cq = new THREE.Quaternion(), cp = new THREE.Vector3(), cs = new THREE.Vector3(1, 1, 1);
+  for (let i = 0; i < 16; i++) carIM.setColorAt(i, new THREE.Color(pick(r, ['#f2f2f2', '#ffd23f', '#1c1c1c', '#c0c4c8', '#8a1c1c', '#1f3b73']))); scene.add(carIM);
+  const FLY = (o, X, Y, Z, rx, ry, rz = 0) => { o.position.set(X, Y, Z); o.rotation.set(rx, ry, rz, 'YXZ'); };
+  const loop = (pts, u) => { let L = 0; const seg = []; for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[(i + 1) % pts.length], l = Math.hypot(b[0] - a[0], b[1] - a[1]); seg.push([a, b, l]); L += l; }
+    let d = (u % 1) * L; for (const [a, b, l] of seg) { if (d <= l) { const k = d / l; return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, Math.atan2(b[0] - a[0], b[1] - a[1])]; } d -= l; } return [pts[0][0], pts[0][1], 0]; };
+  const TAXI = [[TA, z - 520], [TA, z + 520], [TB, z + 560], [TB, z - 560]];
+  const BAGP = PIERS.slice(0, 3).map((pz) => [[PX0 + 4, z + pz - 14], [PX1 - 6, z + pz - 14], [PX1 - 6, z + pz + 14], [PX0 + 4, z + pz + 14]]);
   anims.push((t) => {
-    const p = (t % 30) / 30, zz = -L1 / 2 + 20 + 1400 * Math.pow(p, 1.8), y = Math.max(0, (zz - 120) * 0.22);
-    up.position.set(R1, y, z + zz); up.rotation.set(y > 0 ? -0.18 : 0, 0, 0); up.visible = p < 0.97;
-    const q = ((t + 13) % 34) / 34, zd = 900 - 1500 * q, yd = Math.max(0, (zd - (L2 / 2 - 120)) * 0.2);
-    dn.position.set(R2, yd, z + Math.max(-L2 / 2 + 60, zd)); dn.rotation.set(yd > 0 ? 0.06 : 0, Math.PI, 0); dn.visible = q < 0.9;
-    const u = (t % 40) / 40, s = -L1 / 2 + 60 + (L1 - 120) * (u < 0.5 ? u * 2 : 2 - u * 2); tx.position.set(TW, 0, z + s); tx.rotation.set(0, u < 0.5 ? 0 : Math.PI, 0);
-    radar.rotation.y = t * 1.6; beacon.visible = Math.floor(t * 1.5) % 2 === 0;
+    // departures roll north on R1 / R2 and climb out
+    for (const [o, rx, per, off] of [[dep, R1, 34, 0], [dep2, R2, 34, 17]]) { const p = ((t + off) % per) / per, zz = LEN / 2 - 30 - 1900 * Math.pow(p, 1.9), y = Math.max(0, (LEN / 2 - 250 - zz) * 0.2);
+      FLY(o, rx, y, z + zz, y > 0 ? -0.17 : 0, Math.PI); o.visible = p < 0.97; }
+    { const q = ((t + 8) % 30) / 30, zz = 1400 - 1800 * q, y = Math.max(0, (zz - (LEN / 2 - 150)) * 0.18), stop = Math.max(-LEN / 2 + 160, zz);
+      FLY(arr, R3, y, z + stop, y > 0 ? -0.06 : 0, Math.PI); arr.visible = q < 0.93; }
+    // holding pattern
+    for (const [o, R, Hh, sp, ph] of [[hold, 620, 230, 0.05, 0], [hold2, 760, 300, 0.04, 2.5]]) { const a = t * sp + ph; FLY(o, R2 + Math.cos(a) * R, Hh, z + Math.sin(a) * R, 0, -a, 0.35); }
+    taxis.forEach((o, i) => { const [px, pz, h] = loop(TAXI, t / 150 + i * 0.5); FLY(o, px, 0, pz, 0, h); });
+    { const c = (t % 40) / 40, back = c < 0.25 ? c / 0.25 : c < 0.6 ? 1 : c < 0.85 ? 1 - (c - 0.6) / 0.25 : 0; FLY(push, pX, 0, pPier + PUSH.s * (30 + back * 34), 0, Math.PI); tug.position.set(pX, 0.8, push.position.z - PUSH.s * 22); }
+    bag.forEach((g, i) => { const [px, pz, h] = loop(BAGP[i], t / 60 + i * 0.3); g.position.set(px, 0.8, pz); g.rotation.y = h; });
+    { const c = (t % 36) / 36, k = c < 0.35 ? c / 0.35 : c < 0.5 ? 1 : c < 0.85 ? 1 - (c - 0.5) / 0.35 : 0, e = k * k * (3 - 2 * k); train.position.x = MX0 + (MX1 - 50 - MX0) * e; }
+    for (let i = 0; i < 16; i++) { const lane = i % 2, d = ((t * (lane ? 14 : 11) + i * 41) % (2 * VZ + 160)) - VZ - 80, yy = Math.abs(d) < VZ ? VH + 0.1 : Math.max(0.1, VH - (Math.abs(d) - VZ) * VH / 80);
+      cq.setFromAxisAngle(THREE.Object3D.DEFAULT_UP, 0); cm.compose(cp.set(VX + (lane ? 3.5 : -3.5), yy + 0.7, z + d), cq, cs); carIM.setMatrixAt(i, cm); } carIM.instanceMatrix.needsUpdate = true;
+    radar.rotation.y = t * 1.6; beacon.visible = Math.floor(t * 1.5) % 2 === 0; flags.forEach((f, i) => { f.rotation.y = Math.sin(t * 2 + i) * 0.25; });
   });
 }
 function rectPos(s, R) { const L = 2 * R, per = 4 * L; s = ((s % per) + per) % per; const side = Math.floor(s / L), u = s % L - R;
@@ -1313,7 +1413,7 @@ function buildF1(cx, cz) {
 }
 function buildGoals() {
   const E = HWY + 40;
-  goalSite.airport = { x: E + 230, z: 0 }; goalSite.metro = POP >= 500 + 250 ? { x: 0, z: -1.5 * PITCH } : { x: 0, z: -(E + 40) };
+  goalSite.airport = { x: E + 400, z: 0 }; goalSite.metro = POP >= 500 + 250 ? { x: 0, z: -1.5 * PITCH } : { x: 0, z: -(E + 40) };
   goalSite.beach = { x: 0, z: E + 50 }; goalSite.f1 = { x: -(E + 130), z: 0 };
   POP >= 500 ? buildAirport(E + 60, 0) : construction('airport', E + 40, 0);
   POP >= 750 ? buildMetro() : construction('metro', 0, -(E + 40));
@@ -1323,7 +1423,7 @@ function buildGoals() {
 }
 function flyToGoal(key) { const s = goalSite[key]; if (!s) return; selected = null; labelAssignT = -9; cardState = null; $('#card').classList.remove('on');
   const tg = new THREE.Vector3(s.x, 0, s.z), d = new THREE.Vector3(s.x, 0, s.z).normalize(); if (d.lengthSq() < 0.5) d.set(0, 0, 1);
-  if (key === 'airport') { flyTo(new THREE.Vector3(s.x - 420, 230, s.z + 380), new THREE.Vector3(s.x - 40, 0, s.z), 2.6); return; }
+  if (key === 'airport') { flyTo(new THREE.Vector3(s.x - 640, 300, s.z + 560), new THREE.Vector3(s.x - 170, 0, s.z), 2.6); return; }
   flyTo(tg.clone().addScaledVector(d, -95).setY(55), tg, 2.2); }
 let goalsBuiltAt = 0;
 function checkGoals(live) {
