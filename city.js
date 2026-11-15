@@ -1258,10 +1258,10 @@ function buildAirport(x, z) {
     for (const sx of [-1, 1]) for (let s = -len / 2; s <= len / 2; s += 32) glow(rx + sx * 26, 0.5, z + s, 0.6, '#fff3c4', false);
     for (let s = -len / 2 + 90; s < len / 2 - 90; s += 64) glow(rx, 0.16, z + s, 0.35, '#ffffff', false);
   };
-  runway(R1, LEN, '34R', '16L'); runway(R2, LEN, '34L', '16R'); runway(R3, 1000, '35', '17');
+  runway(R1, LEN, '16R', '34L'); runway(R2, LEN, '16C', '34C'); runway(R3, 1000, '16L', '34R');
   for (const [wx, wz] of [[R1 - 40, -LEN / 2 + 120], [R3 + 40, 380]]) { B.cyl.add(wx, 0, z + wz, 0.25, 7, 0.25, '#d0d4da'); const ws = new THREE.Mesh(new THREE.ConeGeometry(0.9, 4.5, 10, 1, true), matStd({ color: 0xff6a00, side: THREE.DoubleSide })); ws.rotation.z = Math.PI / 2; ws.position.set(wx + 2.2, 6.6, z + wz); scene.add(ws); }
   // taxiway signs
-  for (const [sx, sz, t] of [[TB + 16, -560, 'A2 ◀ 34R'], [TB + 16, 0, 'B5 ◀ 34R'], [TB + 16, 300, 'C3 ◀ 16L'], [R2 + 40, -150, 'D ◀ 35']]) { box(sx, 0, z + sz + 14, 6, 0.6, 0.6, '#222'); addSign(() => t, sx, 1.7, z + sz + 14, 6.5, Math.PI / 2, '#111', '#ffd23f'); }
+  for (const [sx, sz, t] of [[TB + 16, -560, 'A2 ◀ 16R'], [TB + 16, 0, 'B5 ◀ 34L'], [TB + 16, 300, 'C3 ◀ 34L'], [R2 + 40, -150, 'D ◀ 34R']]) { box(sx, 0, z + sz + 14, 6, 0.6, 0.6, '#222'); addSign(() => t, sx, 1.7, z + sz + 14, 6.5, Math.PI / 2, '#111', '#ffd23f'); }
   // ---------- terminal (huge glass hall, grid-skylight roof) ----------
   const TX0 = x + 60, TX1 = x + 132, TL = 300, TCX = (TX0 + TX1) / 2;
   B.tower.add(TCX, 0.1, z, TX1 - TX0, 22, TL, '#a9c6de');
