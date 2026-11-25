@@ -580,6 +580,7 @@ class Renderer:
             spr, ink = self.spr("hero", hw, "hero", size, tuple(st["hero_color"]),
                                 opacity=st["hero_opacity"], shadow=st["shadow"])
             ink_w, ink_h = ink[2] - ink[0], ink[3] - ink[1]
+            hx = clamp(hx, 0.05 * W + ink_w / 2, max(0.05 * W + ink_w / 2, 0.95 * W - ink_w / 2))
             ink_left, ink_top = hx - ink_w / 2, hy - ink_h / 2
             ink_bot = hy + ink_h / 2
             p = clamp((t - b["hero"]["t"]) / 0.2)
@@ -594,7 +595,8 @@ class Renderer:
                 txt = " ".join(self.word(w["w"]) for w in lead)
                 ls, lk = self.spr("lead", txt, "lead", int(st["lead_size"] * W), tuple(st["lead_color"]),
                                   shadow=st["shadow"])
-                front.append((ls, ink_left + W * 0.015 - lk[0], ink_top - (lk[3] - lk[1]) - H * 0.008 - lk[1],
+                lx = clamp(ink_left + W * 0.015, 0.05 * W, max(0.05 * W, 0.95 * W - (lk[2] - lk[0])))
+                front.append((ls, lx - lk[0], ink_top - (lk[3] - lk[1]) - H * 0.008 - lk[1],
                               fade_out))
             # accents (blue, in front, one at a time)
             acc = [x for x in b.get("accents", []) if x["t"] <= t]
